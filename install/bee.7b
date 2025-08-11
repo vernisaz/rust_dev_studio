@@ -28,12 +28,12 @@ web files=[src${~/~}html${~/~}common.js,src${~/~}html${~/~}documentation.html,sr
 simhttp HOME=..${~/~}simhttp
 ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
 
-target distro:.. {
+target package:.. {
 	dependency{}
 
 #	PORT=8443
 
-	prompt(Where to write the distro zip [.]?,.)
+	prompt(Where to write the package zip [.]?,.)
 	assign(distro dir,~~)
 	prompt(What is the RDS version [${version}]?,version)
 	assign(version,~~)

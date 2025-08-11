@@ -6,7 +6,7 @@ winhome=USERPROFILE:env
 
 version=1.20.01
 
-include(cfg2.7b) # created by the install
+include(cfg.7b) # created by the install
 
 if {
 	eq(${~os~},windows)
@@ -24,7 +24,7 @@ if {
 	}
 }
 
-web files=[resource${~/~}common.js,resource${~/~}documentation.html,resource${~/~}favicon.ico]
+web files=[src${~/~}html${~/~}common.js,src${~/~}html${~/~}documentation.html,src${~/~}html${~/~}favicon.ico]
 simhttp HOME=..${~/~}simhttp
 ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
 
@@ -50,7 +50,7 @@ target distro:.. {
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-E ${rds}/rds${script ext},
 	script,
-    -A ${rds}/cfg2.7b,
+    -A ${rds}/cfg.7b,
     "#
 PORT=${PORT}
 HOME=${HOME}",
@@ -58,14 +58,12 @@ HOME=${HOME}",
     install${~/~}bee.7b,
     -B ${rds},
     install${~/~}env.tmpl,
-    -A ${rds}/cfg.7b,
-     ,
     -B ${rds}/bin,
-    ..${~/~}rustbee${~/~}rb${ext},
+    ..${~/~}rust_bee${~/~}rb${ext},
     -B ${rds}/bin,
     ${simhttp HOME}${~/~}simhttp${ext},
     -C ${rds}/cgi/resource,
-    resource${~/~}main.*,
+    src${~/~}html${~/~}main.*,
     -B ${rds}/cgi,
     rustcgi${ext},
     -B ${rds}/cgi,
@@ -95,7 +93,7 @@ target install:.:Install RDS if needed {
 
 	now("W, MMM-DD-YY hh:mm:ss Z")
 	assign(create time, ~~)
-	write(cfg2.7b,"# auto created on ${create time}
+	write(cfg.7b,"# auto created on ${create time}
 PORT=${PORT}
 HOME=\"${HOME}\"")
     mkd(${HOME}${~/~}.rustcgi)

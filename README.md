@@ -20,15 +20,18 @@ Rust server is the [SimHTTP](https://github.com/vernisaz/simhttp).
 The following configuration snippet has to be added in [env.conf](https://github.com/vernisaz/simhttp/blob/master/env.conf),
 ```json
 "mapping" : [
- {"path":"/cgires/resource",
+  {"path":"/cgires/resource",
        "CGI": false,
-       "translated": ".\\..\\rusthub\\src\\rust\\rustcgi\\resource"},
+       "translated": "./../rust_dev_studio/src/html"},
+       {"path":"/cgires/resource/ace",
+       "CGI": false,
+       "translated": "./../side/ace-builds/src-min-noconflict"},
       {"path":"/rustcgi",
        "CGI": true,
-       "translated": ".\\..\\rusthub\\src\\rust\\rustcgi"},
+       "translated": "./../rust_dev_studio"},
       {"path":"/terminal",
        "WS-CGI": true,
-       "translated": ".\\..\\rusthub\\src\\rust\\rustcgi\\terminal"}],
+       "translated": "./../rust_dev_studio/terminal"}]
 ```
 Make sure that *translated* paths are valid in the underline OS.
 Only file *.home* is required since everything is Rust based.

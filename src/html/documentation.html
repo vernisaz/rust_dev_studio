@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon"  type="image/ico" href="/cgires/resource/favicon.ico">
+        <title>Help with RDS (rustcgi)</title>
+        <link rel="stylesheet" href="/cgires/resource/main.css">
+        <style>
+            body {margin:auto;max-width:800px;}
+            body >p > a {text-decoration: none !important;background-color:#332222;}
+            p.footer {position: absolute;
+              bottom: 10px;
+              width: 50%;
+              font-size: 0.7em;text-align: center;
+            }  
+            h2 {padding-top:1em;}
+            pre {background-color: #ede38c;}
+            @media (prefers-color-scheme: dark) {
+              /* Dark theme styles go here */
+               body {
+                   background-color: #182029;
+                   color: #eeeeee;
+               }
+               pre {background-color: #61580b;}
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Rust Development Studio - CGI</h1>
+        <h2>Purpose</h2>
+        <p>To transform any browser to a powerful development environment. It doesn't matter where a browser does  run.
+        It can be a desktop, a laptop, a tablet and even a phone. Everything can be done
+        in the browser from beginning of a project, establish a git repository, develop, debug, document,
+        test and finally publish your product.</p>
+        <h2>Getting started</h2>
+        <p>The RDS operates with projects. A project is some directory inside HOME directory, which is an essential
+        part of RDS configuration. The project directory can address an entire physical project directory or be just
+        a part of it. </p>
+        <p>The RDS understands if the project directory is a part of GIT controlled source tree.</p>
+        <p> There is no any project when the RDS first time ran. Use <i>File&gt;Project&gt;New...</i> to assign a project name and
+        the project directory. If you didn't specify any project name, then it's considered <i>default</i>. A project
+        directory will be created automatically, unless it's already there.
+        You can start using RDS now.</p>
+        <p>You can clone a project directory from a source control system using the terminal window.</p>
+        <h3>Note about GIT</h3>
+        <p>Selecting VCS&gt;Status will show modified/staged/unversioned files.
+        You need to mark files to include them in the commit operation. Just click
+        any file of interest, and it will slightly change color indicating that
+        it is marked. Clicking it again will unmark it. The rest of operations
+        looks obvious.</p>
+<h2>Architecture</h2>
+<p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is perfectly
+ suitable for using Rust. The terminal
+functionality is implemented using Websocket and it utilizes WS-CGI. Everything is written in Rust
+ including web server, and client is HTML/CSS, JavaScript.</p>
+
+<h2>Implementation</h2>
+<p>
+It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust executable.
+  The terminal is a websocket endpoint represented by another Rust executable.
+</p>
+<h2>Config</h2>
+<p>
+The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>env.conf</i>  :</p>
+<pre>
+      {"path":"/cgires/resource",
+       "CGI": false,
+       "translated": "./rds/resource"},
+      {"path":"/rustcgi",
+       "CGI": true,
+       "translated": "./rds"},
+      {"path":"/terminal",
+       "WS-CGI": true,
+       "translated": "./rds/terminal"},
+</pre>
+
+<p>
+Make  sure also that the directory, where rustcgi accessed from, contains the file .home with one line containing the user HOME directory or other directory
+where rustcgi will look for settings in the sub directory .rustcgi of HOME.
+</p>
+<pre>
+/home/john
+</pre>
+
+<h2>Packaging</h2>
+<p>
+    <b>install</b> subdirectory of the RDS source directory tree contains 
+    <a href="https://gitlab.com/tools6772135/rusthub/-/blob/master/src/rust/rustcgi/install/bee.7b">bee.7b</a>. Inspect it
+    to better understand which components will be required for the RDS deployment.
+</p>
+<p>
+Four underline OS executables written in Rust are:
+</p>
+<pre>
+rb
+rustcgi
+terminal
+simhttp
+</pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
+
+<p class="footer"> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</p>
+    </body>
+</html>

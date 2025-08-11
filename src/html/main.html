@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="icon" 
+      type="image/ico" 
+      href="/cgires/resource/favicon.ico">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta charset="UTF-8">
+      <title>${name} - RDS</title>
+      <link rel="stylesheet" href="/cgires/resource/main.css">
+     
+        <script src="/cgires/resource/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/cgires/resource/common.js" language="Javascript"></script>
+        <script src="/cgires/resource/main.js" language="Javascript"></script>
+          <script>
+              function runapp() {
+                 if (typeof main === 'function')
+                     main()
+              }
+          </script>
+   </head>
+   <body onload="runapp()">
+       <input type="hidden" name="version" id="version" value="1.08.01.103">
+    <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
+        <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
+   <!-- Navigation bar -->
+    <nav>
+        ${menu}
+    </nav> <!-- --> </div>
+    <header><div class="message-bar" onclick="this.style.display = 'none'">Ops</div></header>
+    <main class="container">
+        <div class="left-tree">
+    
+        </div>
+        <div class="center-pane">
+           <div class="tabs">
+           
+           </div>
+        </div>
+        <div class="right-details">
+            <div class="small_tabs">
+                <input type="radio" id="notpad" name="notpad_tabs" checked="checked">
+                <label for="notpad">Notepad</label>
+                <div class="tab_content">
+                  <textarea id="notepad" name="notepad" style="width:100%; height:100%;box-sizing: border-box;" placeholder="Put some notes here"></textarea>
+                </div>
+            
+                <input type="radio" id="bookmrk" name="notpad_tabs">
+                <label for="bookmrk">Bookmarks</label>
+                <div class="tab_content">
+                  <ul id="bookmarks"></ul>
+                </div>
+            </div>
+            <label for="terminal-container">Terminal</label>
+            <div id="terminal-container">
+                <div id="terminal">
+                    
+                </div>
+                <div id="cli_line">
+                $<code contenteditable="true" id="commandarea" onkeydown="sendCommand(this)" autofocus style="min-width:1em">&nbsp;</code>
+                </div>  
+            </div>
+            <label for="vcs-container">VCS</label>
+            <div id="vcs-container">
+                <dl>
+                    <dt id="vcs_mod">Modified</dt>
+                    <dt id="vcs_sta">Staged</dt>
+                    <dt id="vcs_unv">Unversioned</dt>
+                </dl>
+            </div>
+            <label for="xrefs-container" style="display: inline-block !important;">References
+            <input type="search" placeholder="Filter" onkeyup="filterRefs(this)" style="display: inline-block !important;"/>
+            </label>
+            <div id="xrefs-container">
+                <dl id="xrefs"></dl>
+            </div>
+        </div>
+    </main>
+    <div class="form-popup" id="fileForm">
+        <div class="form-container">
+            <div class="form-header">
+               <label>Project file</label>
+            </div>
+            <form>
+            <div class="form-row">
+                <label for="filename">File name</label>
+                <input type="text" placeholder="Enter file name" name="filename" required>
+            </div>
+            <div class="form-row">
+                <label for="place">Directory</label>
+                <input list="places" type="text" id="place" name="place" placeholder="Specify a directory in the project"/>
+                <datalist id="places"></datalist>
+            </div>
+            
+            </form>
+            <div class="form-footer">
+                <button type="button" class="btn">to define</button>
+                <button type="button" class="btn cancel" onclick="closeForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings popup -->
+    <div id="popup-container">
+        <div id="modalSettings" class="reveal-modal">
+            <div class="form-header">
+               <label>Settings</label>
+            </div>
+            <div class="form-row">
+                <label for="session">Project</label>
+                <input type="text" placeholder="A name or empty for default" id="session" size="26" value="${session}">
+                <label for="avail_ses">Other projects</label>
+                <select name="avail_ses" id="avail_ses" onchange="changeSes(this)">
+                </select>
+                <button type="button" class="btn" onclick="deleteProj()">Delete</button>
+            </div>
+            <div class="form-row">
+                <label for="proj_dir">Project Dir</label>
+                <input type="text" placeholder="Enter a directory of the project" id="proj_dir" size="42">
+                <label for="dirs">Dirs</label>
+                <select name="dirs" id="dirs" onchange="changeDir()">
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="theme">Theme</label>
+                <select name="theme" placeholder="Enter a theme" id="theme">
+                </select>
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+                <div class="form-col">
+                    <label for="autosave">Auto save</label>
+                    <input type="checkbox" placeholder="Check off for auto-save" id="autosave">
+                </div>
+                <div class="form-col">
+                    <label for="persisttabs">Save opened tabs</label>
+                    <input type="checkbox" placeholder="Save opened tabs" id="persisttabs">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="projectnp">Project specific notepad</label>
+                <input type="checkbox" placeholder="Check off for project specific" id="projectnp">
+            </div>
+            <div class="form-row">
+                <label for="user">User for VCS</label>
+                <input type="text" placeholder="Enter a user as Name <email>" id="user" size="42">
+            </div>
+            <div class="form-row">
+                <label for="ai-access">AI key</label>
+                <input type="password" placeholder="Enter AI access key (optional)" id="ai-access" size="42">
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn" onclick="saveSettings()">Apply</button>
+                <a class="btn" href="#">Cancel</a>
+             </div>
+        </div>
+    </div>
+    
+    <div class="form-popup" id="projectConfig">
+        <div class="form-container">
+            <div class="form-header">
+               <label>Project Actions Configuration</label>
+            </div>
+            <form name="project_conf" method="post">
+
+            <div class="form-row">
+            <label for="debug_build">Debug Build:</label>
+            <input type="text" name="debug_build" value="rb" size="50">
+            </div>
+            <div class="form-row">
+            <label for="release_build">Release Build:</label>
+            <input type="text" name="release_build" value="rb -Drelease" size="50">
+            </div>
+            <div class="form-row">
+            <label for="debug_app">Debug App:</label>
+            <input type="text" name="debug_app" value="rb debug" size="50">
+            </div>
+            <div class="form-row">
+            <label for="run_app">Run App:</label>
+            <input type="text" name="run_app" value="rb run" size="50">
+            </div>
+            <div class="form-row">
+            <label for="test_app">Test App:</label>
+            <input type="text" name="test_app" value="rb test" size="50">
+            </div>
+            <div class="form-row">
+            <label for="package_app">Package App:</label>
+            <input type="text" name="package_app" value="rb package" size="50">
+            </div>
+            </form>
+            <div class="form-footer">
+            <button type="button" class="btn" onclick="saveProjConf()">Apply</button>&nbsp;
+            <a class="btn" href="javascript:hideProjConf()">Close</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-popup" id="projectNew">
+        <div class="form-container">
+            <div class="form-header">
+               <label>New Project</label>
+            </div>
+            <form name="project_new" method="post">
+                <div class="form-row">
+                    <label for="proj_name">Name</label>
+                    <input type="text" placeholder="A name or empty for default" id="proj_name" name="proj_name" size="26" value="" autofocus>
+                </div>
+                <div class="form-row">
+                    <label for="new_proj_dir">Project Dir</label>
+                    <input type="text" placeholder="Enter a directory of the project" id="new_proj_dir" size="42">
+                    <label for="proj_dirs">Dirs</label>
+                    <select name="proj_dirs" id="proj_dirs" onchange="changeDir(this, 'new_proj_dir')">
+                    </select>
+                </div>
+            </form>
+            <div class="form-footer">
+            <button type="button" class="btn" onclick="createProj()">Apply</button>&nbsp;
+            <a class="btn" href="javascript:hideCreateProj()">Close</a>
+            </div>
+        </div>
+    </div>
+            
+    <div class="form-popup" id="searchForm">
+        <div class="form-container">
+            <div class="form-header">
+               <label>Search in files</label>
+            </div>
+            <form onsubmit="performSearch();return false;">
+            <div class="form-row">
+                <label for="search_for">String</label>
+                <input type="text" placeholder="Enter searched text" name="search_for" required>
+            </div>
+            </form>
+            <div class="form-footer">
+                <button type="button" class="btn" onclick="performSearch()">Search</button>
+                <button type="button" class="btn cancel" onclick="document.getElementById('searchForm').style.display = 'none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-popup" id="commitForm">
+        <div class="form-container">
+            <div class="form-header">
+               <label>Commit comment</label>
+            </div>
+            <form>
+            <div class="form-row">
+                <label for="comment">Comment</label>
+                <textarea id="comment" name="comment" rows="4" cols="42" placeholder="Put a purpose of the commit"></textarea>
+            </div>
+            </form>
+            <div class="form-footer">
+                <button type="button" class="btn" onclick="conductCommit(this)">Commit</button>
+                <button type="button" class="btn cancel" onclick="closeCommit()">Cancel</button>
+            </div>
+        </div>
+    </div>
+   
+    <div class="form-popup" id="about">
+    </div>
+   <!-- SCRIPT  -->
+    <script>
+      const navbarLinks = document.querySelector(".navbar .links");
+      const toggleMenuBtn = document.querySelector(".navbar .toggle-menu");
+      const toggleMenuIcon = document.querySelector(".navbar .toggle-menu i");
+      
+      const EDITOR_MODE = {
+          'rs' : 'rust',
+          'html' : 'html',
+          'htmt' : 'html',
+          'java':'java',
+          'js': 'javascript',
+          'css': 'css',
+          'cpp' : 'c_cpp',
+          'txt' : 'text',
+          'md' : 'markdown',
+          '7b' : 'makefile',
+          'jsp' : 'jsp',
+          'json' : 'json',
+          "bat" : "batchfile",
+          "pas" : "pascal",
+          "properties" : "properties",
+          'xml' : 'xml',
+          'toml' : 'toml',
+          'sh' : 'sh',
+          'sql' : 'sql',
+          'htm' : 'html',
+          'swift': 'swift',
+          'c' : 'c_cpp',
+          'conf' : 'json',
+          '': 'text'
+      }
+      
+      const EDITOR_THEME = {
+         'dark':'twilight',
+        'Ambiance': 'ambiance', 
+    	'Chaos':'chaos' ,
+    	'Clouds Midnight':'clouds_midnight' ,
+    	'Cobalt':'cobalt' ,
+    	'Dracula':'dracula',
+    	'GitHub':'github_dark',
+    	'Greeon on Black':'gob' ,
+    	'Gruvbox': 'gruvbox',
+    	'idle Fingers':'idle_fingers' ,
+    	'Low color':'cloud9_night_low_color',
+    	'krTheme':'kr_theme' ,
+    	'Merbivore':'merbivore',
+    	'Merbivore Soft':'merbivore_soft',
+    	'Mono Industrial':'mono_industrial' ,
+    	'Monokai':'monokai' ,
+    	'Pastel on Dark':'pastel_on_dark',
+    	'Solarized Dark':'solarized_dark' ,
+    	'Terminal':'terminal',
+    	'Tomorrow Night':'tomorrow_night',
+    	'Tomorrow Night Blue':'tomorrow_night_blue',
+    	'Tomorrow Night Bright':'tomorrow_night_bright',
+    	'Tomorrow Night 80s':'tomorrow_night_eighties',
+    	'Vibrant Ink':'vibrant_ink' ,
+	
+         'light': 'iplastic',
+         'light - Chrome' : 'chrome',
+    	'light - Clouds' : 'clouds',
+    	'light - Crimson Editor' : 'crimson_editor',
+    	'light - Dawn' : 'dawn',
+        'light - Dreamweaver'	 : 'dreamweaver',
+    	 'light - Eclipse': 'eclipse',
+    	'light - GitHub' : 'github',
+
+    	'light - KatzenMilch' : 'katzenmilch',
+    	'light - Kuroir' :'kuroir',
+    	 'light - Solarized Light' : 'solarized_light',
+    	'light - SQL Server':'sqlserver' ,
+    	'light - TextMate':'textmate'  ,
+    	'light - Tomorrow':'tomorrow' ,
+    	'light - XCode':'xcode'
+      }
+      
+      var EDITORS = {}
+      
+      var THEME = '${theme}'
+      
+      var PROJECT_HOME = ''
+      
+      var HOME_LEN = 0
+      
+      var SESSION = '${session}'
+      
+      var STORE_TABS 
+      
+      var AUTOSAVE = false
+      
+      let PROJ_CONF = {}
+      
+      let UID = '${id}'
+      
+      const WIN_SERVER = ${windows}
+      
+      // TODO reconsider openFileMenu as close menu on screen
+      
+      function newFile() {
+          const pane = document.getElementById("fileForm")
+          // clean current
+          document.forms[0].filename.value = ''; document.forms[0].place.value = ''
+          pane.style.display = "block"
+          const btn = document.querySelector(".form-container .btn")
+          btn.innerHTML='Create'
+          btn.onclick = function() {
+              if (document.forms[0].filename.value) {
+                submitFile(document.forms[0].filename.value, document.forms[0].place.value)
+              }
+          }
+          centerElement(pane)
+          document.forms[0].filename.focus()
+          // get list all project dirs
+          ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
+              const projDirs = document.getElementById("places")
+              projDirs.replaceChildren()
+              projDirs.appendChild(new Option(''))
+              for (var optDir of load) {
+                  projDirs.appendChild(new Option(optDir));
+                  //console.log('added: '+optDir) 
+              }
+              
+          }, respType:"json"})
+      }
+      
+      function saveCurrentAs() {
+          // check current and then id
+          const saveId = document.querySelector('input[name="tabs"]:checked').id
+          if (saveId) {
+               const pane = document.getElementById("fileForm")
+               const btn = document.querySelector(".form-container .btn")
+               const lastSlash = saveId.lastIndexOf('/')
+               if (lastSlash > 0) {
+                   document.forms[0].place.value = saveId.substring(0, lastSlash)
+                   document.forms[0].filename.value = saveId.substring(lastSlash+1)
+               } else {
+                   document.forms[0].place.value = ''
+                   document.forms[0].filename.value = saveId
+               }
+               btn.innerHTML='Save'
+               // TODO use POST
+               ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
+                  const projDirs = document.getElementById("places")
+                  projDirs.innerHTML = ''
+                  projDirs.appendChild(new Option('', ''))
+                  for (var optDir of load) {
+                      var opt = document.createElement('option');
+                      opt.textContent = optDir
+                      projDirs.appendChild(opt);
+                  }
+                  projDirs.value = document.forms[0].place.value
+                 // btn.addEventListener("click", function () {
+                  btn.onclick = function() {
+                      var path =  document.forms[0].place.value
+                      if (path)
+                         path += '/'
+                      const pathstr = path + document.forms[0].filename.value
+                      saveData(saveId, pathstr, function () {
+                          document.getElementById("fileForm").style.display = 'none'
+                      
+                          ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(document.forms[0].filename.value)
+                               +"&path="+encodeURIComponent(pathstr) + "&session="+encodeURIComponent(SESSION),
+                               success: function (json) { render_editor_js(json); populateProjectTree()
+                          }})
+                        }
+                      )
+                  }
+                  pane.style.display = "block"
+                  centerElement(pane)
+                  document.forms[0].filename.focus()
+               }, respType:"json"})
+          }
+      }
+      
+      function submitFile(name, path) {
+          if (!path)
+             path = name
+          else
+             path = path + '/' + name
+          newFileTab(name, path)
+          closeForm()
+      }
+      
+      function closeForm() {
+         document.getElementById("fileForm").style.display = "none";
+      }
+      
+      function closeCommit() {
+         document.getElementById("commitForm").style.display = "none";
+      }
+      
+      function closeAbout() {
+         document.getElementById("about").style.display = "none";
+      }
+      
+      function saveCurrent() {
+          //openFileMenu()
+          const currentTab = document.querySelector('input[name="tabs"]:checked')
+          if (currentTab)
+           saveData(currentTab.id)
+      }
+      
+      function closeCurrent() {
+          //openFileMenu()
+          const currentTab = document.querySelector('input[name="tabs"]:checked')
+          if (currentTab)
+            closeEditor(currentTab.id)
+      }
+      
+      function closeAllTab() {
+          // openFileMenu()
+          closeAll()
+      }
+      
+      function newProject() {
+          populateDir('',document.getElementById("proj_dirs"),'new_proj_dir')
+          const pane = document.getElementById("projectNew")
+          pane.style.display = "block"
+          document.forms['project_new'].proj_name.focus()
+          centerElement(pane)
+      }
+      
+      function hideCreateProj() {
+          document.getElementById("projectNew").style.display = "none"
+      }
+      
+      function showSettings() {
+          ajax.get({url:"./rustcgi?mode=session-list", success: function(load) {
+              const sessions = document.getElementById("avail_ses")
+              removeOptions(sessions)
+              sessions.add(new Option('No selection', ''))
+              for (const ses of load.sort()) {
+                  if (ses == '')
+                    sessions.add(new Option('-default-', ''))
+                  else
+                    sessions.add(new Option(ses))  // ?? html encode
+              }
+          }, respType:"json"})   
+          
+          showSessionSettings(SESSION, true)
+      }
+      
+      function showSessionSettings(sessionId, showit) {
+          ajax.get({url:"./rustcgi?mode=settings-project&session="+encodeURIComponent(sessionId), success: function(load) {
+              document.getElementById("session").value = sessionId
+              document.getElementById("proj_dir").value = load.project_home
+              document.getElementById("autosave").checked = 'yes' == load.autosave
+              document.getElementById("projectnp").checked = 'yes' == load.projectnp
+              document.getElementById("user").value = load.user
+              document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
+              var projectDir = load.project_home
+              if (projectDir.startsWith('~/'))
+                  projectDir = projectDir.substring(2)
+              else if (projectDir.startsWith('/'))
+                  projectDir = projectDir.substring(1)
+              populateDir(projectDir)
+              const themeSelect = document.getElementById("theme")
+              themeSelect.innerHTML = ''
+              for (var theme in EDITOR_THEME) {
+                  var opt = document.createElement('option');
+                  opt.value = EDITOR_THEME[theme];
+                  opt.innerHTML = theme;
+                  themeSelect.appendChild(opt);
+              }
+              for (var o in themeSelect.options) {
+                  if (themeSelect.options[o].text == load.theme)
+                    themeSelect.selectedIndex = o
+              }
+              if (showit)
+                 jump('popup-container')
+          }, respType:"json"})
+      }
+          
+      
+      function jump(h){
+        var url = location.href;               //Save down the URL without hash.
+        location.href = "#"+h;                 //Go to the target element.
+        history.replaceState(null,null,url);   //Don't like hashes. Changing it back.
+      }
+      
+      function saveSettings(current) {
+        const xhr = new XMLHttpRequest()
+        const themeSelect = document.getElementById("theme")
+        var payload
+        if (current) {
+            payload = 'mode=save-settings-project&project_home='+encodeURIComponent(PROJECT_HOME)+
+            '&theme='+encodeURIComponent(THEME) +
+            '&autosave='+ (AUTOSAVE?'yes':'no') + 
+            '&persist_tabs='+ (STORE_TABS?'yes':'no')
+        } else {
+           THEME = themeSelect.options[themeSelect.selectedIndex].text
+           payload = 'mode=save-settings-project&project_home='+encodeURIComponent(document.getElementById("proj_dir").value)+
+            '&theme='+encodeURIComponent(THEME) +
+            '&autosave='+ (document.getElementById("autosave").checked?'yes':'no') + 
+            '&projectnp=' + (document.getElementById("projectnp").checked?'yes':'no') +
+            '&persist_tabs='+ (document.getElementById("persisttabs").checked?'yes':'no') +
+            '&user='+encodeURIComponent(document.getElementById("user").value)
+        }
+        payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
+        if (document.getElementById("session").value) 
+            payload += "&session="+encodeURIComponent(document.getElementById("session").value)
+          
+       xhr.open('POST', './rustcgi', true)
+       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+       xhr.onload = function () {
+          if (xhr.status === 200) {
+              var resp = xhr.responseText
+              //alert("gt "+xhr.responseType+ " with "+xhr.response+" and status "+xhr.statusText+" resp "+resp)
+              if (resp && resp.trim() && !resp.startsWith('Ok')) {
+                	showErrorMessage('Settings weren\'t saved because of ' + resp)
+              } else {
+                 if (!current && resp.startsWith('Ok')) {
+                     if (SESSION != document.getElementById("session").value)
+                        if (confirm("Would you like to open the new project session in a separate window?")) {
+                            jump('')
+                            window.open(
+                            //window.location.protocol+"://"+window.location.hostname+
+                            //(window.location.port?":"+window.location.port:"")+
+                            "/rustcgi/rustcgi?session="+encodeURIComponent(document.getElementById("session").value), "_blank")
+                        } else {
+                            saveNotepad()
+                            SESSION = document.getElementById("session").value
+                            
+                            PROJECT_HOME = document.getElementById("proj_dir").value
+                            if (SESSION) {
+                                document.title = SESSION + ' - RDS'
+                                // TODO uncomment when the tag returns
+                                //document.getElementById("proj_name").innerHTML = htmlEncode(SESSION);
+                            } else {
+                                document.title = 'Main - RDS'
+                                document.getElementById("proj_name").innerHTML = 'default'
+                            }
+                            STORE_TABS =  document.getElementById("persisttabs").checked 
+                            // TODO do we need to save current?
+                            closeAll()
+                            // reconnect console with new session path
+                            ws_setup()
+                            wskt.close() // will automatically connect with the updated URL
+                            populateProjectTree()
+                            loadNotepad()
+                            document.getElementById("xrefs").replaceChildren() //
+                            clearScreen() // maybe do not
+                            vcsStatus()
+                            updateProjMenuList()
+                            jump('')
+                        }
+                    else {
+                        if (PROJECT_HOME != document.getElementById("proj_dir").value) {
+                            PROJECT_HOME = document.getElementById("proj_dir").value
+                            ws_setup()
+                            wskt.close() // will automatically re-connect with an updated URL
+                            populateProjectTree()
+                            document.getElementById("xrefs").replaceChildren() 
+                            vcsStatus()
+                        }
+                        STORE_TABS = document.getElementById("persisttabs").checked
+                        AUTOSAVE = document.getElementById("autosave").checked
+                        jump('')
+                    }
+                 }
+                 //jump('')
+                // showBkgStatus()
+              }
+           } else {
+              showErrorMessage('An error occurred!')
+           }
+        }
+        xhr.onerror = function () {
+        	showErrorMessage('Network error')
+        }
+        xhr.send(payload)
+      }
+      
+      function createProj() {
+           const payload = 'mode=save-settings-project&project_home='+encodeURIComponent(document.getElementById("new_proj_dir").value)+
+            "&session="+encodeURIComponent(document.getElementById("proj_name").value);
+           const xhr = new XMLHttpRequest()
+           xhr.open('POST', './rustcgi', true)
+           xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+           xhr.onload = function () {
+              if (xhr.status === 200) {
+                  const resp = xhr.responseText
+                  document.getElementById("proj_name").value = ""
+                  updateProjMenuList()
+              }
+              hideCreateProj()
+           }
+           xhr.send(payload)
+      }
+      
+      function reloadCurrent(tab) {
+         const editor_tab = tab?tab:document.querySelector('input[name="tabs"]:checked')
+         if (editor_tab) {
+             const path = editor_tab.id
+             const name = path.split('/').pop()
+             const currCur = EDITORS[path].editor.getCursorPosition()
+             ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+
+                encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
+                success: function (json) {
+                    EDITORS[path].editor.setValue(json.content)
+                    editor_tab.dataset.modified = json.modified
+                    EDITORS[path].size = json.content.length
+                    EDITORS[path].crc = crc32(json.content)
+                    EDITORS[path]['editor'].setReadOnly(false)
+                    EDITORS[path].editor.gotoLine(currCur.row, currCur.column, true)}})
+         }
+      }
+      
+      function populateDir(dirTo,dirEl,field_name) {
+          //alert(dirTo)
+          if (dirTo == '.')
+            dirTo = ''
+          if (!field_name) {
+              field_name = "proj_dir"
+          }
+          const projectDir = dirTo
+          document.getElementById(field_name).value =  projectDir
+          ajax.get({url:"./rustcgi?mode=dir-list&name="+encodeURIComponent(projectDir), success: function(jsonres) {
+                const select =  dirEl?dirEl:document.getElementById('dirs');
+                select.innerHTML = '' // better to delete options one by one
+                select.appendChild(new Option('No selection', ''))
+                if (projectDir)
+                    select.appendChild(new Option('..', projectDir.lastIndexOf('/') > 0?projectDir.substring(0, projectDir.lastIndexOf('/')):''))
+                for (var dir in jsonres){ // use of to get entries instead of the index
+                    var opt = document.createElement('option');
+                    opt.value = (projectDir?projectDir+'/':'')+jsonres[dir];
+                    opt.innerHTML = jsonres[dir];
+                    select.appendChild(opt);
+                }
+          }, respType:"json"})
+      }
+      
+      function changeDir(dirEl, name_dir) {
+          // make it as onchange handler
+          const select = dirEl?dirEl:document.getElementById('dirs')
+          if (!select.selectedIndex)
+            return
+          const newDir = select.options[ select.selectedIndex ].value
+          populateDir(newDir,dirEl,name_dir)
+      }
+    
+    function undoEdit() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab)
+            EDITORS[editor_tab.id].editor.session.getUndoManager().undo()
+    }
+    
+    function redoEdit() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab)
+            EDITORS[editor_tab.id].editor.session.getUndoManager().redo()        
+    }
+    
+    function saveNotepad() {
+        ajax.post({url:"./rustcgi", query: "mode=savenp&name="+encodeURIComponent(document.getElementById("notepad").value)
+           +"&session="+encodeURIComponent(SESSION), success: function (data) { 
+                 if (data.startsWith('Ok')) {
+
+                 } else
+                    showErrorMessage('A problem in saving notepad')
+             }, respType:"html"})
+    }
+    
+    function deleteCurrent() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+         if (editor_tab && confirm("Are you sure to delete "+editor_tab.id+"?")) {
+             const path = editor_tab.id
+             closeEditor(path)
+             ajax.post({url:"./rustcgi", query: "mode=delete&name="+encodeURIComponent(path)+"&session="+encodeURIComponent(SESSION), success: function (data) { 
+                 if (data.startsWith('Ok')) {
+                     populateProjectTree()
+                 }
+             }, respType:"html"})
+         }
+    }
+    
+    function refresh() {
+        updateProjMenuList()
+        populateProjectTree()
+    }
+    
+    function copySelected() {
+        const selectedText = getSelectionText()
+        if (selectedText) {
+            document.getElementById("notepad").value = document.getElementById("notepad").value +'\n' + selectedText
+        }
+    }
+    
+    function vcsRestore() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+             const path = editor_tab.id
+             if (confirm('Are you sure to replace the current edited version ' + path + ' with the last commited?')) {
+                 ajax.post({url:"./rustcgi", query: "mode=vcs-restore&name="+encodeURIComponent(path)
+                     + "&session="+encodeURIComponent(SESSION), success: function (data) { 
+                    if (data.startsWith('Ok')) {
+                        reloadCurrent(editor_tab)
+                    } else
+                        showErrorMessage('A problem in the restoring')
+                }, respType:"html"})
+             }
+        }
+    }
+
+    function vcsStage() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+             const path = editor_tab.id
+             ajax.post({url:"./rustcgi", query: "mode=vcs-stage&name="+encodeURIComponent(path)
+                     + "&session="+encodeURIComponent(SESSION), success: function (data) { 
+                     if (data.startsWith('Ok')) {
+                         vcsStatus()
+                     } else
+                        showErrorMessage('A problem in staging')
+                }, respType:"html"})
+        }
+    }
+    
+    function vcsStatus() {
+        ajax.get({url:"./rustcgi?mode=vcs-list&session="+encodeURIComponent(SESSION), success: function(jsonres) {
+            const mod = document.getElementById("vcs_mod")
+            removeDD(mod)
+            const sta = document.getElementById("vcs_sta")
+            removeDD(sta)
+            const unv = document.getElementById("vcs_unv")
+            removeDD(unv)
+            for (var el of jsonres) {
+                const ddEl = document.createElement("dd")  // separate creation because can be different class
+                ddEl.title = el.path
+                ddEl.innerText = el.name
+               // ddEl.classList.add("color_mark")
+                ddEl.onclick = function () {
+                    if (ddEl.classList && ddEl.classList.contains('color_mark'))
+                        ddEl.classList.remove("color_mark")
+                    else
+                       ddEl.classList.add("color_mark")
+                }
+                if (el.status == 'modified') {
+                    mod.appendChild(ddEl)
+                } else if (el.status == 'staged') {
+                    sta.appendChild(ddEl)
+                } else if (el.status == 'unversioned') {
+                    unv.appendChild(ddEl)
+                } //else 
+                
+            }
+         }, fail: function(errCode, errMsg) { showErrorMessage( 'Err: ' + errMsg ); }, respType:"json"})
+    }
+    
+    function vcsCommit() {
+        const commitF = document.getElementById("commitForm")
+        commitF.style.display = "block"
+        centerElement(commitF)
+        document.querySelector('#comment').focus()
+    }
+    
+    function conductCommit(btn) {
+        var commfiles = ''
+        const mod = document.getElementById("vcs_mod")
+        const modls = mod.getElementsByTagName('dd')
+        btn.disabled = true
+        for (var i=modls.length-1; i>=0 ; --i) {
+            var ce = modls[i]
+            if (ce.classList.contains('color_mark')) {
+                commfiles += ce.title + '\t'
+            }
+        }
+        const unv = document.getElementById("vcs_unv")
+        const unvls = unv.getElementsByTagName('dd')
+        for (var i=unvls.length-1; i>=0 ; --i) {
+            var ce = unvls[i]
+            if (ce.classList.contains('color_mark')) {
+                commfiles += ce.title + '\t'
+            }
+        }  
+        var undofiles = ''
+        const sta = document.getElementById("vcs_sta")
+        const stals = sta.getElementsByTagName('dd')
+        for (var i=stals.length-1; i>=0 ; --i) {
+            var ce = stals[i]
+            if (ce.classList.contains('color_mark')) {
+                undofiles += ce.title + '\t'
+            }
+        }
+        ajax.post({url:"./rustcgi", query: "mode=vcs-commit&name="+encodeURIComponent(commfiles)+
+             "&session="+encodeURIComponent(SESSION) + "&cache="+encodeURIComponent(undofiles) +
+             "&comment="+encodeURIComponent(document.getElementById("comment").value), success: function (data) { 
+                 if (data.startsWith('Ok')) {
+                    vcsStatus()
+                 } else
+                    showErrorMessage('A problem in the commit ' + data.substring(3))
+                closeCommit()
+                btn.disabled = false
+             }, respType:"html"})
+    }
+    
+    function scanXRef() {
+        ajax.get({url:"./rustcgi?mode=crossref-list&session="+encodeURIComponent(SESSION), success: function(jsonres) {
+            const refs = document.getElementById("xrefs")
+            refs.replaceChildren()
+            jsonres.sort((a, b) => {
+              const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+              const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            
+              // names must be equal
+              return 0;
+            })
+            for (refEl of jsonres) {
+                const dtEl = document.createElement("dt")
+                dtEl.innerText = refEl.name
+                if (refEl.trait) {
+                    dtEl.title = refEl.trait + (refEl.data?'/' + refEl.data:'')
+                }
+                dtEl.dataset.path = refEl.path
+                dtEl.dataset.line = refEl.line
+                dtEl.dataset.col = refEl.col
+                dtEl.onclick = function () {
+                    //alert('-->'+this.getAttribute('line'))
+                    moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)
+                }
+                dtEl.ondblclick = function() {
+                    toggleVisibl(this, 'DD')
+                }
+               /* addEventListener( 'click', function(){
+                  // delete the column here
+                } )*/                
+                refs.appendChild(dtEl)
+                // append access points now
+                for (accPnt of refEl.use) {
+                    const ddEl = document.createElement("dd")
+                    ddEl.innerText = accPnt.path.split('/').slice(-1) + ':' + accPnt.line
+                    ddEl.dataset.path = accPnt.path
+                    ddEl.dataset.line = accPnt.line
+                    ddEl.dataset.col = accPnt.pos
+                    ddEl.className = 'hideit'
+                    ddEl.onclick = function () {
+                        //alert('-->'+this.getAttribute('line'))
+                        moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)
+                    }
+                    refs.appendChild(ddEl)
+                }
+            }
+        }, respType:"json"})    
+    }
+    
+    function filterRefs(i) {
+        const filterVal = i.value;
+        const refs = document.getElementById("xrefs")
+        const refEls = refs.querySelectorAll('dt')
+        for (refEl of refEls) {
+            if (refEl.innerText.includes(filterVal) || filterVal == '') {
+                refEl.style.display = ''
+            } else {
+                refEl.style.display = 'none'
+            }
+        }
+    }
+    
+    function searchStr() {
+        const searchF = document.getElementById("searchForm")
+        searchF.style.display = "block"
+        centerElement(searchF)
+        document.querySelector('input[name="search_for"]').focus()
+    }
+    
+    function performSearch() {
+        ajax.get({url:"./rustcgi?mode=search-list&session="+encodeURIComponent(SESSION)+
+           '&name=' + encodeURIComponent(document.querySelector('input[name="search_for"]').value), success: function(jsonres) {
+            const refs = document.getElementById("xrefs")
+            refs.replaceChildren()
+            for (elem of jsonres) {
+                const dtEl = document.createElement("dt")
+                dtEl.innerText = elem.name
+                dtEl.dataset.path = elem.path
+                dtEl.dataset.line = elem.line
+                dtEl.dataset.col = elem.col
+                dtEl.onclick = function () {
+                    moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)
+                }
+                refs.appendChild(dtEl)
+            }
+         }, respType:"json"})
+        document.getElementById("searchForm").style.display = "none"
+    }
+    
+    function saveAll() {
+        // the function is required to return nothing
+        saveAllFiles() 
+    }
+    
+    function removeDD(el) {
+        const ddels = el.getElementsByTagName('dd')
+        for (var i=ddels.length-1; i>=0 ; --i)
+            el.removeChild(ddels[i])
+        
+    }
+    
+    function toggleVisibl(el, siblTag) {
+        while (el.nextSibling.tagName == siblTag) {
+            el = el.nextSibling
+            if (el.classList.contains('hideit'))
+                el.classList.remove('hideit')
+            else
+                el.classList.add('hideit')
+        }
+    }
+    
+    function changeSes(sel) {
+        document.getElementById("session").value = sel.value
+        // load session data in the settings dialog
+        showSessionSettings(document.getElementById("session").value)
+    }
+    
+    function config_project() {
+        const pane = document.getElementById("projectConfig")
+        //loadProjConf()
+        pane.style.display = "block"
+        centerElement(pane)
+    }
+    
+    function deleteProj() {
+        const sess = document.querySelector("#avail_ses")
+        ajax.get({url:"./rustcgi?mode=del-project&project="+encodeURIComponent(sess.value), success: function(res) {
+            if (res.startsWith('Ok')) {
+                sess.options[sess.selectedIndex].remove();
+                //sess.removeChild(sess[sess.selectedIndex]);
+                updateProjMenuList()
+            }
+         }, respType:"html"})
+    }
+    
+    function updateProjMenuList() {
+        ajax.get({url:"./rustcgi?mode=session-list", success: function(projs) {
+            var menuHtml = '<menuitem><a href="javascript:newProject()">New...</a></menuitem>'
+            for (el of projs.sort()) {
+                menuHtml += '<menuitem><a href="/rustcgi/rustcgi?session='+htmlAttrEncode(el)+
+                   '" target="_blank">'+(el==''?'default':htmlEncode(el))+'</a></menuitem>';
+            }
+            var repEl = Array.from(document.querySelector('nav').querySelectorAll('a'))
+                .find(el => el.textContent === 'Project');
+            repEl = repEl.nextSibling.nextSibling
+            if (repEl.tagName == 'MENU') {
+                repEl.innerHTML = menuHtml;
+            }
+         }, respType:"json"})
+    }
+    
+    function upper() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText().toUpperCase();
+            const range = editor.selection.getRange();
+            editor.session.replace(range, selectedContent);
+        }
+    }
+    
+    function lower() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText().toLowerCase();
+            const range = editor.selection.getRange();
+            editor.session.replace(range, selectedContent);
+        }
+    }
+    
+    function snake(){
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText()
+            let res = '';
+            for (let char of selectedContent) {
+                if (isAlpha(char) && char == char.toUpperCase()) {
+                    if (res != '')
+                       res = res + '_'
+                    res += char.toLowerCase()
+                } else if (char == '-') {
+                    res += '_'
+                } else
+                   res += char
+            }
+            const range = editor.selection.getRange();
+            editor.session.replace(range, res);
+        }
+    }
+    function camel(){
+         const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText()
+            let res = '';
+            let up = false
+            for (let char of selectedContent) {
+                if (char == '_') {
+                    up = true
+                } else {
+                    if (up) {
+                        res += char.toUpperCase()
+                        up = false
+                    } else
+                        res += char.toLowerCase()
+                }
+            }
+            const range = editor.selection.getRange();
+            editor.session.replace(range, res);
+        }
+    }
+    function isAlpha(char) {
+        const code = char.charCodeAt(0);
+        return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+    }
+    
+    function utf16() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText()
+            const u32 = parseInt(selectedContent, 16); // process exception
+            const surrs = convert32BitUnicodeToSurrogates(u32)
+            if (surrs.length == 2) {
+                const res = '\\u'+surrs[0].toString(16) + '\\u'+surrs[1].toString(16)
+                const range = editor.selection.getRange();
+                editor.session.replace(range, res);
+            }
+        }    
+    }
+    
+    function convert32BitUnicodeToSurrogates(codepoint) {
+      if (codepoint < 0x10000 || codepoint > 0x10FFFF) {
+        return []; // Not a supplementary plane codepoint
+      }
+    
+      const offset = codepoint - 0x10000;
+      const highSurrogate = 0xD800 + (offset >> 10); // Get the top 10 bits and add the base
+      const lowSurrogate = 0xDC00 + (offset & 0x3FF);  // Get the bottom 10 bits and add the base
+    
+      return [highSurrogate, lowSurrogate];
+    }
+    
+    function loadProjConf() {
+        // load settings
+        document.forms['project_conf'].debug_build.value = PROJ_CONF['compile_debug'] || 'rb'
+        document.forms['project_conf'].release_build.value = PROJ_CONF['compile_release'] || 'rb -Dopt=release'
+        document.forms['project_conf'].debug_app.value = PROJ_CONF['debug_app']  || ''
+        document.forms['project_conf'].run_app.value = PROJ_CONF['run_app']  || '' 
+        document.forms['project_conf'].test_app.value = PROJ_CONF['test_app']  || '' 
+        document.forms['project_conf'].package_app.value = PROJ_CONF['package_app']  || ''
+    }
+    
+    function saveProjConf() {
+        // save settings
+        PROJ_CONF['compile_debug'] = document.forms['project_conf'].debug_build.value
+        PROJ_CONF['compile_release'] = document.forms['project_conf'].release_build.value
+        PROJ_CONF['debug_app'] = document.forms['project_conf'].debug_app.value
+        PROJ_CONF['run_app'] = document.forms['project_conf'].run_app.value
+        PROJ_CONF['test_app'] = document.forms['project_conf'].test_app.value
+        PROJ_CONF['package_app'] = document.forms['project_conf'].package_app.value
+        saveSettings(true)
+        // close
+        hideProjConf()
+    }
+    
+    function hideProjConf() {
+        document.querySelector ('#projectConfig').style.display = 'none'
+    }
+    
+    // project function 
+    function runCmd(cmd3) {
+        if (wskt && wskt.readyState===WebSocket.OPEN) {
+            //saveAllFiles() // autosave()
+            document.getElementById('commandarea').focus() // focus saves
+            wskt.send(cmd3+'\n')
+        } else {
+            alert('The server ' + ws_url + ' is currently unreachable')
+        }
+    }
+    function build_debug() {
+        runCmd(PROJ_CONF['compile_debug'])
+    }
+    
+    function run_debug() {
+        runCmd(PROJ_CONF['debug_app'])
+    }
+    
+    function build_release() {
+        runCmd(PROJ_CONF['compile_release'])
+    }
+    
+    function run_release() {
+       runCmd(PROJ_CONF['run_app'])
+    }
+    
+    function test_app() {
+        runCmd(PROJ_CONF['test_app'])
+    }
+    
+    function package() {
+       runCmd(PROJ_CONF['package_app'])
+    }
+    
+    function promptAI() {
+        showErrorMessage('The feature is coming soon')
+    }
+    
+    function vcsPull() {
+        runCmd('git pull')
+    }
+    
+    function vcsPush() {
+        runCmd('git push')
+    }
+    
+    function toggleBookmark() {
+        const selTab = document.querySelector('input[name="tabs"]:checked')
+        if (!selTab)
+            return
+        const editor = EDITORS[selTab.id]['editor']
+        const cursorPosition = editor.selection.getCursor();
+        if (!cursorPosition)
+            return
+        const currentRow = cursorPosition.row;
+        const currentLineText = editor.session.getLine(currentRow);
+        // look for the bookmark first
+        const bookmarks = document.querySelector('#bookmarks')
+        for (const child of bookmarks.children) {
+            if (child.dataset.src == selTab.id && child.dataset.line == currentRow + 1) {
+                child.remove()
+                return
+            }
+        }
+        const bookmark = document.createElement("LI");
+        bookmark.dataset.line = currentRow + 1
+        bookmark.dataset.src = selTab.id
+        bookmark.dataset.snip = currentLineText
+        bookmark.dataset.note = 'no note'
+        bookmark.textContent = selTab.id.split('/').pop() + ':' + currentRow + ' - ' + trimAndEllipsize(currentLineText, 34)
+        bookmark.addEventListener("click", () => {
+            moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)
+        });
+        bookmarks.appendChild(bookmark)
+        document.querySelector('#bookmrk').checked = true
+    }
+      
+      function about() {
+         //open3() 
+         ajax.get({url:"./rustcgi?mode=info-about", success: function (json) {
+             const pane = document.getElementById("about")
+             pane.innerHTML = `<div class="form-container"><h2>Rust Development Studio</h2><p>Version: ${json.version}</p><p>Server: ${json.server}</p>
+                <p>HTML: ${document.getElementById("version").value} JS: ${getVersion()} CSS: ${verStyle()}</p>
+                <p>&copy; ${new Date().getFullYear()} ${json.author}</p>
+                <div class="form-footer">
+                <button type="button" class="btn cancel" onclick="closeAbout()">Close</button>
+                </div></div>`
+             pane.style.display = "block"
+             centerElement(pane)
+         }})
+         document.querySelector('#commandarea').textContent=' ver!'
+      }
+      
+      function verStyle() {
+         var rules = document.styleSheets[0].rules || document.styleSheets[0].cssRules;
+        for(var x=0;x<rules.length;x++) {
+            if (rules[x].selectorText /*cssText*/.startsWith('.rds-') ) {
+                return rules[x].selectorText.substring(13)
+            }
+        }
+        return 'CSS cached'
+     }
+     
+    </script>
+   </body>
+  </html>

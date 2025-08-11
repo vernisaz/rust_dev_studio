@@ -1,0 +1,45 @@
+# Rust Development Sudio - the project script
+
+project  =rustcgi
+main=src${~/~}rust${~/~}docgi
+common =..${~/~}simscript${~/~}comm-build.7b:file
+crate_dir=..${~/~}crates
+simhttp proj=..${~/~}simhttp
+comp opts=[]
+
+version="1.20.01:159"
+set_env(VERSION,version)
+
+mode=mode:prop
+if {
+	eq(mode,release) then {
+		array(-C,opt-level=3)
+		array(comp opts, ~~)
+		assign(comp opts, ~~)
+	}
+}
+
+if {
+	eq(${~os~},windows)
+	then {
+		assign(ext,.exe)
+		assign(script ext,.bat)
+		assign(script,START /B .\bin\simhttp.exe %1)
+	}
+	else {
+		assign(ext,)
+		assign(script ext,.sh)
+		assign(script,"#!/bin/sh
+./bin/simhttp $1&")
+	}
+}
+
+# -----------------------------------------------
+crate=web_cgi
+crate main=crate${~/~}${crate}${~/~}lib
+dep_crates=[]
+common crate=..${~/~}simscript${~/~}comm-crate.7b:file
+
+include(common crate);
+# -----------------------------------------------
+include(common);

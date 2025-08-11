@@ -1,0 +1,191 @@
+# install and run RDS
+
+home=HOME:env
+winhome=USERPROFILE:env
+#windrive=HOMEDRIVE:env
+
+version=1.20.01
+
+include(cfg2.7b) # created by the install
+
+if {
+	eq(${~os~},windows)
+	then {
+		assign(ext,.exe)
+		assign(script ext,.bat)
+		assign(script,.\bin\rb.exe %1)
+		assign(home,${winhome})
+	}
+	else {
+		assign(ext,)
+		assign(script ext,.sh)
+		assign(script,"#!/bin/sh
+./bin/rb $1")
+	}
+}
+
+web files=[resource${~/~}common.js,resource${~/~}documentation.html,resource${~/~}favicon.ico]
+simhttp HOME=..${~/~}simhttp
+ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
+
+target distro:.. {
+	dependency{}
+
+#	PORT=8443
+
+	prompt(Where to write the distro zip [.]?,.)
+	assign(distro dir,~~)
+	prompt(What is the RDS version [${version}]?,version)
+	assign(version,~~)
+	#display(${version} ${script} ${script ext})
+	assign(rds,rds-${version})
+	display(just a moment...)
+	assign(+web files,web files)
+	if {
+		eq(ACE editor,"") then {
+			assign(ACE editor, resource${~/~}ace)
+		}
+	}
+	#assign(ACE Res,~~)
+	zip(${distro dir}${~/~}rds-${version}.zip,
+	-E ${rds}/rds${script ext},
+	script,
+    -A ${rds}/cfg2.7b,
+    "#
+PORT=${PORT}
+HOME=${HOME}",
+    -B ${rds},
+    install${~/~}bee.7b,
+    -B ${rds},
+    install${~/~}env.tmpl,
+    -A ${rds}/cfg.7b,
+     ,
+    -B ${rds}/bin,
+    ..${~/~}rustbee${~/~}rb${ext},
+    -B ${rds}/bin,
+    ${simhttp HOME}${~/~}simhttp${ext},
+    -C ${rds}/cgi/resource,
+    resource${~/~}main.*,
+    -B ${rds}/cgi,
+    rustcgi${ext},
+    -B ${rds}/cgi,
+    terminal${ext},
+    -B ${rds}/cgi/resource,
+    +web files,
+    -C ${rds}/cgi/resource/ace,
+    ACE editor,
+    -B ${rds}/doc,
+    README.md)
+    display(${~~} created)
+}
+
+# ## home=/media/exhdd/RDS
+target install:.:Install RDS if needed {
+	dependency{
+		eq {
+	        timestamp(${~cwd~}${~/~}.dot)
+	        # none
+	    }
+	}
+	# a logic to ask a port number and HOME
+	ask(What's the web server port number [8443]?, 8443)
+	assign(PORT,~~)
+	ask(What's HOME directory [${home}]?, ${home})
+	assign(HOME,~~)
+
+	now("W, MMM-DD-YY hh:mm:ss Z")
+	assign(create time, ~~)
+	write(cfg2.7b,"# auto created on ${create time}
+PORT=${PORT}
+HOME=\"${HOME}\"")
+    mkd(${HOME}${~/~}.rustcgi)
+    write(${HOME}${~/~}.rustcgi${~/~}aliases.prop,"# current content is only for illustration
+alias ls='ls --color'")
+	write(${~cwd~}${~/~}cgi${~/~}.home,HOME)
+	# create config directory first
+	mkd(${~cwd~}${~/~}config)
+    assign(os,${~os~})
+	case os {
+       choice windows: {
+            hostname=COMPUTERNAME:env
+			write(${~cwd~}${~/~}rds.url,http://${hostname}:${PORT}/rustcgi/rustcgi)
+       }
+       choice macos: {
+            exec hostname::hostname(-f)
+			write(${~cwd~}${~/~}rds.url,http://${hostname}:${PORT}/rustcgi/rustcgi)
+        }
+        else {
+            exec hostname::hostname(-A)
+			write(${~cwd~}${~/~}rds.url,http://${hostname}:${PORT}/rustcgi/rustcgi)
+        }
+    }
+	# massage slashes in directories
+	assign(cgi dir,${~cwd~}${~/~}cgi)
+	ar=[]
+	for v:cgi dir:\\ {
+		array(ar,v)
+		assign(ar,~~)
+	}
+	scalar(ar,\\\\)
+	assign(cgi dir,~~)
+	
+	assign(res dir,${~cwd~}${~/~}cgi${~/~}resource)
+	ar1=[]
+	for v:res dir:\\ {
+		array(ar1,v)
+		assign(ar1,~~)
+	}
+	scalar(ar1,\\\\)
+	assign(res dir,~~)
+	
+	assign(term,${~cwd~}${~/~}cgi${~/~}terminal)
+	ar2=[]
+	for v:term:\\ {
+		array(ar2,v)
+		assign(ar2,~~)
+	}
+	scalar(ar2,\\\\)
+	assign(term,~~)
+	
+	write(${~cwd~}${~/~}env.conf,"
+{
+   \"bind\" : \"0.0.0.0\",
+   \"port\" : ${PORT},
+   \"threads\" : 40,
+   \"no terminal\" : true,
+   \"mapping\" : [
+    {\"path\":\"/cgires/resource\",
+       \"CGI\": false,
+       \"translated\": \"${res dir}\"},
+    {\"path\":\"/rustcgi\",
+       \"CGI\": true,
+       \"translated\": \"${cgi dir}\"},
+    {\"path\":\"/terminal\",
+       \"WS-CGI\": true,
+       \"translated\": \"${term}\"}],   
+	")
+	read(env.tmpl)
+	writea(${~cwd~}${~/~}env.conf,${~~})
+	# create log directory
+	mkd(${~cwd~}${~/~}log)
+	write(${~cwd~}${~/~}.dot,.)
+	display(Installed.)
+}
+
+target runrust:.:run TRWS for RDS {
+    dependency{target(install)}
+    dependency{true}
+    aexec ./bin/simhttp()
+    assign(pid,~~)
+    read(${~cwd~}${~/~}rds.url)
+	display(Running the Rust Development Studio ${~~})
+	if {
+		neq(${~os~},windows)
+		then {
+		    display("If you need to bounce the RDS, then use : \033[91mkill ${pid}\033[0m first")
+		    writex(stopserver,"#!/bin/sh
+kill ${pid}
+rm stopserver")
+		}
+	}
+}

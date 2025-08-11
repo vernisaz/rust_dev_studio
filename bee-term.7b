@@ -1,0 +1,20 @@
+project  =terminal
+main=src${~/~}rust${~/~}${project}
+common =${projects}simscript${~/~}comm-build.7b:file
+crate_dir=${projects}crates
+projects=..${~/~}
+comp opts=[]
+
+version="1.11:030"
+set_env(VERSION,version)
+
+mode=mode:prop
+if {
+	eq(mode,release) then {
+		array(-C,opt-level=3)
+		array(comp opts, ~~)
+		assign(comp opts, ~~)
+	}
+}
+
+include(common);

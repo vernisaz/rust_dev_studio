@@ -100,7 +100,7 @@ fn main() -> io::Result<()> {
         let line = String::from_utf8_lossy(&vec_buf).into_owned();
         prev = None;
         let expand = line.chars().last() == Some('\t');
-        
+        // TODO parse with pipe
         let mut cmd = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
@@ -115,6 +115,8 @@ fn main() -> io::Result<()> {
             continue
         }
         send!("{PROMPT} {line}"); // \n is coming as part of command
+        // TODO separate command by | and then instead of
+        // display out, take it as input of next command
         cmd = cmd.into_iter().map(|el| interpolate_env(el)).collect();
         match cmd[0].as_str() {
             "dir" if cfg!(windows) => {

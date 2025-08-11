@@ -2,3 +2,5 @@ terminal
 terminal.exe
 rustcgi
 rustcgi.exe
+.home
+*.zip

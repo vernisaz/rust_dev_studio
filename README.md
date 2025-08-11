@@ -15,9 +15,8 @@ a websocket endpoint represented by the WS-CGI technology and implemented as a R
 
 ## Config
 
-Rust server is the [SimHTTP](https://github.com/vernisaz/simhttp).
-
-The following configuration snippet has to be added in [env.conf](https://github.com/vernisaz/simhttp/blob/master/env.conf),
+The following configuration snippet has to be added to [env.conf](https://github.com/vernisaz/simhttp/blob/master/env.conf) 
+of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web swrver:
 ```json
 "mapping" : [
   {"path":"/cgires/resource",
@@ -34,7 +33,8 @@ The following configuration snippet has to be added in [env.conf](https://github
        "translated": "./../rust_dev_studio/terminal"}]
 ```
 Make sure that *translated* paths are valid in the underline OS.
-Only file *.home* is required since everything is Rust based.
+File *.home* resding in the same directory where **rustcgi** is required. The file has to specify fully quilified
+paths to _HOME_ directory.
 
 You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
 because only this server provides the WS CGI support.
@@ -50,14 +50,8 @@ Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired versi
 **resource/ace**. It's reflected in the install script.
 
 ## Packaging
-Although you can configure the development studio yourself accordingly to a web server and other components.
-Three underline OS executables' are written in Rust are:
-```
-rb
-rustcgi
-terminal
-simhttp
-```
+Although you can configure the development studio yourself accordingly to a web server and other components,
+there is predefined packaging.
 
 The standard packaging includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
 and you can start using the **RDS**. The access URL's stored in `rds.url`.
@@ -66,7 +60,7 @@ and you can start using the **RDS**. The access URL's stored in `rds.url`.
 
 [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
 
-The following crates will be required to build it first:
+The following crates will be required to be built it first:
 
 - The [common building scripts](https://github.com/vernisaz/simscript)
 - The [SimWeb](https://github.com/vernisaz/simweb)
@@ -122,3 +116,14 @@ _Refresh Proj_ from _Edit_ menu or reload the project)
 ## Reading about
 
 1. Some light on using [technologies](https://www.linkedin.com/pulse/new-life-old-technologies-dmitriy-rogatkin-nznpc/).
+
+
+## Help wanted
+
+If you like the IDE and want to contribute to their development, please contact me using the standard
+github communication way. Entry level people are welcome.
+
+Current tasks:
+
+1. implement pipe in the web terminal
+2. implement communication with ChatGPT and similar systems

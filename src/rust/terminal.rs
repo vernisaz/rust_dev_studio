@@ -338,7 +338,6 @@ fn main() -> io::Result<()> {
 }
 
 fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env: &HashMap<String, String>) -> Option<Vec<u8>> {
-    // TODO remove CGI specific env variables
     let process = 
         if cmd.len() > 1 {
                 Command::new(&cmd[0])
@@ -422,6 +421,11 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
         Err(err) => {send!("Can't run: {} in {cwd:?} - {err}\n", &cmd[0]);},
     }
     res
+}
+
+fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: String, filtered_env: &HashMap<String, String>) -> io::Result<String> {
+
+    Ok("".to_string())
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

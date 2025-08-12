@@ -37,7 +37,7 @@ if {
 # -----------------------------------------------
 crate=web_cgi
 crate_src=crate${~/~}${crate}
-crate main=crate${~/~}${crate}${~/~}lib
+crate main=${crate_src}${~/~}lib
 dep_crates=[]
 common crate=..${~/~}simscript${~/~}comm-crate.7b:file
 

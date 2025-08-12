@@ -325,6 +325,7 @@ fn main() -> io::Result<()> {
             _ => {
                 cmd = expand_wildcard(&cwd, cmd);
                 cmd = expand_alias(&aliases, cmd);
+                // if more then one command piped, organize piping
                 prev = call_process(cmd, &cwd, &stdin, &child_env);
             }
         }
@@ -434,21 +435,30 @@ enum CmdState {
 }
 
 fn parse_cmd(input: &impl AsRef<str>) -> Vec<String> {
+     let mut pipe_res = vec![];
     let mut res = vec![];
     let mut state = Default::default();
     let mut curr_comp = String::new();
     let input = input.as_ref();//.to_string();
     for c in input.chars() {
         match c {
-            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' => {
+            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' | '|' => {
                  match state {
                     CmdState:: StartArg => {
-                       
+                       if c == '|' {
+                            // finish the command + args group and start a new one
+                            pipe_res.push(res.clone());
+                            res.clear();
+                        }
                     }
                     CmdState:: InArg => {
                         state = CmdState:: StartArg;
                         res.push(curr_comp.clone());
                         curr_comp.clear();
+                        if c == '|' {
+                            pipe_res.push(res.clone());
+                            res.clear();
+                        }
                     }
                     CmdState:: Esc => {
                         state = CmdState:: InArg;

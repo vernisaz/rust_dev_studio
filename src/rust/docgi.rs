@@ -1017,7 +1017,8 @@ impl PageOps for PageFile {
     fn main_load(&self) -> Result<String, String> {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
-            let main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
+                //let main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
+                let main = cgi_exe.parent().unwrap().join("src").join("html").join(&self.file_name);
                 read_to_string(&main)
                   .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main})
             }

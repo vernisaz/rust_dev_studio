@@ -34,12 +34,13 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
 ```
 Make sure that *translated* paths are valid in the underline OS.
 File *.home* residing in the same directory where **rustcgi** is required. The file has to specify fully qualified
-paths to _HOME_ directory.
+paths to the _HOME_ directory.
 
 The mapping is used to run the RDS from the dev environment, therefore URL
 will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
 however it will be in a simpler form in the standard packaging as
-`http://orangepi5:3000/rustcgi/rustcgi`. 
+`http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will be dependent
+on your environment. Obvioustly you can change the root web path also.
 
 
 You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
@@ -66,7 +67,7 @@ and you can start using the **RDS**. The access URL's stored in `rds.url`.
 
 [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
 
-The following crates will be required to be built it first:
+The following crates will be required to be built first:
 
 - The [common building scripts](https://github.com/vernisaz/simscript)
 - The [SimWeb](https://github.com/vernisaz/simweb)
@@ -76,7 +77,7 @@ The following crates will be required to be built it first:
 - 
 
 Common scripts used for building other components (crates). Run **rb** in each component root directory. **crates** directory
-needs to be created first where built components will be written.
+needs to be created first where built components will be stored.
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
 

@@ -16,7 +16,7 @@ a websocket endpoint represented by the WS-CGI technology and implemented as a R
 ## Config
 
 The following configuration snippet has to be added to [env.conf](https://github.com/vernisaz/simhttp/blob/master/env.conf) 
-of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web swrver:
+of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
 ```json
 "mapping" : [
   {"path":"/cgires/resource",
@@ -33,7 +33,7 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web swrver:
        "translated": "./../rust_dev_studio/terminal"}]
 ```
 Make sure that *translated* paths are valid in the underline OS.
-File *.home* resding in the same directory where **rustcgi** is required. The file has to specify fully quilified
+File *.home* residing in the same directory where **rustcgi** is required. The file has to specify fully qualified
 paths to _HOME_ directory.
 
 The mapping is used to run the RDS from the dev environment, therefore URL

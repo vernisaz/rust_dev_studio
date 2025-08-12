@@ -36,6 +36,12 @@ Make sure that *translated* paths are valid in the underline OS.
 File *.home* resding in the same directory where **rustcgi** is required. The file has to specify fully quilified
 paths to _HOME_ directory.
 
+The mapping is used to run the RDS from the dev environment, therefore URL
+will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
+however it will be in a simpler form in the standard packaging as
+`http://orangepi5:3000/rustcgi/rustcgi`. 
+
+
 You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
 because only this server provides the WS CGI support.
 

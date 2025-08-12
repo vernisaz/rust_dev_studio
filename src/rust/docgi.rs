@@ -1017,8 +1017,12 @@ impl PageOps for PageFile {
     fn main_load(&self) -> Result<String, String> {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
-                //let main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
-                let main = cgi_exe.parent().unwrap().join("src").join("html").join(&self.file_name);
+                let main;
+                if let Ok(current_path) = std::env::var("PATH_TRANSLATED") {
+                    main = PathBuf::from(current_path).join(&self.file_name);
+                } else {
+                    main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
+                }
                 read_to_string(&main)
                   .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main})
             }
@@ -1050,8 +1054,9 @@ impl PageOps for PageFile {
                                     continue
                                 }
                             }
+                            let path_info = std::env::var("PATH_INFO").unwrap_or("".to_string());
                             projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
-                                 session_name.to_string()}, link:format!("/rustcgi/rustcgi?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
+                                 session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
                         }
                     }
                 }
@@ -1215,8 +1220,9 @@ impl PageOps for Redirect {
     
     fn get_extra(&self) -> Option<Vec<(String, String)>> {
         let id = simran::generate_random_sequence(12);
+        let path_info = std::env::var("PATH_INFO").unwrap_or("".to_string());
         Some(vec![("Location".to_string(), 
-            format!("rustcgi?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
+            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
         
     }
     

@@ -7,7 +7,7 @@ crate_dir=..${~/~}crates
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.20.01:159"
+version="1.20.01:160"
 set_env(VERSION,version)
 
 mode=mode:prop
@@ -36,6 +36,7 @@ if {
 
 # -----------------------------------------------
 crate=web_cgi
+crate_src=crate${~/~}${crate}
 crate main=crate${~/~}${crate}${~/~}lib
 dep_crates=[]
 common crate=..${~/~}simscript${~/~}comm-crate.7b:file

@@ -337,6 +337,8 @@
       
       var THEME = '${theme}'
       
+      var PATH_INFO = '${path_info}'
+      
       var PROJECT_HOME = ''
       
       var HOME_LEN = 0
@@ -575,7 +577,7 @@
                             window.open(
                             //window.location.protocol+"://"+window.location.hostname+
                             //(window.location.port?":"+window.location.port:"")+
-                            "/rustcgi/rustcgi?session="+encodeURIComponent(document.getElementById("session").value), "_blank")
+                             `/rustcgi/rustcgi${PATH_INFO}?session=${encodeURIComponent(document.getElementById("session").value)}`, "_blank")
                         } else {
                             saveNotepad()
                             SESSION = document.getElementById("session").value
@@ -998,7 +1000,7 @@
         ajax.get({url:"./rustcgi?mode=session-list", success: function(projs) {
             var menuHtml = '<menuitem><a href="javascript:newProject()">New...</a></menuitem>'
             for (el of projs.sort()) {
-                menuHtml += '<menuitem><a href="/rustcgi/rustcgi?session='+htmlAttrEncode(el)+
+                menuHtml += `<menuitem><a href="/rustcgi/rustcgi${PATH_INFO}?session=${htmlAttrEncode(el)}`+
                    '" target="_blank">'+(el==''?'default':htmlEncode(el))+'</a></menuitem>';
             }
             var repEl = Array.from(document.querySelector('nav').querySelectorAll('a'))

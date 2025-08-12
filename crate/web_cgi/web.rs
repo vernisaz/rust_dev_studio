@@ -81,6 +81,7 @@ pub trait PageOps {
                     ("name", self.name()),
                     ("menu", form_nav(self.get_nav())),
                     ("theme", String::from("")),
+                    ("path_info", std::env::var("PATH_INFO").unwrap_or("".to_string())),
                 ]);
                 self.apply_specific(&mut page_items);
                 //eprintln! {"{page_items:?}"};

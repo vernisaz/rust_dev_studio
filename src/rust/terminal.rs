@@ -423,9 +423,53 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
     res
 }
 
-fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: String, filtered_env: &HashMap<String, String>) -> io::Result<String> {
+fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: Vec<u8>, filtered_env: &HashMap<String, String>) -> io::Result<Vec<u8>> {
+    let mut process = 
+        if cmd.len() > 1 {
+                Command::new(&cmd[0])
+             .args(&cmd[1..])
+             .stdout(Stdio::piped())
+             .stdin(Stdio::piped())
+             .stderr(Stdio::piped())
+             .env_clear()
+             .envs(filtered_env)
+             .current_dir(&cwd).spawn()?
+         } else {
+            Command::new(&cmd[0])
+             .stdout(Stdio::piped())
+             .stdin(Stdio::piped())
+             .stderr(Stdio::piped())
+             .env_clear()
+             .envs(filtered_env)
+             .current_dir(&cwd).spawn()?
+        };
+    let mut stdout = process.stdout.take().unwrap();
+    let stderr = process.stderr.take().unwrap();
+    let mut stdin_child = process.stdin.take().unwrap();
+    let handle = thread::spawn(move || {
+        let mut buffer = [0_u8; MAX_BLOCK_LEN]; 
+        let mut res = vec![];
+        loop {
+            let Ok(l) = stdout.read(&mut buffer) else {break};
+            if l == 0 { break } // 
+            res.extend_from_slice(&buffer[0..l])
+        }
+        res
+    });
+        
+    thread::spawn(move || {
+        let reader = BufReader::new(stderr);
+        for line in reader.lines() {
+            let string = line.unwrap();
+            send!{"{}\n", string};
+        }
+    });
 
-    Ok("".to_string())
+    if stdin_child.write_all(&in_pipe) .is_ok() {
+        stdin_child.flush().unwrap()
+    }
+   // process.wait().unwrap();
+    Ok(handle.join().unwrap())
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

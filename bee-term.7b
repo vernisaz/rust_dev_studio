@@ -5,7 +5,7 @@ crate_dir=..${~/~}crates
 projects=..${~/~}
 comp opts=[]
 
-version="1.11:030"
+version="1.15:032"
 set_env(VERSION,version)
 
 mode=mode:prop

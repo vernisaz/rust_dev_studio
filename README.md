@@ -132,5 +132,4 @@ github communication way. Entry level people are welcome.
 
 Current tasks:
 
-1. implement pipe in the web terminal
-2. implement communication with ChatGPT and similar systems
+1. implement a communication with ChatGPT and similar systems

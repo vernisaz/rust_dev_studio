@@ -101,15 +101,19 @@ fn main() -> io::Result<()> {
         prev = None;
         let expand = line.chars().last() == Some('\t');
         // TODO parse with pipe
-        let mut cmd = parse_cmd(&line.trim());
+        let (mut cmd, piped) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1].clone(), &cwd));
-            let beg =
+            let mut beg = 
+            piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " + &esc_string_blanks(e2)).unwrap() + "|" );
+           // for pipe in piped {
+                
+           // }
             if cmd.len() > 1 {
                 cmd.pop();
-                cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap()
-            } else {"".to_string()};
+                beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap()
+            } 
             //eprintln!("line to send {} {ext}", beg);
             send!("\r{} {ext}", beg);// &line[..pos]);
             continue
@@ -323,10 +327,27 @@ fn main() -> io::Result<()> {
                 send!("{VERSION}/{ver}\n"); // path
             }
             _ => {
-                cmd = expand_wildcard(&cwd, cmd);
-                cmd = expand_alias(&aliases, cmd);
-                // if more then one command piped, organize piping
-                prev = call_process(cmd, &cwd, &stdin, &child_env);
+                if piped.is_empty() {
+                    cmd = expand_wildcard(&cwd, cmd);
+                    cmd = expand_alias(&aliases, cmd);
+                    // if more then one command piped, organize piping
+                    prev = call_process(cmd, &cwd, &stdin, &child_env);
+                } else {
+                    // piping work
+                    let mut res = vec![];
+                    for mut pipe_cmd in piped {
+                        pipe_cmd = expand_wildcard(&cwd, pipe_cmd);
+                        pipe_cmd = expand_alias(&aliases, pipe_cmd);
+                        // TODO add error handling
+                        res = call_process_piped(pipe_cmd.clone(), &cwd, res, &child_env).unwrap(); 
+                        //eprintln!("Called {pipe_cmd:?} returned {}", String::from_utf8_lossy(&res));
+                    }
+                    cmd = expand_wildcard(&cwd, cmd);
+                    cmd = expand_alias(&aliases, cmd);
+                    //eprintln!("before call {cmd:?}");
+                    res = call_process_piped(cmd, &cwd, res, &child_env).unwrap();
+                    send!("{}\n",String::from_utf8_lossy(&res));
+                }
             }
         }
     }
@@ -468,6 +489,7 @@ fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: Vec<u8>, filtere
     if stdin_child.write_all(&in_pipe) .is_ok() {
         stdin_child.flush().unwrap()
     }
+    drop(stdin_child);
    // process.wait().unwrap();
     Ok(handle.join().unwrap())
 }
@@ -482,8 +504,8 @@ enum CmdState {
     QEsc,
 }
 
-fn parse_cmd(input: &impl AsRef<str>) -> Vec<String> {
-     let mut pipe_res = vec![];
+fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>) {
+    let mut pipe_res = vec![];
     let mut res = vec![];
     let mut state = Default::default();
     let mut curr_comp = String::new();
@@ -583,7 +605,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> Vec<String> {
         CmdState:: StartArg => (),
         _ => todo!()
     }
-    res
+    (res, pipe_res)
 }
 
 fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<String>>

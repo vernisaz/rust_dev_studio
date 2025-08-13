@@ -1018,8 +1018,8 @@ impl PageOps for PageFile {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
                 let main;
-                if let Ok(current_path) = std::env::var("PATH_TRANSLATED") {
-                    main = PathBuf::from(current_path).join(&self.file_name);
+                if std::env::var("PATH_INFO").is_ok(){
+                    main = PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name);
                 } else {
                     main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
                 }

@@ -654,6 +654,8 @@ enum EnvExpState {
     InBracketEnvName,
     InEnvName,
     Esc,
+    NoInterpol,
+    EscNoInterpol,
 }
 
 fn interpolate_env(s:String) -> String {
@@ -678,6 +680,10 @@ fn interpolate_env(s:String) -> String {
                         state = EnvExpState::ExpEnvName
                     }
                     EnvExpState::InBracketEnvName => curr_env.push(c),
+                    EnvExpState:: NoInterpol => res.push(c),
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
                 }
             }
             '\\' => {
@@ -695,6 +701,10 @@ fn interpolate_env(s:String) -> String {
                         state = EnvExpState::Esc
                     }
                     EnvExpState::InBracketEnvName => curr_env.push(c),
+                    EnvExpState:: NoInterpol => state = EnvExpState::EscNoInterpol,
+                    EnvExpState::EscNoInterpol => {
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
                 }
             }
             'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
@@ -709,6 +719,10 @@ fn interpolate_env(s:String) -> String {
                     EnvExpState::ExpEnvName => {
                         curr_env.push(c);
                         state = EnvExpState::InEnvName
+                    }
+                    EnvExpState:: NoInterpol => res.push(c),
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
                     }
                 }
             }
@@ -733,11 +747,15 @@ fn interpolate_env(s:String) -> String {
                         state = EnvExpState::InBracketEnvName
                     }
                     EnvExpState::InBracketEnvName => curr_env.push(c),
+                    EnvExpState:: NoInterpol => res.push(c),
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
                 }
             }
             '}' => {
                 match state {
-                    EnvExpState::InArg => {
+                    EnvExpState::InArg | EnvExpState:: NoInterpol => {
                         res.push(c)
                     }
                     EnvExpState::ExpEnvName => {
@@ -764,15 +782,36 @@ fn interpolate_env(s:String) -> String {
                         curr_env.clear();
                         state = EnvExpState::InArg
                     }
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
+                }
+            }
+            '\'' => { // no interpolation inside ''
+                match state {
+                    EnvExpState::InArg => 
+                        state = EnvExpState:: NoInterpol,
+                    EnvExpState:: NoInterpol => state = EnvExpState::InArg,
+                    EnvExpState::EscNoInterpol => {
+                        res.push(c);
+                        state = EnvExpState:: NoInterpol
+                    }
+                    EnvExpState::Esc => {
+                        res.push(c); state =  EnvExpState::InArg
+                    }
+                    EnvExpState::InBracketEnvName | EnvExpState::InEnvName | EnvExpState::ExpEnvName => (), // generally error
                 }
             }
             _ => {
                 match state {
-                    EnvExpState::InArg => {
+                    EnvExpState::InArg | EnvExpState:: NoInterpol => {
                         res.push(c)
                     }
                     EnvExpState::Esc => { res.push('\\');
                         res.push(c); state =  EnvExpState::InArg
+                    }
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
                     }
                     EnvExpState::InEnvName | EnvExpState::ExpEnvName => {
                         let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
@@ -789,9 +828,9 @@ fn interpolate_env(s:String) -> String {
         }
     }
     match state {
-        EnvExpState::InArg | EnvExpState::ExpEnvName | EnvExpState::InBracketEnvName => {
+        EnvExpState::InArg | EnvExpState::ExpEnvName | EnvExpState::InBracketEnvName | EnvExpState::NoInterpol=> {
         }
-        EnvExpState::Esc => { res.push('\\');
+        EnvExpState::Esc | EnvExpState::EscNoInterpol => { res.push('\\');
         }
         EnvExpState::InEnvName => {
             let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());

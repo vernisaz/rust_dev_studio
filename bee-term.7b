@@ -1,8 +1,9 @@
 project  =terminal
 main=src${~/~}rust${~/~}${project}
 common =${projects}simscript${~/~}comm-build.7b:file
-crate_dir=..${~/~}crates
 projects=..${~/~}
+crate_dir=${projects}${~/~}crates
+
 comp opts=[]
 
 version="1.15:032"

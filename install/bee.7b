@@ -48,6 +48,13 @@ target package:.. {
 	}
 	#assign(ACE Res,~~)
 	zip(${distro dir}${~/~}rds-${version}.zip,
+	-A ${rds}/What's New.txt,
+    "What's New
+    
+- bookmarking feature
+- pipes support in the terminal
+- more flexible 'resource' directory location
+- several bug fixes, including improved stability of the SimHTTP",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

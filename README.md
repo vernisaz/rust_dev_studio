@@ -33,10 +33,10 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
        "translated": "./../rust_dev_studio/terminal"}]
 ```
 Make sure that *translated* paths are valid in the underline OS.
-File *.home* residing in the same directory where **rustcgi** is required. The file has to specify fully qualified
-paths to the _HOME_ directory.
+File *.home* residing in the same directory, where **rustcgi** executable stored, is required. The file has to specify fully qualified
+paths to the _HOME_ directory. (Actually it's any directory where the directory _.rustcgi_ will be landed)
 
-The mapping is used to run the RDS from the dev environment, therefore URL
+The mapping is used to run the RDS from the dev environment, therefore the access URL
 will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
 however it will be in a simpler form in the standard packaging as
 `http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will be dependent
@@ -44,7 +44,7 @@ on your environment. Obvioustly you can change the root web path also.
 
 
 You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
-because only this server provides the WS CGI support.
+because only the server provides the WS CGI support.
 
 There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support but still
 can be obtained [from](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
@@ -117,8 +117,8 @@ then please report them to the author.
 ## Known problems
 
 1. *datalist* seems isn't supported by the Silk browser, so an auto suggest won't work on Fire tablets
-2. files stopped be opened from the left navigation panel (work around - select
-_Refresh Proj_ from _Edit_ menu or reload the project)
+2. files can stop be opened from the left navigation panel (work around - select
+_Refresh Proj_ from _Edit_ menu or reload the project page)
 
 ## Reading about
 

@@ -101,7 +101,7 @@ fn main() -> io::Result<()> {
         prev = None;
         let expand = line.chars().last() == Some('\t');
         // TODO parse with pipe
-        let (mut cmd, piped) = parse_cmd(&line.trim());
+        let (mut cmd, piped, in_file, out_file) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1].clone(), &cwd));
@@ -330,8 +330,33 @@ fn main() -> io::Result<()> {
                 if piped.is_empty() {
                     cmd = expand_wildcard(&cwd, cmd);
                     cmd = expand_alias(&aliases, cmd);
-                    // if more then one command piped, organize piping
-                    prev = call_process(cmd, &cwd, &stdin, &child_env);
+                    if in_file.is_empty() && out_file.is_empty() {
+                        prev = call_process(cmd, &cwd, &stdin, &child_env);
+                    } else {
+                        if in_file.is_empty() {
+                            prev = call_process(cmd, &cwd, &stdin, &child_env);
+                        } else {
+                            let mut in_file = PathBuf::from(in_file);
+                            if !in_file.has_root() {
+                                in_file = PathBuf::from(&cwd).join(in_file);
+                            }
+                            match fs::read(&in_file) {
+                                Ok(contents) =>  {
+                                    let res = call_process_piped(cmd, &cwd, contents, &child_env).unwrap();
+                                    if out_file.is_empty() {
+                                        send!("{}\n",String::from_utf8_lossy(&res));
+                                    } else {
+                                        let mut out_file = PathBuf::from(out_file);
+                                        if !out_file.has_root() {
+                                            out_file = PathBuf::from(&cwd).join(out_file);
+                                        }
+                                        let _ =fs::write(&out_file, res);
+                                    }
+                                }
+                                _ => ()
+                            }
+                        }
+                    }
                 } else {
                     // piping work
                     let mut res = vec![];
@@ -346,7 +371,15 @@ fn main() -> io::Result<()> {
                     cmd = expand_alias(&aliases, cmd);
                     //eprintln!("before call {cmd:?}");
                     res = call_process_piped(cmd, &cwd, res, &child_env).unwrap();
-                    send!("{}\n",String::from_utf8_lossy(&res));
+                    if out_file.is_empty() {
+                        send!("{}\n",String::from_utf8_lossy(&res));
+                    } else {
+                        let mut out_file = PathBuf::from(out_file);
+                        if !out_file.has_root() {
+                            out_file = PathBuf::from(&cwd).join(out_file);
+                        }
+                        let _ =fs::write(&out_file, res);
+                    }
                 }
             }
         }
@@ -504,30 +537,57 @@ enum CmdState {
     QEsc,
 }
 
-fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>) {
+#[derive(Debug, Clone, PartialEq, Default)]
+enum RedirectSate {
+    #[default]
+    NoRedirect,
+    Input,
+    Output,
+}
+
+fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String) { // TODO add < for first group and > for last gropu which can be be the same
     let mut pipe_res = vec![];
     let mut res = vec![];
+    let mut input_file = String::new();
+    let mut output_file = String::new();
     let mut state = Default::default();
     let mut curr_comp = String::new();
-    let input = input.as_ref();//.to_string();
+    let mut red_state = RedirectSate::default();
+    let input = input.as_ref();
     for c in input.chars() {
         match c {
-            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' | '|' => {
+            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' | '|' | '(' | ')' | '<' | '>' | ';' | '&' => { // TODO special processing for redrect symbols
                  match state {
                     CmdState:: StartArg => {
-                       if c == '|' {
-                            // finish the command + args group and start a new one
-                            pipe_res.push(res.clone());
-                            res.clear();
+                        match c {
+                            '|' => {
+                                // finish the command + args group and start a new one
+                                pipe_res.push(res.clone());
+                                res.clear();
+                            }
+                            '<' => { red_state = RedirectSate::Input; }
+                            '>' => { red_state = RedirectSate::Output }
+                            _ => (),
                         }
                     }
                     CmdState:: InArg => {
                         state = CmdState:: StartArg;
-                        res.push(curr_comp.clone());
+                        match red_state {
+                            RedirectSate::NoRedirect => {
+                                res.push(curr_comp.clone());
+                            }
+                            RedirectSate::Input => {input_file = String::from(&curr_comp);}
+                            RedirectSate::Output => {output_file = String::from(&curr_comp);}
+                        }
                         curr_comp.clear();
-                        if c == '|' {
-                            pipe_res.push(res.clone());
-                            res.clear();
+                        match c {
+                            '|' => {
+                                pipe_res.push(res.clone());
+                                res.clear();
+                            }
+                            '<' => { red_state = RedirectSate::Input; }
+                            '>' => { red_state = RedirectSate::Output }
+                            _ => red_state = RedirectSate::NoRedirect,
                         }
                     }
                     CmdState:: Esc => {
@@ -595,17 +655,26 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>) {
        
     }
     match state {
-        CmdState:: InArg | CmdState::QuotedArg  => {
-            res.push(curr_comp.clone());
-        }
         CmdState:: Esc => {
             curr_comp.push('\\');
-            res.push(curr_comp.clone());
+            state = CmdState:: InArg;
+        }
+        _ => ()
+    }
+    match state {
+        CmdState:: InArg | CmdState::QuotedArg  => {
+            match red_state {
+                RedirectSate::NoRedirect => {
+                    res.push(curr_comp);
+                }
+                RedirectSate::Input => {input_file = String::from(&curr_comp);}
+                RedirectSate::Output => {output_file = String::from(&curr_comp);}
+            }
         }
         CmdState:: StartArg => (),
         _ => todo!()
     }
-    (res, pipe_res)
+    (res, pipe_res,input_file,output_file)
 }
 
 fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<String>>

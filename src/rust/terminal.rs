@@ -342,7 +342,7 @@ fn main() -> io::Result<()> {
                             }
                             match fs::read(&in_file) {
                                 Ok(contents) =>  {
-                                    let res = call_process_piped(cmd, &cwd, contents, &child_env).unwrap();
+                                    let res = call_process_piped(cmd, &cwd, &contents, &child_env).unwrap();
                                     if out_file.is_empty() {
                                         send!("{}\n",String::from_utf8_lossy(&res));
                                     } else {
@@ -364,14 +364,16 @@ fn main() -> io::Result<()> {
                         pipe_cmd = pipe_cmd.into_iter().map(|el| interpolate_env(el)).collect();
                         pipe_cmd = expand_wildcard(&cwd, pipe_cmd);
                         pipe_cmd = expand_alias(&aliases, pipe_cmd);
-                        // TODO add error handling
-                        res = call_process_piped(pipe_cmd.clone(), &cwd, res, &child_env).unwrap(); 
+                        match call_process_piped(pipe_cmd.clone(), &cwd, &res, &child_env) {
+                            Ok(next_res) => { res = next_res; }
+                            Err(err) => {eprintln!("error {err} in call {pipe_cmd:?}");break}
+                        } 
                         //eprintln!("Called {pipe_cmd:?} returned {}", String::from_utf8_lossy(&res));
                     }
                     cmd = expand_wildcard(&cwd, cmd);
                     cmd = expand_alias(&aliases, cmd);
                     //eprintln!("before call {cmd:?}");
-                    res = call_process_piped(cmd, &cwd, res, &child_env).unwrap();
+                    res = call_process_piped(cmd, &cwd, &res, &child_env).unwrap();
                     if out_file.is_empty() {
                         send!("{}\n",String::from_utf8_lossy(&res));
                     } else {
@@ -478,7 +480,7 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
     res
 }
 
-fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: Vec<u8>, filtered_env: &HashMap<String, String>) -> io::Result<Vec<u8>> {
+fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filtered_env: &HashMap<String, String>) -> io::Result<Vec<u8>> {
     let mut process = 
         if cmd.len() > 1 {
                 Command::new(&cmd[0])
@@ -1206,7 +1208,7 @@ fn esc_string_blanks(string:String) -> String {
 let mut res = String::new();
     for c in string.chars() {
         match c {
-            ' ' | '\\' | '"' => { res.push('\\'); }
+            ' ' | '\\' | '"' | '|' | '(' | ')' | '<' | '>' | ';' | '&' => { res.push('\\'); }
             _ => ()
         }
         res.push(c);

@@ -361,6 +361,7 @@ fn main() -> io::Result<()> {
                     // piping work
                     let mut res = vec![];
                     for mut pipe_cmd in piped {
+                        pipe_cmd = pipe_cmd.into_iter().map(|el| interpolate_env(el)).collect();
                         pipe_cmd = expand_wildcard(&cwd, pipe_cmd);
                         pipe_cmd = expand_alias(&aliases, pipe_cmd);
                         // TODO add error handling
@@ -369,7 +370,7 @@ fn main() -> io::Result<()> {
                     }
                     cmd = expand_wildcard(&cwd, cmd);
                     cmd = expand_alias(&aliases, cmd);
-                    //eprintln!("before call {cmd:?}");
+                    eprintln!("before call {cmd:?}");
                     res = call_process_piped(cmd, &cwd, res, &child_env).unwrap();
                     if out_file.is_empty() {
                         send!("{}\n",String::from_utf8_lossy(&res));

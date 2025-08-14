@@ -370,7 +370,7 @@ fn main() -> io::Result<()> {
                     }
                     cmd = expand_wildcard(&cwd, cmd);
                     cmd = expand_alias(&aliases, cmd);
-                    eprintln!("before call {cmd:?}");
+                    //eprintln!("before call {cmd:?}");
                     res = call_process_piped(cmd, &cwd, res, &child_env).unwrap();
                     if out_file.is_empty() {
                         send!("{}\n",String::from_utf8_lossy(&res));

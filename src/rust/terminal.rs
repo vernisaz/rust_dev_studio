@@ -344,7 +344,7 @@ fn main() -> io::Result<()> {
                                 Ok(contents) =>  {
                                     let res = call_process_piped(cmd, &cwd, &contents, &child_env).unwrap();
                                     if out_file.is_empty() {
-                                        send!("{}\n",String::from_utf8_lossy(&res));
+                                        send!("{}",String::from_utf8_lossy(&res));
                                     } else {
                                         let mut out_file = PathBuf::from(out_file);
                                         if !out_file.has_root() {
@@ -375,7 +375,7 @@ fn main() -> io::Result<()> {
                     //eprintln!("before call {cmd:?}");
                     res = call_process_piped(cmd, &cwd, &res, &child_env).unwrap();
                     if out_file.is_empty() {
-                        send!("{}\n",String::from_utf8_lossy(&res));
+                        send!("{}",String::from_utf8_lossy(&res));
                     } else {
                         let mut out_file = PathBuf::from(out_file);
                         if !out_file.has_root() {

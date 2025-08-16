@@ -38,13 +38,13 @@ paths to the _HOME_ directory. (Actually it's any directory where the directory 
 
 The mapping is used to run the RDS from the dev environment, therefore the access URL
 will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
-however it will be in a simpler form in the standard packaging as
+however it will be in a simpler appearance in the standard packaging as
 `http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will be dependent
-on your environment. Obvioustly you can change the root web path also.
+on your environment. Obviously you can change the application web path too.
 
 
 You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
-because only the server provides the WS CGI support.
+because the server only provides the WS CGI support.
 
 There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support but still
 can be obtained [from](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).

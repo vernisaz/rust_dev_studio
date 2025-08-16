@@ -58,14 +58,14 @@ Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired versi
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components,
-there is predefined packaging.
+there is the predefined packaging.
 
-The standard packaging includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
+It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
 and you can start using the **RDS**. The access URL's stored in `rds.url`.
 
-## Building rustcgi components
+## Building RDS components
 
-[RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
+The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
 
 The following crates will be required to be built first:
 
@@ -74,18 +74,18 @@ The following crates will be required to be built first:
 - The [simple time](https://github.com/vernisaz/simtime)
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
-- 
 
-Common scripts used for building other components (crates). Run **rb** in each component root directory. **crates** directory
-needs to be created first where built components will be stored.
+Common scripts is used for building dependency components (crates). 
+The **crates** directory on level of repository directories has to be created prior building unless it's
+already exists. Run **rb** in each component repository. 
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
 
 ## Working tips
 
-You will see an empty page when first time pointed a browser to **RDS** URL. Select menu *Settings* or *File/Project/New...*.
-Navigate to a project directory and then *Save* the settings or *Apply* for the new project.
-Open just created project from *File/Project* then. You can start to
+You will see an empty page when first time pointed a browser to **RDS** URL. Select menu *File/Project/New...*.
+Navigate to a project directory and then *Apply* for the new project.
+Open just created project from menu *File/Project/\<name\>* then. You can start to
 navigate over the project tree, open and edit files, build its components and so on.
 
 If you do not have the project checked out yet, then you can check it out first, and then to set the project root 
@@ -98,8 +98,8 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 ## Cloud and multi users install
-If you plan to use the IDE on a Cloud in a multi users environment, then you need to provide a proxy server in a front which provides:
-- SSL to unsecured connection
+If you plan to use the IDE on Cloud in a multi users environment, then you need to provide a proxy server in a front which provides:
+- SSL to plain connection conversion
 - A user authentication
 - URL translation
 
@@ -109,15 +109,15 @@ the IDE uses only URLs in a relative form and doesn't need to know how an actual
 
 ## Browser compatibly
 
-**RDS** uses HTML 5 features and compatible with browsers supporting them. 
+**RDS** uses HTML 5 features presented in popular browsers today. 
 Compatibility was tested using the latest **Firefox**, **Edge**, **Safari**, and **Amazon Silk** browsers.
-More likely, other browsers will work too. If you encounter problems with any browser,
-then please report them to the author.
+More likely, other browsers will work too. If you encounter problems with your browser,
+then, please, report them to the author.
 
 ## Known problems
 
 1. *datalist* seems isn't supported by the Silk browser, so an auto suggest won't work on Fire tablets
-2. files can stop be opened from the left navigation panel (work around - select
+2. files can stop to be opened from the left navigation panel (work around - select
 _Refresh Proj_ from _Edit_ menu or reload the project page)
 
 ## Reading about

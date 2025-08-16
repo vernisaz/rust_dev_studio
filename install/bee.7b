@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.20.01
+version=1.25.00
 
 include(cfg.7b) # created by the install
 
@@ -51,11 +51,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- bookmarking feature
-- redirection support in the terminal
-- pipes support in the terminal
-- more flexible 'resource' directory location
-- several bug fixes, including improved stability of the SimHTTP",
+,
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

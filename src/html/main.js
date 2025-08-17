@@ -38,6 +38,8 @@ function main() {
         wsSession = 'webId-' + makeid(12) // only allowed chars in HTTP header
     }
     
+    ace.require("ace/ext/language_tools");
+    
     loadSettings()
     
     vcsStatus()
@@ -46,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.00.086'
+    return '1.08.01.081'
 }
 
 function populateProjectTree() {
@@ -112,9 +114,14 @@ function render_editor(edittab, path) {
     if (EDITOR_MODE[ext])
         editor.session.setMode("ace/mode/"+EDITOR_MODE[ext])
     editor.setAutoScrollEditorIntoView(false)
+    if (ext == 'txt' || ext == 'md')
+        editor.setOption("spellcheck", true)
     //editor.setFontSize(16)
     editor.setOptions({
-      fontSize: "12pt"
+        fontSize: "12pt",
+        enableBasicAutocompletion: true, // Enables basic autocompletion
+        enableSnippets: true,            // Enables code snippets
+        enableLiveAutocompletion: true
     })
     editor.resize()
     const editorArea = document.querySelector('div.center-pane');

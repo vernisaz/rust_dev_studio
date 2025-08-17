@@ -204,7 +204,7 @@ function renderTree(data, parentElement) {
   });
 }
 
-function moveToLineInFile(path, line, col) {
+function moveToLineInFile(path, line, col, failHandler) {
     //console.log('path to show '+path+' at '+line)
     const tab_item = document.getElementById(path)
     
@@ -219,7 +219,7 @@ function moveToLineInFile(path, line, col) {
              "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
                  EDITORS[path].editor.gotoLine(line, col, true)
              },
-             fail: function(ecode, etext) {lockLoad = false}})
+             fail: function(ecode, etext) {lockLoad = false; if (failHandler && failHandler instanceof Function) failHandler(path, line, col)}})
     }
 }
 
@@ -339,12 +339,22 @@ function loadBookmarks() {
                 bookmarkEl.dataset.note = bookmark.comment
                 bookmarkEl.textContent = bookmark.src.split('/').pop() + ':' + bookmark.line + ' - ' + trimAndEllipsize(bookmark.content, 36)
                 bookmarkEl.addEventListener("click", () => {
-                    moveToLineInFile(bookmarkEl.dataset.src, bookmarkEl.dataset.line, 0)
+                    moveToLineInFile(bookmarkEl.dataset.src, bookmarkEl.dataset.line, 0, clearBookmark)
                 });
                 bookmarkList.appendChild(bookmarkEl)
             }
         }
     })
+}
+
+function clearBookmark(src, line, col) {
+    const bookmarks = document.querySelector('#bookmarks')
+    for (const child of bookmarks.children) {
+        if (child.dataset.src == src && child.dataset.line == line) {
+            bookmarks.removeChild(child)
+            break
+        }
+    }
 }
 
 function loadNotepad() {

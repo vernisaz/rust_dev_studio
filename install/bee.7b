@@ -50,7 +50,9 @@ target package:.. {
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
     "What's New
-    
+  
+- added spell check for .txt and .md files
+- added auto complete feature
 ,
 	-E ${rds}/rds${script ext},
 	script,

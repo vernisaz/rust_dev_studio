@@ -460,7 +460,7 @@
           //openFileMenu()
           const currentTab = document.querySelector('input[name="tabs"]:checked')
           if (currentTab)
-           saveData(currentTab.id)
+             saveData(currentTab.id)
       }
       
       function closeCurrent() {
@@ -498,7 +498,7 @@
                   else
                     sessions.add(new Option(ses))  // ?? html encode
               }
-          }, respType:"json"})   
+          }})   
           
           showSessionSettings(SESSION, true)
       }
@@ -531,7 +531,7 @@
               }
               if (showit)
                  jump('popup-container')
-          }, respType:"json"})
+          }})
       }
           
       
@@ -1011,7 +1011,7 @@
             if (repEl.tagName == 'MENU') {
                 repEl.innerHTML = menuHtml;
             }
-         }, respType:"json"})
+         }})
     }
     
     function upper() {

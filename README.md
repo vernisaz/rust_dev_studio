@@ -114,6 +114,14 @@ Compatibility was tested using the latest **Firefox**, **Edge**, **Safari**, and
 More likely, other browsers will work too. If you encounter problems with your browser,
 then, please, report them to the author.
 
+## Like the IDE but Rust
+You can add any other language in support. Open [main.html](./src/html/main.html) and navigate to
+line 267 to see
+```javascript
+const EDITOR_MODE = {
+```
+Add more modes accordingly file extension of the code type of your interest.
+
 ## Known problems
 
 1. *datalist* seems isn't supported by the Silk browser, so an auto suggest won't work on Fire tablets

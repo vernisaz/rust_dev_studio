@@ -215,11 +215,11 @@ function moveToLineInFile(path, line, col) {
     } else if (!lockLoad) {
         lockLoad = true
         const name = path.split('/').pop()
-       ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
-         "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
-             EDITORS[path].editor.gotoLine(line, col, true)
-         },
-         fail: function(ecode, etext) {lockLoad = false}})
+        ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
+             "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
+                 EDITORS[path].editor.gotoLine(line, col, true)
+             },
+             fail: function(ecode, etext) {lockLoad = false}})
     }
 }
 

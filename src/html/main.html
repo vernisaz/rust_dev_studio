@@ -1206,6 +1206,7 @@
         bookmark.dataset.note = 'no note'
         bookmark.textContent = selTab.id.split('/').pop() + ':' + currentRow + ' - ' + trimAndEllipsize(currentLineText, 34)
         bookmark.addEventListener("click", () => {
+            // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)
         });
         bookmarks.appendChild(bookmark)

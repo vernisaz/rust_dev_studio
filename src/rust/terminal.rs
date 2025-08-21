@@ -525,6 +525,24 @@ fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filter
     Ok(handle.join().unwrap())
 }
 
+#[allow(dead_code)]
+fn call_process_async(cmd: Vec<String>, cwd: &PathBuf, filtered_env: &HashMap<String, String>) -> io::Result<u32> {
+    
+let mut binding = Command::new(&cmd[0]);
+
+    let mut command = binding
+             .stdout(std::process::Stdio::null())
+             .stdin(std::process::Stdio::null())
+             .stderr(std::process::Stdio::null())
+             .env_clear()
+             .envs(filtered_env)
+             .current_dir(&cwd);
+    if cmd.len() > 1 {
+        command = command.args(&cmd[1..])
+    }  ;    
+    Ok(command.spawn()?.id())
+}
+
 #[derive(Debug, Clone, PartialEq, Default)]
 enum CmdState {
     #[default]

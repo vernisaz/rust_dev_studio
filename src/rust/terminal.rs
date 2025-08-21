@@ -100,16 +100,13 @@ fn main() -> io::Result<()> {
         let line = String::from_utf8_lossy(&vec_buf).into_owned();
         prev = None;
         let expand = line.chars().last() == Some('\t');
-        // TODO parse with pipe
-        let (mut cmd, piped, in_file, out_file) = parse_cmd(&line.trim());
+        let (mut cmd, piped, in_file, out_file, _) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1].clone(), &cwd));
             let mut beg = 
             piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " + &esc_string_blanks(e2)).unwrap() + "|" );
-           // for pipe in piped {
-                
-           // }
+           
             if cmd.len() > 1 {
                 cmd.pop();
                 beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap()
@@ -119,8 +116,6 @@ fn main() -> io::Result<()> {
             continue
         }
         send!("{PROMPT} {line}"); // \n is coming as part of command
-        // TODO separate command by | and then instead of
-        // display out, take it as input of next command
         cmd = cmd.into_iter().map(|el| interpolate_env(el)).collect();
         match cmd[0].as_str() {
             "dir" if cfg!(windows) => {
@@ -427,7 +422,7 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                         let Ok(l) = stdout.read(&mut buffer) else {break};
                         if l == 0 { break } // 
                         
-                        let data = buffer[0..l].to_vec();
+                        let data = buffer[..l].to_vec();
                         let string = String::from_utf8_lossy(&data);
                         send!{"{}", string};
                     }
@@ -509,7 +504,7 @@ fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filter
         loop {
             let Ok(l) = stdout.read(&mut buffer) else {break};
             if l == 0 { break } // 
-            res.extend_from_slice(&buffer[0..l])
+            res.extend_from_slice(&buffer[..l])
         }
         res
     });
@@ -548,11 +543,12 @@ enum RedirectSate {
     Output,
 }
 
-fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String) { // TODO add < for first group and > for last gropu which can be be the same
+fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String,bool) { // TODO add < for first group and > for last gropu which can be be the same
     let mut pipe_res = vec![];
     let mut res = vec![];
     let mut input_file = String::new();
     let mut output_file = String::new();
+    let mut asynch = false;
     let mut state = Default::default();
     let mut curr_comp = String::new();
     let mut red_state = RedirectSate::default();
@@ -570,6 +566,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                             }
                             '<' => { red_state = RedirectSate::Input; }
                             '>' => { red_state = RedirectSate::Output }
+                            '&' => asynch = true,
                             _ => (),
                         }
                     }
@@ -590,6 +587,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                             }
                             '<' => { red_state = RedirectSate::Input; }
                             '>' => { red_state = RedirectSate::Output }
+                            '&' => asynch = true,
                             _ => red_state = RedirectSate::NoRedirect,
                         }
                     }
@@ -604,6 +602,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                 }
             }
             '"' => {
+                asynch = false;
                 match state {
                    CmdState:: StartArg => {
                        state = CmdState:: QuotedArg;
@@ -620,6 +619,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                 }
             }
             '\\' => {
+                asynch = false;
                 match state {
                     CmdState:: StartArg | CmdState:: InArg => {
                        state = CmdState:: Esc;
@@ -638,6 +638,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                 }
             }
             other => {
+                asynch = false;
                 match state {
                     CmdState:: StartArg => {
                        state = CmdState:: InArg;
@@ -677,7 +678,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
         CmdState:: StartArg => (),
         _ => todo!()
     }
-    (res, pipe_res,input_file,output_file)
+    (res, pipe_res,input_file,output_file,asynch)
 }
 
 fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<String>>

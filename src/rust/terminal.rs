@@ -526,7 +526,7 @@ fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filter
         stdin_child.flush().unwrap()
     }
     drop(stdin_child);
-   // process.wait().unwrap();
+    process.wait().unwrap();
     Ok(handle.join().unwrap())
 }
 

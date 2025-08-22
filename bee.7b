@@ -19,21 +19,6 @@ if {
 	}
 }
 
-if {
-	eq(${~os~},windows)
-	then {
-		assign(ext,.exe)
-		assign(script ext,.bat)
-		assign(script,START /B .\bin\simhttp.exe %1)
-	}
-	else {
-		assign(ext,)
-		assign(script ext,.sh)
-		assign(script,"#!/bin/sh
-./bin/simhttp $1&")
-	}
-}
-
 # -----------------------------------------------
 crate=web_cgi
 crate_src=crate${~/~}${crate}

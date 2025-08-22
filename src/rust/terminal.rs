@@ -100,7 +100,7 @@ fn main() -> io::Result<()> {
         let line = String::from_utf8_lossy(&vec_buf).into_owned();
         prev = None;
         let expand = line.chars().last() == Some('\t');
-        let (mut cmd, piped, in_file, out_file, _) = parse_cmd(&line.trim());
+        let (mut cmd, piped, in_file, out_file, bkgr) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1].clone(), &cwd));
@@ -326,7 +326,13 @@ fn main() -> io::Result<()> {
                     cmd = expand_wildcard(&cwd, cmd);
                     cmd = expand_alias(&aliases, cmd);
                     if in_file.is_empty() && out_file.is_empty() {
-                        prev = call_process(cmd, &cwd, &stdin, &child_env);
+                        if bkgr {
+                            if let Ok(pid) = call_process_async(&cmd, &cwd,&child_env) {
+                                send!("{} [{pid}]\n", cmd[0]);
+                            }
+                        } else {
+                            prev = call_process(cmd, &cwd, &stdin, &child_env);
+                        }
                     } else {
                         if in_file.is_empty() {
                             prev = call_process(cmd, &cwd, &stdin, &child_env);
@@ -525,11 +531,8 @@ fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filter
     Ok(handle.join().unwrap())
 }
 
-#[allow(dead_code)]
-fn call_process_async(cmd: Vec<String>, cwd: &PathBuf, filtered_env: &HashMap<String, String>) -> io::Result<u32> {
-    
-let mut binding = Command::new(&cmd[0]);
-
+fn call_process_async(cmd: &Vec<String>, cwd: &PathBuf, filtered_env: &HashMap<String, String>) -> io::Result<u32> {
+    let mut binding = Command::new(&cmd[0]);
     let mut command = binding
              .stdout(std::process::Stdio::null())
              .stdin(std::process::Stdio::null())

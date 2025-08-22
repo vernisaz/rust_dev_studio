@@ -9,8 +9,9 @@ use std::{collections::HashMap,
         io::{self, ErrorKind},
         path::{Path,PathBuf},
         process::Command,
-        sync::{Arc, Mutex}
-};
+        sync::{Arc, Mutex},
+        error::Error,
+        fmt::{self,Display}};
 
 mod crossref;
 mod search;
@@ -53,6 +54,28 @@ fn get_project_home(params: &Param) -> Option<String> {
     None
 }
 
+#[derive(Debug)] 
+struct MisconfigurationError <'a>{
+    cause: &'a str,
+}
+
+impl Display for MisconfigurationError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Misconfiguration: {}", self.cause)
+    }
+}
+
+impl Error for MisconfigurationError<'_> {
+    // The `source` method is optional but recommended for chaining errors
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            // If your error wraps another `Error` type, return a reference to it here.
+            // For example, if InvalidInput wrapped a `std::io::Error`, you'd return `Some(inner_error)`.
+            _ => None, // No source error in this simple example
+        }
+    }
+}
+
 fn main() {
     if let Err(e) = inner_main() {
         let page = PageStuff {
@@ -61,7 +84,7 @@ fn main() {
     }
 }
 
-fn inner_main() -> io::Result<()> {
+fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
     let params = web::Param::new();
     let page: Box<dyn PageOps> = match params.param("mode").as_deref() {
         None => match params.param("id") {
@@ -188,7 +211,7 @@ fn inner_main() -> io::Result<()> {
                         // create dir if non existent (too many directories attack possible)
                         fs::create_dir_all(real_dir)?;
                     } else if real_dir.is_file() {
-                        return Err(io::Error::new(io::ErrorKind::Other, "The project directory is a file"))
+                        return Err(Box::new(MisconfigurationError{ cause: "a file specified instead of a directory"}))
                     }
                 }
                 for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf"] {
@@ -225,7 +248,7 @@ fn inner_main() -> io::Result<()> {
         }
         Some("del-project") => {
             let Some(proj) = params.param("project") else {
-                return Err(io::Error::new(ErrorKind::Other, "no project param"))
+                return Err(Box::new(MisconfigurationError{ cause: "no project param"}))
             };
             let del_fil  = |file| -> io::Result<()> {
                 remove_file(file)?;

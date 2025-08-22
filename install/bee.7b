@@ -52,7 +52,7 @@ target package:.. {
     "What's New
   
 - added spell check for .txt and .md files
-- added auto complete feature
+- added auto complete for code
 - added a mode to run app from the terminal in background,
 	-E ${rds}/rds${script ext},
 	script,

@@ -328,7 +328,7 @@ fn main() -> io::Result<()> {
                     if in_file.is_empty() && out_file.is_empty() {
                         if bkgr {
                             if let Ok(pid) = call_process_async(&cmd, &cwd,&child_env) {
-                                send!("{} [{pid}]\n", cmd[0]);
+                                send!("[{}] {pid}\n", cmd[0]);
                             }
                         } else {
                             prev = call_process(cmd, &cwd, &stdin, &child_env);

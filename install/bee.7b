@@ -53,7 +53,8 @@ target package:.. {
   
 - added spell check for .txt and .md files
 - added auto complete for code
-- added a mode to run app from the terminal in background,
+- changed the terminal appearance and logic to be more real terminal like
+- added a mode to run app from the terminal in background",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

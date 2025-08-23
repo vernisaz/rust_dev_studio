@@ -407,17 +407,13 @@ label,input{
     min-width: 100%;
 }
 
-#terminal, #cli_line {
+#terminal {
     color: #0e131f;
     font-family: monospace; 
     padding-top:2px;
     padding-bottom: 1em;
     overflow: auto; 
     width: fit-content;
-}
-
-#cli_line {
-    margin-bottom: 4pt;
 }
 
 #terminal pre {
@@ -482,7 +478,7 @@ span+a {
          border-radius: 4px;
     }   
 
-    #terminal pre, #cli_line, #cli_line code {
+    #terminal pre, #terminal > code {
         color: #e9ebf2;
     }
     

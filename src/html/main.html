@@ -1204,7 +1204,7 @@
         bookmark.dataset.src = selTab.id
         bookmark.dataset.snip = currentLineText
         bookmark.dataset.note = 'no note'
-        bookmark.textContent = selTab.id.split('/').pop() + ':' + currentRow + ' - ' + trimAndEllipsize(currentLineText, 34)
+        bookmark.textContent = selTab.id.split('/').pop() + ':' + bookmark.dataset.line + ' - ' + trimAndEllipsize(currentLineText, 34)
         bookmark.addEventListener("click", () => {
             // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)

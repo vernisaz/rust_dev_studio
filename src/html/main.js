@@ -519,6 +519,9 @@ function ws_connect() {
             document.getSelection().collapseToEnd()
             return
         }
+        if (e.data.startsWith('\f')) {
+            // print command prompt
+        }
         //console.log(e.data)  // for debug
         // the code handles the situation when data split between two chunks (not more than two though)
         var chunk = e.data

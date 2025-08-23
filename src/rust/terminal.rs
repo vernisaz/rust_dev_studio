@@ -576,7 +576,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
     let input = input.as_ref();
     for c in input.chars() {
         match c {
-            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' | '|' | '(' | ')' | '<' | '>' | ';' | '&' => { // TODO special processing for redrect symbols
+            ' ' | '\t' | '\r' | '\n' | '\u{00a0}' | '|' | '(' | ')' | '<' | '>' | ';' | '&' | '\u{000C}' | '\u{000B}' => { // \f \v
                  match state {
                     CmdState:: StartArg => {
                         match c {

@@ -2,8 +2,9 @@ project  =terminal
 main=src${~/~}rust${~/~}${project}
 common =${projects}simscript${~/~}comm-build.7b:file
 projects=..${~/~}
-crate_dir=${projects}${~/~}crates
-
+crate_dir=..${~/~}crates
+# license = "MIT"
+# keywords = ["process", "subprocess", "command", "child", "pipe"]
 comp opts=[]
 
 version="1.20:037"

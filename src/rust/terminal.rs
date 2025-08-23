@@ -329,7 +329,7 @@ fn main() -> io::Result<()> {
                     if in_file.is_empty() && out_file.is_empty() {
                         if bkgr {
                             if let Ok(pid) = call_process_async(&cmd, &cwd,&child_env) {
-                                send!("[{}] {pid}\n", cmd[0]);
+                                send!("[{}] {pid}\u{000C}", cmd[0]);
                             }
                         } else {
                             prev = call_process(cmd, &cwd, &stdin, &child_env);
@@ -346,13 +346,14 @@ fn main() -> io::Result<()> {
                                 Ok(contents) =>  {
                                     let res = call_process_piped(cmd, &cwd, &contents, &child_env).unwrap();
                                     if out_file.is_empty() {
-                                        send!("{}",String::from_utf8_lossy(&res));
+                                        send!("{}\u{000C}",String::from_utf8_lossy(&res));
                                     } else {
                                         let mut out_file = PathBuf::from(out_file);
                                         if !out_file.has_root() {
                                             out_file = PathBuf::from(&cwd).join(out_file);
                                         }
                                         let _ =fs::write(&out_file, res);
+                                        send!("\u{000C}");
                                     }
                                 }
                                 _ => ()
@@ -377,13 +378,14 @@ fn main() -> io::Result<()> {
                     //eprintln!("before call {cmd:?}");
                     res = call_process_piped(cmd, &cwd, &res, &child_env).unwrap();
                     if out_file.is_empty() {
-                        send!("{}",String::from_utf8_lossy(&res));
+                        send!("{}\u{000C}",String::from_utf8_lossy(&res));
                     } else {
                         let mut out_file = PathBuf::from(out_file);
                         if !out_file.has_root() {
                             out_file = PathBuf::from(&cwd).join(out_file);
                         }
                         let _ =fs::write(&out_file, res);
+                        send!("\u{000C}");
                     }
                 }
             }

@@ -729,7 +729,7 @@ function ws_connect() {
         if (!noPrompt) {
             // print command prompt
             const prompt = document.createElement("pre")
-            prompt.textContent = '\n$ '
+            prompt.textContent = '\n$'
             appendContent(cons,prompt)
             //cons.appendChild(prompt)
         }
@@ -846,9 +846,15 @@ function sendCommand(cmd) {
 		          wskt.send('\x03')
    }
    function clearScreen() {
-       const cons = document.querySelector('#terminal')
-       cons.replaceChildren();
-       clearColorAttributes()
+        const cons = document.querySelector('#terminal')
+       //cons.replaceChildren();
+        clearColorAttributes()
+        while (cons.firstChild.tagName != 'CODE') {
+            cons.firstChild.remove()
+        }
+        const prompt = document.createElement("pre")
+        prompt.textContent = '$'
+        appendContent(cons,prompt)
    }
 
 // //////  Util methods

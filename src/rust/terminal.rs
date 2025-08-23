@@ -30,7 +30,7 @@ const VERSION: &str = env!("VERSION");
 
 const MAX_BLOCK_LEN : usize = 4096;
 
-const PROMPT: &str = "$";
+//const PROMPT: &str = "$";
 
 fn main() -> io::Result<()> {
     let web = simweb::WebData::new();
@@ -115,7 +115,7 @@ fn main() -> io::Result<()> {
             send!("\r{} {ext}", beg);// &line[..pos]);
             continue
         }
-        send!("{PROMPT} {line}"); // \n is coming as part of command
+        send!("{line}"); // \n is coming as part of command
         cmd = cmd.into_iter().map(|el| interpolate_env(el)).collect();
         match cmd[0].as_str() {
             "dir" if cfg!(windows) => {
@@ -132,7 +132,7 @@ fn main() -> io::Result<()> {
                     };
                 if dir.display().to_string().find('*').is_none() {
                     let Ok(paths) = fs::read_dir(&dir) else {
-                        send!("{dir:?} invalid");
+                        send!("{dir:?} invalid\u{000C}");
                         continue
                     };
                     
@@ -208,7 +208,7 @@ fn main() -> io::Result<()> {
                         }
                         dir.push('\n');
                     }
-                    send!("{dir}");
+                    send!("{dir}\u{000C}");
                 } else {
                     let data = DeferData::from(&dir);
                     let mut res = String::new();
@@ -220,11 +220,11 @@ fn main() -> io::Result<()> {
                         res.push('\n');
                         dir.pop();
                     }
-                    send!("{res}"); 
+                    send!("{res}\u{000C}"); 
                 }
             }
             "pwd" => {
-                send!("{}\n", cwd.as_path().display()); // path
+                send!("{}\u{000C}", cwd.as_path().display()); // path
             }
             "cd" => {
                 if cmd.len() == 1 {
@@ -242,22 +242,22 @@ fn main() -> io::Result<()> {
                         _ => ()
                     }
                 }
-                send!("{}\n", cwd.as_path().display());
+                send!("{}\u{000C}", cwd.as_path().display());
             }
             "del" if cfg!(windows) => {
                 if cmd.len() == 1 {
-                    send!("No name specified\n");
+                    send!("No name specified\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
                 if !file.has_root() {
                    file = cwd.join(file); 
                 }
-                send!("{} file(s) deleted\n", DeferData::from(&file).do_op(Op::DEL).unwrap());
+                send!("{} file(s) deleted\u{000C}", DeferData::from(&file).do_op(Op::DEL).unwrap());
             }
             "type" if cfg!(windows) => {
                 if cmd.len() == 1 {
-                    send!("No name specified\n");
+                    send!("No name specified\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
@@ -265,10 +265,11 @@ fn main() -> io::Result<()> {
                    file = cwd.join(file); 
                 }
                 let _ = DeferData::from(&file).do_op(Op::TYP);
+                send!("\u{000C}");
             }
             "copy" | "ren" if cfg!(windows) => {
                 if cmd.len() < 3 {
-                    send!("Source and  destination have to be provided\n");
+                    send!("Source and  destination have to be provided\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
@@ -280,19 +281,19 @@ fn main() -> io::Result<()> {
                    file_to = cwd.join(file_to); 
                 }
                 match cmd[0].as_str() {
-                    "copy" => {send!("{} file(s) copied\n", DeferData::from_to(&file, &file_to).do_op(Op::CPY).unwrap());},
-                    "ren" => {send!("{} file(s) renamed\n", DeferData::from_to(&file, &file_to).do_op(Op::REN).unwrap());},
+                    "copy" => {send!("{} file(s) copied\u{000C}", DeferData::from_to(&file, &file_to).do_op(Op::CPY).unwrap());},
+                    "ren" => {send!("{} file(s) renamed\u{000C}", DeferData::from_to(&file, &file_to).do_op(Op::REN).unwrap());},
                     _ => unreachable!()
                 }
             }
             "echo" if cfg!(windows) => {
                 if cmd.len() == 2 {
-                    send!("{}\n", cmd[1]);
+                    send!("{}\u{000C}", cmd[1]);
                 }
             }
             "md" | "mkdir" if cfg!(windows) => {
                 if cmd.len() == 1 {
-                    send!("No name specified\n");
+                    send!("No name specified\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
@@ -300,13 +301,13 @@ fn main() -> io::Result<()> {
                    file = cwd.join(file); 
                 }
                 match fs::create_dir(file) {
-                    Ok(_) => {send!("{} created\n", cmd[1]);},
-                    Err(err) => {send!("Err: {err} in {} creation\n", cmd[1]);},
+                    Ok(_) => {send!("{} created\u{000C}", cmd[1]);},
+                    Err(err) => {send!("Err: {err} in {} creation\u{000C}", cmd[1]);},
                 }
             }
             "rmdir" if cfg!(windows) => {
                 if cmd.len() == 1 {
-                    send!("No name specified\n");
+                    send!("No name specified\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
@@ -314,12 +315,12 @@ fn main() -> io::Result<()> {
                    file = cwd.join(file); 
                 }
                 match fs::remove_dir_all(file) {
-                    Ok(_) => {send!("{} removed\n", cmd[1]);},
-                    Err(err) => {send!("Err: {err} in removing {}\n", cmd[1]);},
+                    Ok(_) => {send!("{} removed\u{000C}", cmd[1]);},
+                    Err(err) => {send!("Err: {err} in removing {}\u{000C}", cmd[1]);},
                 }
             }
             "ver!" => {
-                send!("{VERSION}/{ver}\n"); // path
+                send!("{VERSION}/{ver}\u{000C}"); // path
             }
             _ => {
                 if piped.is_empty() {
@@ -432,6 +433,7 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                         let string = String::from_utf8_lossy(&data);
                         send!{"{}", string};
                     }
+                    send!("\u{000C}");
                 });
                 
                 if let Some(stderr) = process.stderr.take() {

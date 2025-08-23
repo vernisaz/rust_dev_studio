@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.01.081'
+    return '1.08.02.082'
 }
 
 function populateProjectTree() {
@@ -503,7 +503,7 @@ function ws_connect() {
      }
      wskt.onmessage = function(e) {
          
-        if (e.data.startsWith('\r') && e.data.charAt(1) != '\n') { // not very relaible now since can interfere with a regular out
+        if (e.data.startsWith('\r') && (e.data.length == 1 || e.data.charAt(1) != '\n')) { // not very relaible now since can interfere with a regular out
             const cmd = document.getElementById('commandarea')
             var cmdStr
             if (e.data.slice(-1) == '\x07') {
@@ -526,7 +526,7 @@ function ws_connect() {
         //console.log(e.data)  // for debug
         // the code handles the situation when data split between two chunks (not more than two though)
         var chunk = e.data
-        if (chunk.endsWith('\f')) {
+        if (chunk.charAt(chunk.length - 1) == '\f') {
             noPrompt = false
             chunk = chunk.slice(0, -1)
         }
@@ -724,12 +724,14 @@ function ws_connect() {
             term_frag.innerHTML = ansi_html
         } else
             term_frag.innerHTML = htmlEncode(chunk)
-        cons.appendChild(term_frag)
+        //cons.appendChild(term_frag)
+        appendContent(cons,term_frag)
         if (!noPrompt) {
             // print command prompt
             const prompt = document.createElement("pre")
             prompt.textContent = '\n$ '
-            cons.appendChild(prompt)
+            appendContent(cons,prompt)
+            //cons.appendChild(prompt)
         }
         cons.scrollIntoView({ behavior: "smooth", block: "end" })
      }
@@ -742,6 +744,11 @@ function ws_connect() {
             console.log('Oops '+event + ' reconnecting in '+notifRecon+'ms because '+event.reason)
         setTimeout(ws_connect, notifRecon)
      }
+}
+
+function appendContent(term,el) {
+    const lastChild = term.lastElementChild;
+    term.insertBefore(el, lastChild);
 }
 
 function sendCommand(cmd) {

@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.08.01.105">
+       <input type="hidden" name="version" id="version" value="1.08.02.107">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -56,11 +56,8 @@
             <label for="terminal-container">Terminal</label>
             <div id="terminal-container">
                 <div id="terminal">
-                    
+                    <code contenteditable="true" id="commandarea" onkeydown="sendCommand(this)" autofocus style="min-width:1em">&nbsp;</code>
                 </div>
-                <div id="cli_line">
-                $<code contenteditable="true" id="commandarea" onkeydown="sendCommand(this)" autofocus style="min-width:1em">&nbsp;</code>
-                </div>  
             </div>
             <label for="vcs-container">VCS</label>
             <div id="vcs-container">

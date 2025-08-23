@@ -43,7 +43,7 @@ fn main() -> io::Result<()> {
     let mut stdin = io::stdin();
     //let handle = stdin.lock();
     let home = read_home();
-    send!("OS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
+    send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
     let project_path = get_project_home(&project, &home).
         unwrap_or_else(|| {send!("No project config found, the project is misconfigured\n"); home.display().to_string()}); 
     let mut cwd = PathBuf::from(&home);

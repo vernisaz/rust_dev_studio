@@ -519,12 +519,17 @@ function ws_connect() {
             document.getSelection().collapseToEnd()
             return
         }
-        if (e.data.startsWith('\f')) {
-            // print command prompt
-        }
+        
+        const cons = document.querySelector('#terminal')
+        var noPrompt = true
+        
         //console.log(e.data)  // for debug
         // the code handles the situation when data split between two chunks (not more than two though)
         var chunk = e.data
+        if (chunk.endsWith('\f')) {
+            noPrompt = false
+            chunk = chunk.slice(0, -1)
+        }
   
         if (chunk.charAt(chunk.length - 1) == '\x1b') {
              chunk = lastChunk + chunk.substring(0, chunk.length-1)
@@ -551,8 +556,6 @@ function ws_connect() {
         }
         var wasEsc = chunk . startsWith('\x1b[')
         const ansi_esc = chunk.split(/\x1b\[/g)
-
-        const cons = document.querySelector('#terminal')
         const term_frag = document.createElement("pre")
         if (ansi_esc.length > 1) {
             var ansi_html = ''
@@ -720,8 +723,14 @@ function ws_connect() {
             //console.log(ansi_html) // debug
             term_frag.innerHTML = ansi_html
         } else
-            term_frag.innerHTML = htmlEncode(e.data)
+            term_frag.innerHTML = htmlEncode(chunk)
         cons.appendChild(term_frag)
+        if (!noPrompt) {
+            // print command prompt
+            const prompt = document.createElement("pre")
+            prompt.textContent = '\n$ '
+            cons.appendChild(prompt)
+        }
         cons.scrollIntoView({ behavior: "smooth", block: "end" })
      }
      wskt.onclose = (event) => {

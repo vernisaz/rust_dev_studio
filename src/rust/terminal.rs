@@ -53,9 +53,9 @@ fn main() -> io::Result<()> {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
             cwd = PathBuf::from(entry.0.clone());
-            send!("{}\n", cwd.as_path().display());
+            send!("{}\u{000C}", cwd.as_path().display());
         } else {
-            send!("No {session} found\n");
+            send!("No {session} found\u{000C}");
         }
     }
     let aliases = read_aliases(HashMap::new(), &home, None::<String>);

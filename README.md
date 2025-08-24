@@ -1,17 +1,17 @@
 # Rust Development Studio - CGI
 
 ## Purpose
-Web interfaced IDE for app development in different tech stacks, but primary Rust targeted. The IDE can run locally or some cloud machine. 
-It can be accessed from any device having a HTML5 capable browser. It's perfect for tablets as Amazon fire.
+Web interfaced IDE for a development primarily in Rust. The IDE can run locally or some cloud machine. 
+It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
-perfectly suitable for using Rust. The terminal functionality is implemented using the websocket. So the RDS has
-written in Rust, HTML, CSS, and JavaScript.
+perfectly suitable for using Rust. The terminal functionality is implemented using the websocket endpoint. So the RDS has
+written in Rust, HTML, CSS, and JavaScript and runs on Rust web server - [SimHttp](https://github.com/vernisaz/simhttp/tree/master).
 
 ## Implementation
 It's a really compact with footprint below 10 MB. All web requests are handled by one Rust CGI executable. The terminal is
-a websocket endpoint represented by the WS-CGI technology and implemented as a Rust application too.
+a websocket endpoint utilizing the WS-CGI technology.
 
 ## Config
 
@@ -32,7 +32,7 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
        "WS-CGI": true,
        "translated": "./../rust_dev_studio/terminal"}]
 ```
-Make sure that *translated* paths are valid in the underline OS.
+Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
 File *.home* residing in the same directory, where **rustcgi** executable stored, is required. The file has to specify fully qualified
 paths to the _HOME_ directory. (Actually it's any directory where the directory _.rustcgi_ will be landed)
 
@@ -43,7 +43,7 @@ however it will be in a simpler appearance in the standard packaging as
 on your environment. Obviously you can change the application web path too.
 
 
-You are free to use any other web server capable to run CGI scripts. Rust terminal can be used only with **SimHTTP**,
+You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with **SimHTTP**,
 because the server only provides the WS CGI support.
 
 There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support but still
@@ -98,7 +98,7 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 ## Cloud and multi users install
-If you plan to use the IDE on Cloud in a multi users environment, then you need to provide a proxy server in a front which provides:
+If you plan to use the IDE on Cloud in a multi users environment, then you need to provide a proxy server in the front which provides:
 - SSL to plain connection conversion
 - A user authentication
 - URL translation

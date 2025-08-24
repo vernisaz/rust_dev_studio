@@ -4,6 +4,9 @@
 Web interfaced IDE for a development primarily in Rust. The IDE can run locally or some cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
+BTW even Google were inspired by the application and implemented it too as : Code anywhere with Android Studio Cloud. So the RDS already
+duplicated by Google.
+
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
 perfectly suitable for using Rust. The terminal functionality is implemented using the websocket endpoint. So the RDS has

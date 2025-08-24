@@ -93,7 +93,7 @@ target install:.:Install RDS if needed {
 	    }
 	}
 	# a logic to ask a port number and HOME
-	ask(What's the web server port number [8443]?, 8443)
+	ask(What's port number use for a web server [8443]?, 8443)
 	assign(PORT,~~)
 	ask(What's HOME directory [${home}]?, ${home})
 	assign(HOME,~~)
@@ -183,7 +183,7 @@ target runrust:.:run TRWS for RDS {
     aexec ./bin/simhttp()
     assign(pid,~~)
     read(${~cwd~}${~/~}rds.url)
-	display(Running the Rust Development Studio ${~~})
+	display(Running the Rust Development Studio at ${~~})
 	if {
 		neq(${~os~},windows)
 		then {

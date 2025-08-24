@@ -230,19 +230,20 @@ fn main() -> io::Result<()> {
                 if cmd.len() == 1 {
                     cmd.push(project_path.clone())
                 }
-                cwd.push(cmd[1].clone());
-                cwd = remove_redundant_components(&cwd);
-                if !cwd.is_dir() {
-                    cwd = PathBuf::from(&home);
-                    cwd.push(&project_path);
-                } else {
+                let mut cwd_new = cwd.clone();
+                cwd_new.push(cmd[1].clone());
+                cwd_new = remove_redundant_components(&cwd_new);
+                if cwd_new.is_dir() {
+                    cwd = cwd_new;
                     sessions = load_persistent(&home);
                     sessions.insert(session.to_string(),(cwd.clone().into_os_string().into_string().unwrap(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
                     match save_persistent(&home,sessions) {
                         _ => ()
                     }
+                    send!("{}\u{000C}", cwd.as_path().display());
+                } else {
+                    send!("cd: no such file or directory: {}\u{000C}", cmd[1]);
                 }
-                send!("{}\u{000C}", cwd.as_path().display());
             }
             "del" if cfg!(windows) => {
                 if cmd.len() == 1 {

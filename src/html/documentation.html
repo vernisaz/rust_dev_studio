@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="/cgires/resource/main.css">
         <style>
             body {margin:auto;max-width:800px;}
-            body >p > a {text-decoration: none !important;background-color:#332222;}
+            body p a {text-decoration: none;background-color:#333;}
             p.footer {position: absolute;
               bottom: 10px;
               width: 50%;
@@ -21,6 +21,7 @@
                    color: #eeeeee;
                }
                pre {background-color: #61580b;}
+               body p a {background-color:#332222;color:#dddddd;}
             }
         </style>
     </head>
@@ -83,7 +84,7 @@ where rustcgi will look for settings in the sub directory .rustcgi of <b>HOME</b
 
 <h2>Packaging</h2>
 <p>
-    <b>install</b> subdirectory of the RDS source directory tree contains 
+    The <b>install</b> subdirectory of the RDS source directory tree contains 
     <a href="https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b">bee.7b</a>. Inspect it
     to better understand which components will be required for the RDS deployment.
 </p>

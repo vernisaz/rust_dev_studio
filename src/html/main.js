@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.02.082'
+    return '1.08.04.085'
 }
 
 function populateProjectTree() {
@@ -824,8 +824,17 @@ function sendCommand(cmd) {
 	       return
 	  }
 	  if (commandBuffer.length) {
-	 	 cmd.innerText = commandBuffer[cmdBufPos]
-	     cmd.focus()
+    	 	cmd.innerText = commandBuffer[cmdBufPos]
+    	    const range = document.createRange();
+            const selection = window.getSelection();
+    
+            range.selectNodeContents(cmd);
+            range.collapse(false); // Collapse to the end
+    
+            selection.removeAllRanges();
+            selection.addRange(range);
+    
+            cmd.focus();
 	  }
 	  event.preventDefault()
    }

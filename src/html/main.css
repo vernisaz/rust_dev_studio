@@ -1,4 +1,4 @@
-.rds-version-1_06-04 { /* version 1.07.02 */
+.rds-version-1_07-02 { /* version 1.07.02 */
     display: block;
 }
 
@@ -261,6 +261,9 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
     padding: 2px;
     background: #757982;
     font-weight: bold;
+    cursor: pointer;
+    transition: background ease 0.3s;
+    border-radius: 8px 8px 0 0;
 }
 
 .small_tabs .tab_content {
@@ -278,7 +281,8 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 }
 
 .small_tabs input[type="radio"]:checked + label {
-    background: #fff;
+    background: #eee;
+    border: 1px solid #434343; border-bottom-width: 0;
 }
 
 /* ACE */

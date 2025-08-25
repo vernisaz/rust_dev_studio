@@ -1134,12 +1134,14 @@
     
     // project function 
     function runCmd(cmd3) {
+        if (!cmd3)
+            return
+        //saveAllFiles() // autosave()
+        document.getElementById('commandarea').focus() // focus saves
         if (wskt && wskt.readyState===WebSocket.OPEN) {
-            //saveAllFiles() // autosave()
-            document.getElementById('commandarea').focus() // focus saves
             wskt.send(cmd3+'\n')
         } else {
-            alert('The server ' + ws_url + ' is currently unreachable')
+            alert(`The server ${ws_url} is currently unreachable`)
         }
     }
     function build_debug() {

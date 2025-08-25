@@ -707,7 +707,7 @@ function ws_connect() {
                             if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                                 path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                             path = path.replaceAll('\\', '/')
-                            ansi_html += '<a href="javascript:moveToLineInFile(\''+path+file+'\','+line+','+col+')">' + lineStr + '</a>'
+                            ansi_html += `<a href="javascript:moveToLineInFile('${path}${file}',${line},${col})">${lineStr}</a>`
                         } else {
                            ansi_html += lineStr //htmlEncode(ans.substring(shift>0?shift + 1:0))
                         }
@@ -741,7 +741,7 @@ function ws_connect() {
         if (notifRecon < maxReconn)
           notifRecon *= 2
         if (console && console.log)
-            console.log('Oops '+event + ' reconnecting in '+notifRecon+'ms because '+event.reason)
+            console.log(`Oops, ${event}  reconnecting in ${notifRecon}ms because ${event.reason}`)
         setTimeout(ws_connect, notifRecon)
      }
 }

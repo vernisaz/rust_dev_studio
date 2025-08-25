@@ -50,7 +50,7 @@ You are free to use any other web server capable to run CGI scripts. But the ter
 because the server only provides the WS CGI support.
 
 There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support but still
-can be obtained [from](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
+can be obtained from [there](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
 
 ## Ace Cloud editor
 Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor.
@@ -72,14 +72,14 @@ The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for b
 
 The following crates will be required to be built first:
 
-- The [common building scripts](https://github.com/vernisaz/simscript)
+- The [Common building scripts](https://github.com/vernisaz/simscript) (it isn't a crate, but building scripts)
 - The [SimWeb](https://github.com/vernisaz/simweb)
-- The [simple time](https://github.com/vernisaz/simtime)
+- The [Simple Time](https://github.com/vernisaz/simtime)
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 
-Common scripts is used for building dependency components (crates). 
-The **crates** directory on level of repository directories has to be created prior building unless it's
+Common scripts are containing scripts only and shouldn't be built. 
+The **crates** directory on the level of repository directories has to be created prior building unless it's
 already exists. Run **rb** in each component repository. 
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.

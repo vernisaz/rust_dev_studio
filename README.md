@@ -118,8 +118,8 @@ More likely, other browsers will work too. If you encounter problems with your b
 then, please, report them to the author.
 
 ## Like the IDE but Rust
-You can add any other language in support. Open [main.html](./src/html/main.html) and navigate to
-line 267 to see
+You can add any other language in support. Open [main.html](https://github.com/vernisaz/rust_dev_studio/blob/229f4862dc61c7aeb480769df776109763f3d945/src/html/main.html#L264) and navigate to
+line 264 to see
 ```javascript
 const EDITOR_MODE = {
 ```

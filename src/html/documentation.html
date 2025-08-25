@@ -97,6 +97,15 @@ rustcgi
 terminal
 simhttp
 </pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
+<section>
+    <h2>Command aliases</h2>
+    <p>The <b>RDS</b> terminal <code>isatty</code> currently reports <i>false</i>, therefore most command needs to add argument
+    as <code>--color=true</code> to see colorized output. The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
+    These aliases definitions have to be stored in file under <i>HOME/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
+    <pre>alias ls='ls --color'</pre>
+    <p>So every command found in the file, will be extended accordingly specified value. It can be useful not only for colorizing
+    program output, but for other all time used options.</p>
+</section>
 
 <p class="footer"> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</p>
     </body>

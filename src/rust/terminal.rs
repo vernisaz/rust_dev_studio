@@ -825,6 +825,40 @@ fn interpolate_env(s:String) -> String {
                     }
                 }
             }
+            '~' => {
+                match state {
+                    EnvExpState::InArg => {
+                        let env_value = env::var("HOME").unwrap_or_else(|_| "".to_string());
+                        if !env_value.is_empty() {
+                            res.push_str(&env_value)
+                        }
+                    }
+                    EnvExpState::Esc => {
+                        res.push(c); state =  EnvExpState::InArg
+                    }
+                    EnvExpState::InEnvName => {
+                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
+                        if !env_variable.is_empty() {
+                            res.push_str(&env_variable)
+                        }
+                        curr_env.clear();
+                        let env_value = env::var("HOME").unwrap_or_else(|_| "".to_string());
+                        if !env_value.is_empty() {
+                            res.push_str(&env_value)
+                        }
+                        state = EnvExpState::InArg
+                    }
+                    EnvExpState::ExpEnvName => { // $~
+                        res.push('$'); res.push(c);
+                        state = EnvExpState::InArg
+                    }
+                    EnvExpState::InBracketEnvName => curr_env.push(c),
+                    EnvExpState:: NoInterpol => res.push(c),
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
+                }
+            }
             '{' => {
                 match state {
                     EnvExpState::InArg => {

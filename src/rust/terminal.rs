@@ -443,9 +443,14 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                     s.spawn(|| {
                          let reader = BufReader::new(stderr);
                         /* it waits for new output */
+                        let mut was_error = false;
                         for line in reader.lines() {
                             let string = line.unwrap();
                             send!{"{}\n", string};
+                            was_error = true;
+                        }
+                        if was_error {
+                            send!("\u{000C}");
                         }
                     });
                 }
@@ -770,13 +775,17 @@ fn interpolate_env(s:String) -> String {
                     EnvExpState::InArg => 
                         state = EnvExpState:: ExpEnvName,
                     EnvExpState::Esc => { state = EnvExpState::InArg; res.push(c) },
-                    EnvExpState::InEnvName | EnvExpState::ExpEnvName => {
+                    EnvExpState::InEnvName => {
                         let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
                         if !env_variable.is_empty() {
                             res.push_str(&env_variable)
                         }
                         curr_env.clear();
                         state = EnvExpState::ExpEnvName
+                    }
+                    EnvExpState::ExpEnvName => { // current PID
+                        res.push_str(&format!("{}", std::process::id()));
+                        state =  EnvExpState::InArg 
                     }
                     EnvExpState::InBracketEnvName => curr_env.push(c),
                     EnvExpState:: NoInterpol => res.push(c),
@@ -969,6 +978,8 @@ fn interpolate_env(s:String) -> String {
             let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
             if !env_variable.is_empty() {
                 res.push_str(&env_variable)
+            } else if curr_env == "0" {
+                res.push_str("rds/terminal")
             }
         }
     }

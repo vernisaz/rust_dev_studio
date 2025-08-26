@@ -76,7 +76,7 @@ fn main() -> io::Result<()> {
              && k != "CONTENT_LENGTH"
              && k != "CONTENT_TYPE"
              && k != "AUTH_TYPE"
-             //&& k != "XXX"
+             && k != "REMOTE_USER"
              && !k.starts_with("HTTP_")).collect();
     let mut buffer = [0_u8;MAX_BLOCK_LEN]; 
     let mut prev: Option<Vec<u8>> = None;

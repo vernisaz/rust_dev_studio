@@ -32,7 +32,7 @@ const MAX_BLOCK_LEN : usize = 4096;
 
 //const PROMPT: &str = "$";
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
     let binding = if web.path_info().starts_with("/") {web.path_info()[1..].to_string()} else {web.path_info()};
     let (project,session) = match binding.split_once('/') {
@@ -132,7 +132,7 @@ fn main() -> io::Result<()> {
                     };
                 if dir.display().to_string().find('*').is_none() {
                     let Ok(paths) = fs::read_dir(&dir) else {
-                        send!("{dir:?} invalid\u{000C}");
+                        send!("{dir:?} is invalid\u{000C}");
                         continue
                     };
                     
@@ -270,7 +270,7 @@ fn main() -> io::Result<()> {
             }
             "copy" | "ren" if cfg!(windows) => {
                 if cmd.len() < 3 {
-                    send!("Source and  destination have to be provided\u{000C}");
+                    send!("Source and destination have to be provided\u{000C}");
                     continue
                 }
                 let mut file = PathBuf::from(&cmd[1]);
@@ -1160,7 +1160,7 @@ fn load_persistent(home: &PathBuf) -> HashMap<String, (String,u64)> {
     props
 }
 
-fn save_persistent(home: &PathBuf, sessions: HashMap<String, (String,u64)>) -> io::Result<()> {
+fn save_persistent(home: &PathBuf, sessions: HashMap<String, (String,u64)>) -> Result<(), Box<dyn std::error::Error>> {
     // update current (before save)
     // TODO consider to write a lock wrapper for something like
     // lock(save_persistent())
@@ -1423,7 +1423,7 @@ impl DeferData {
                 Op::TYP => {
                         //eprintln!{"typing: {file:?}"}
                     let contents = fs::read_to_string(&file)?;
-                    send!("{}\n", contents);
+                    send!("{}", contents);
                     succ_count += 1
                 },
                 Op::DEL => {

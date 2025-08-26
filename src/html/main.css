@@ -433,7 +433,7 @@ dd {
 }
 
 #vcs-container, #xrefs-container {
-    max-height: 22em;
+    max-height: 20em;
     overflow-y: auto;
 }
 

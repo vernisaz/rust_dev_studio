@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.04.085'
+    return '1.08.05.087'
 }
 
 function populateProjectTree() {

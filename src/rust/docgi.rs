@@ -30,9 +30,6 @@ macro_rules! eprintln {
 
 const VERSION: &str = env!("VERSION");
 
-#[cfg(target_os = "windows")]
-const CONFIG_DIR: &str = env!("LOCALAPPDATA");
-
 const SETTINGS_PREF: &str = "settings";
 
 fn get_project_home(params: &Param) -> Option<String> {

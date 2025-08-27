@@ -1,6 +1,7 @@
 terminal
-terminal.exe
+*.exe
 rustcgi
-rustcgi.exe
+webcgi
 .home
+.config
 *.zip

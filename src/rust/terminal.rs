@@ -431,17 +431,6 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
             let for_kill = Arc::clone(&share_process);
             let for_wait = Arc::clone(&share_process);
             thread::scope(|s| {
-                s.spawn(|| {
-                    let mut buffer = [0_u8; MAX_BLOCK_LEN]; 
-                    loop {
-                        let Ok(l) = stdout.read(&mut buffer) else {break};
-                        if l == 0 { break } // 
-                        
-                        let data = buffer[..l].to_vec();
-                        let string = String::from_utf8_lossy(&data);
-                        send!{"{}", string};
-                    }
-                });
                 
                 s.spawn(|| {
                      let reader = BufReader::new(stderr);
@@ -458,7 +447,6 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                         let Ok(len) = stdin.read(&mut buffer) else {break};
                         if len == 0 {break};
                         if len == 1 && buffer[0] == 3 {
-                            // consider obtaining PID and send a kill signal SIGINT to the process, and then break
                             if for_kill.lock().unwrap().kill().is_ok() {
                                 send!("^C");
                                 break
@@ -478,6 +466,18 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                         }
                     }
                 });
+                
+                //s.spawn(|| {
+                    let mut buffer = [0_u8; MAX_BLOCK_LEN]; 
+                    loop {
+                        let Ok(l) = stdout.read(&mut buffer) else {break};
+                        if l == 0 { break } // 
+                        
+                        let data = buffer[..l].to_vec();
+                        let string = String::from_utf8_lossy(&data);
+                        send!{"{}", string};
+                    }
+                //});
 
                 for_wait.lock().unwrap().wait().unwrap();
                 send!("\u{000C}");

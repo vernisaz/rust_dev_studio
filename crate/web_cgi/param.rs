@@ -189,15 +189,15 @@ pub fn to_web_separator(mut path: String ) -> String {
     }
     path
 }
-
+// TODO rename to get_config_dir and move to simconfig
 fn read_home() -> String {
     if let Ok(cgi_exe) = std::env::current_exe() {
         if let Some(current_path) = cgi_exe.parent() {
-            let home_file = current_path.join(".home");
+            let home_file = current_path.join(".config");
             if let Ok(home) = read_to_string(&home_file) {
                 home.trim().to_string()
             } else {
-                eprintln! {"Misconfiguration: HOME isn't set in .home in {:?}", &home_file};
+                eprintln! {"Misconfiguration: config root directory isn't set in .config in {:?}", &home_file};
                 "".to_string()
             }
         } else {

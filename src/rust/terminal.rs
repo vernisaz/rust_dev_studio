@@ -1065,11 +1065,11 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
 fn read_home() -> PathBuf {
     if let Ok(ws_exe) = env::current_exe() {
         if let Some(current_path) = ws_exe.parent() {
-            let home_file = current_path.join(".home");
+            let home_file = current_path.join(".config");
             if let Ok(home) = read_to_string(&home_file) {
                 PathBuf::from(home.trim())
             } else {
-                eprintln! {"Misconfiguration: HOME isn't set in .home in {:?}", &home_file};
+                eprintln! {"Misconfiguration: config root directory isn't set in .config in {:?}", &home_file};
                 ws_exe
             }
         } else {

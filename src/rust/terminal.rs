@@ -227,11 +227,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 send!("{}\u{000C}", cwd.as_path().display()); // path
             }
             "cd" => {
+                let mut cwd_new ;
                 if cmd.len() == 1 {
-                    cmd.push(project_path.clone())
+                    cwd_new = PathBuf::from(&home);
+                    cwd_new.push(project_path.clone());
+                } else {
+                    cwd_new = PathBuf::from(&cmd[1]);
+                    if !cwd_new.has_root() {
+                        cwd_new = cwd.clone();
+                        cwd_new.push(&cmd[1])
+                    }
                 }
-                let mut cwd_new = cwd.clone();
-                cwd_new.push(cmd[1].clone());
                 cwd_new = remove_redundant_components(&cwd_new);
                 if cwd_new.is_dir() {
                     cwd = cwd_new;

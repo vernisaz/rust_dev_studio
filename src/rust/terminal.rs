@@ -20,7 +20,7 @@ extern crate simtime;
 use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
     fs::{self,read_to_string,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
     path::{PathBuf,MAIN_SEPARATOR_STR},collections::HashMap,time::{SystemTime,UNIX_EPOCH},
-    env, fmt,
+    env, fmt,sync::{Arc,Mutex},
 };
 #[cfg(target_os = "windows")]
 use std::os::windows::prelude::*;
@@ -30,7 +30,7 @@ const VERSION: &str = env!("VERSION");
 
 const MAX_BLOCK_LEN : usize = 4096;
 
-//const PROMPT: &str = "$";
+//const PROMPT: &str = "$"; // TODO customize accordingly underline OS as %,#...
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
@@ -425,7 +425,12 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
         // TODO consider
         // let (mut recv, send) = std::io::pipe()?;
             let Some(mut stdout) = process.stdout.take() else {return None};
-            thread::scope(|s| { 
+            let Some(mut stdin_child) = process.stdin.take()  else {return None};
+            let Some(stderr) = process.stderr.take() else {return None};
+            let share_process = Arc::new(Mutex::new(process));
+            let for_kill = Arc::clone(&share_process);
+            let for_wait = Arc::clone(&share_process);
+            thread::scope(|s| {
                 s.spawn(|| {
                     let mut buffer = [0_u8; MAX_BLOCK_LEN]; 
                     loop {
@@ -436,34 +441,25 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                         let string = String::from_utf8_lossy(&data);
                         send!{"{}", string};
                     }
-                    send!("\u{000C}");
                 });
                 
-                if let Some(stderr) = process.stderr.take() {
-                    s.spawn(|| {
-                         let reader = BufReader::new(stderr);
-                        /* it waits for new output */
-                        let mut was_error = false;
-                        for line in reader.lines() {
-                            let string = line.unwrap();
-                            send!{"{}\n", string};
-                            was_error = true;
-                        }
-                        if was_error {
-                            send!("\u{000C}");
-                        }
-                    });
-                }
-               
-                if let Some(mut stdin_child) = process.stdin.take() {
+                s.spawn(|| {
+                     let reader = BufReader::new(stderr);
+                    /* it waits for new output */
+                    for line in reader.lines() {
+                        let string = line.unwrap();
+                        send!{"{}\n", string};
+                    }
+                });
+
+                s.spawn(|| {
                     let mut buffer = [0_u8;MAX_BLOCK_LEN]; 
                     loop {
-                        //send!{"{}", "waiting user input"};
                         let Ok(len) = stdin.read(&mut buffer) else {break};
                         if len == 0 {break};
                         if len == 1 && buffer[0] == 3 {
                             // consider obtaining PID and send a kill signal SIGINT to the process, and then break
-                            if process.kill().is_ok() {
+                            if for_kill.lock().unwrap().kill().is_ok() {
                                 send!("^C");
                                 break
                             }
@@ -481,12 +477,14 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                             }
                         }
                     }
-                    //send!{"{}", "no input"};
-                }
+                });
+
+                for_wait.lock().unwrap().wait().unwrap();
+                send!("\u{000C}");
+                
             });
-            process.wait().unwrap();
         }
-        Err(err) => {send!("Can't run: {} in {cwd:?} - {err}\n", &cmd[0]);},
+        Err(err) => {send!("Can't run: {} in {cwd:?} - {err}\u{000C}", &cmd[0]);},
     }
     res
 }

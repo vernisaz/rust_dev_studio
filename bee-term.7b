@@ -9,7 +9,7 @@ crate_dir=..${~/~}crates
 # repository = "https://github.com/vernisaz/rust_dev_studio/tree/master?tab=readme-ov-file"
 comp opts=[]
 
-version="1.21:038"
+version="1.22:039"
 set_env(VERSION,version)
 
 mode=mode:prop

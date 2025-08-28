@@ -42,6 +42,7 @@ fn get_project_home(params: &Param) -> Option<String> {
             ),
            _ => params.to_real_path(&param::adjust_separator("/.rustcgi/settings.prop".to_owned()), None)
         };
+    eprintln!("the project {:?} settings path {settings_path:?}", params.param("session"));
     sanitize_path(&settings_path).ok()?;
     let settings = read_props(&settings_path);
     if let Some(res) = settings.get("project_home") {
@@ -181,7 +182,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     file_name: params.to_real_path(&settings.to_owned(), None),
                     ..Default::default()
                 },
-                home_len: (params.home_dir.len()+1) as _,
+                home_len: (params.config_dir.display().to_string().len()+1) as _,
             })
         }
         Some("save-settings-project") => {
@@ -356,13 +357,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     file_name: dir,
                     ..Default::default()
                 },
-                home: params.home_dir
+                home: params.config_dir.display().to_string()
             })
         }
         Some("vcs-commit") => {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let dir = params.to_real_path(&get_project_home(&params).unwrap(), None);
-                if let Some(dir) = web::is_git_covered(&dir, &params.home_dir)
+                if let Some(dir) = web::is_git_covered(&dir, &params.config_dir)
                 {
                     let mut result_oper: Result<(), String> = Ok(());
                     // git rm --cached file

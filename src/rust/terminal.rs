@@ -14,11 +14,11 @@ macro_rules! send {
         }
     )
 }
-//extern crate simjson;
+extern crate simcfg;
 extern crate simweb;
 extern crate simtime;
 use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
-    fs::{self,read_to_string,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
+    fs::{self,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
     path::{PathBuf,MAIN_SEPARATOR_STR},collections::HashMap,time::{SystemTime,UNIX_EPOCH},
     env, fmt,sync::{Arc,Mutex},
 };
@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ver = web.param("version").unwrap_or("".to_owned());
     let mut stdin = io::stdin();
     //let handle = stdin.lock();
-    let home = read_home();
+    let home = simcfg::read_config_root()?;
     send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
     let project_path = get_project_home(&project, &home).
         unwrap_or_else(|| {send!("No project config found, the project is misconfigured\n"); home.display().to_string()}); 
@@ -57,6 +57,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             send!("No {session} found\u{000C}");
         }
+    } else {
+        send!("No session specified, the terminal needs to be restarted\u{000C}");
     }
     let aliases = read_aliases(HashMap::new(), &home, None::<String>);
     let child_env: HashMap<String, String> = env::vars().filter(|&(ref k, _)|
@@ -1060,26 +1062,6 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
     }
 
     result
-}
-
-fn read_home() -> PathBuf {
-    if let Ok(ws_exe) = env::current_exe() {
-        if let Some(current_path) = ws_exe.parent() {
-            let home_file = current_path.join(".config");
-            if let Ok(home) = read_to_string(&home_file) {
-                PathBuf::from(home.trim())
-            } else {
-                eprintln! {"Misconfiguration: config root directory isn't set in .config in {:?}", &home_file};
-                ws_exe
-            }
-        } else {
-            eprintln! {"Misconfiguration: no executable_dir"};
-            PathBuf::new()
-        } 
-    } else {
-        eprintln! {"Misconfiguration: no current_exe"};
-       PathBuf::new()
-    }  
 }
 
 fn read_aliases(mut res: HashMap<String,Vec<String>>, home: &PathBuf, project: Option<impl AsRef<str> + std::fmt::Display> ) -> HashMap<String,Vec<String>> {

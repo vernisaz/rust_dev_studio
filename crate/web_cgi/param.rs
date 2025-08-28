@@ -1,20 +1,20 @@
+extern crate simcfg;
 use crate::web::sanitize_path;
 use std::collections::HashMap;
-use std::fs::read_to_string;
 use std::io;
 use std::time::SystemTime;
 #[cfg(any(unix, target_os = "redox"))]
-use std::path::{MAIN_SEPARATOR,MAIN_SEPARATOR_STR};
+use std::path::{MAIN_SEPARATOR,MAIN_SEPARATOR_STR,PathBuf};
 #[cfg(target_os = "windows")]
-use std::path::{MAIN_SEPARATOR};
-
+use std::path::{MAIN_SEPARATOR,PathBuf};
 use simtime::get_datetime;
+use simcfg::read_config_root;
 
 #[derive(Debug)]
 pub struct Param {
     params: HashMap<String, String>,
     cookies: HashMap<String, String>,
-    pub home_dir: String,
+    pub config_dir: PathBuf,
 }
 
 pub const HTTP_DAYS_OF_WEEK: &[&str] = &[
@@ -29,7 +29,7 @@ impl Param {
         let mut res = Param {
             params: HashMap::new(),
             cookies: HashMap::new(),
-            home_dir: read_home(),
+            config_dir: read_config_root().unwrap_or(PathBuf::new()),
         };
         if let std::result::Result::Ok(query) = std::env::var(String::from("QUERY_STRING")) {
             let parts = query.split("&");
@@ -127,28 +127,22 @@ impl Param {
 
     pub fn to_real_path(
         &self,
-        project_path: impl AsRef<str>,
+        project_path: impl AsRef<str> + std::fmt::Debug,
         in_project_path: Option<&String>,
     ) -> String {
-        let mut res = self.home_dir.clone();
         let project_path = project_path.as_ref();
-        if !has_root(&project_path) { 
-            res.push(MAIN_SEPARATOR);
+        let mut res = self.config_dir.clone();
+        if project_path.starts_with('/') { // not allow absolute path yet, but Windows
+            res.push(project_path[1..].to_owned());
+        } else {
+            res.push(project_path);
         }
-        //eprintln!{"parts to connect: home {res} {project_path} {in_project_path:?}"};
-        res.push_str(project_path);
+        
         if let Some(in_project_path) = in_project_path {
-            if !project_path.ends_with(MAIN_SEPARATOR) && !has_root(&in_project_path) {
-                res.push(MAIN_SEPARATOR);
-                res.push_str(&in_project_path)
-            } else if project_path.ends_with(MAIN_SEPARATOR) && has_root(&in_project_path) {
-                res.push_str(&in_project_path[1..])
-            } else {
-                res.push_str(&in_project_path)
-            }
+            res.push(in_project_path);
         }
-
-        res
+        eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
+        res.display().to_string()
     }
 
     pub fn name_to_path(&self) -> Option<String> {
@@ -188,26 +182,6 @@ pub fn to_web_separator(mut path: String ) -> String {
         }
     }
     path
-}
-// TODO rename to get_config_dir and move to simconfig
-fn read_home() -> String {
-    if let Ok(cgi_exe) = std::env::current_exe() {
-        if let Some(current_path) = cgi_exe.parent() {
-            let home_file = current_path.join(".config");
-            if let Ok(home) = read_to_string(&home_file) {
-                home.trim().to_string()
-            } else {
-                eprintln! {"Misconfiguration: config root directory isn't set in .config in {:?}", &home_file};
-                "".to_string()
-            }
-        } else {
-            eprintln! {"Misconfiguration: no executable_dir"};
-            "".to_string()
-        } 
-    } else {
-        eprintln! {"Misconfiguration: no current_exe"};
-        "".to_string()
-    }  
 }
 
 #[cfg(target_os = "windows")]

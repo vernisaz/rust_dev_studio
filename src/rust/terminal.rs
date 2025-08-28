@@ -28,6 +28,8 @@ use simtime::seconds_from_epoch;
 
 const VERSION: &str = env!("VERSION");
 
+const RDS_CFG_DIR : &str = ".rds";
+
 const MAX_BLOCK_LEN : usize = 4096;
 
 //const PROMPT: &str = "$"; // TODO customize accordingly underline OS as %,#...
@@ -1066,7 +1068,7 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
 
 fn read_aliases(mut res: HashMap<String,Vec<String>>, home: &PathBuf, project: Option<impl AsRef<str> + std::fmt::Display> ) -> HashMap<String,Vec<String>> {
     let mut aliases = home.clone();
-    aliases.push(".rustcgi");
+    aliases.push(RDS_CFG_DIR);
     match project {
         None => aliases.push("aliases"),
         Some(project) => aliases.push(format!("aliases-{project}"))
@@ -1108,7 +1110,7 @@ fn get_project_home(project: &(impl AsRef<str> + std::fmt::Display), home: &Path
             _  => &format!{"settings-{project}"},
         };
     let mut project_prop_path = home.clone();
-    project_prop_path.push(".rustcgi");
+    project_prop_path.push(RDS_CFG_DIR);
     project_prop_path.push(settings);
     project_prop_path.set_extension("prop");
     let settings = read_props(&project_prop_path);
@@ -1150,7 +1152,7 @@ pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
 fn load_persistent(home: &PathBuf) -> HashMap<String, (String,u64)> {
     let mut props = HashMap::new();
     let mut props_path = home.clone();
-    props_path.push(".rustcgi");
+    props_path.push(RDS_CFG_DIR);
     props_path.push("webdata.properties");
     if let Ok(file) = File::open(&props_path) {
         let lines = io::BufReader::new(file).lines();
@@ -1198,7 +1200,7 @@ fn save_persistent(home: &PathBuf, sessions: HashMap<String, (String,u64)>) -> R
 
     // as for now using webdata.LOCK file
     let mut props_path = home.clone();
-    props_path.push(".rustcgi");
+    props_path.push(RDS_CFG_DIR);
     props_path.push("webdata");
     props_path.set_extension("LOCK");
     { // check if LOCK file is here

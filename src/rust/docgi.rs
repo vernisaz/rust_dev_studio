@@ -36,18 +36,18 @@ fn get_project_home(params: &Param) -> Option<String> {
      let settings_path =
         match  params.param("session") {
             Some(session) if  !session.is_empty()  => params.to_real_path(
-                param::adjust_separator("/.rustcgi/settings-".to_string())+
+                param::adjust_separator(".rds/settings-".to_string())+
                 &session+".prop",
                 None
             ),
-           _ => params.to_real_path(&param::adjust_separator("/.rustcgi/settings.prop".to_owned()), None)
+           _ => params.to_real_path(&param::adjust_separator(".rds/settings.prop".to_owned()), None)
         };
-    eprintln!("the project {:?} settings path {settings_path:?}", params.param("session"));
+    //eprintln!("the project {:?} settings path {settings_path:?}", params.param("session"));
     sanitize_path(&settings_path).ok()?;
     let settings = read_props(&settings_path);
     if let Some(res) = settings.get("project_home") {
         return if res.starts_with("~") {
-            Some(res[1..].to_string())
+            Some(res[1..].to_owned())
         } else {
             Some(res.into())
         }
@@ -94,7 +94,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 Box::new(PageFile {
                     file_name: "main.html".to_string(),
                     session: params.param("session"),
-                    home: params.to_real_path(param::adjust_separator("/.rustcgi".to_string()), None),
+                    home: params.to_real_path(param::adjust_separator(".rds".to_string()), None),
                     id: params.param("id"),
                 })
             },
@@ -172,9 +172,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("settings-project") => {
             let settings = match params.param("session") {
                 Some(session) if !session.is_empty() => {
-                    param::adjust_separator("/.rustcgi/settings-".to_string()) + &session + ".prop"
+                    param::adjust_separator(".rds/settings-".to_string()) + &session + ".prop"
                 }
-                None | Some(_) => param::adjust_separator("/.rustcgi/settings.prop".to_string()),
+                None | Some(_) => param::adjust_separator(".rds/settings.prop".to_string()),
             };
             sanitize_path(&settings).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             Box::new(JsonSettings {
@@ -194,9 +194,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             } else {
                 let settings_path = params.to_real_path(sanitize_path(&match params.param("session") {
                     Some(session) if !session.is_empty() => {
-                        param::adjust_separator("/.rustcgi/settings-".to_string()) + &session + ".prop"
+                        param::adjust_separator(".rds/settings-".to_string()) + &session + ".prop"
                     }
-                    _ => param::adjust_separator("/.rustcgi/settings.prop".to_string()),
+                    _ => param::adjust_separator(".rds/settings.prop".to_string()),
                 }).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?, None);
                 let mut props = read_props(&settings_path);
                 let mut set_value = |key| match params.param(&key) {
@@ -255,7 +255,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 remove_file(file)?;
                 Ok(())
             };
-            let conf_dir = param::adjust_separator("/.rustcgi/".to_owned());
+            let conf_dir = param::adjust_separator(".rds/".to_owned());
             let project = params.to_real_path(&conf_dir, Some(&format!("settings-{proj}.prop")));
             let mut all_fine = true;
             all_fine &= del_fil(project).is_ok();
@@ -281,10 +281,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }),
         Some("session-list") => { // TODO rename to project-list
             // list of dirs in
-            //eprintln! {"Project sess: {:?}", params.to_real_path(param::adjust_separator("/.rustcgi".to_string()), None)};
+            //eprintln! {"Project sess: {:?}", params.to_real_path(param::adjust_separator(".rds".to_string()), None)};
             Box::new(JsonSess {
                 file: PageFile {
-                    file_name: params.to_real_path(param::adjust_separator("/.rustcgi".to_string()), None),
+                    file_name: params.to_real_path(param::adjust_separator(".rds".to_string()), None),
                     ..Default::default()
                 },
             })
@@ -301,7 +301,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 };
                 if let Some(data) = &params.param("name") {
                     let notepad =
-                        params.to_real_path(&param::adjust_separator("/.rustcgi/".to_owned()), Some(&notepad_name));
+                        params.to_real_path(&param::adjust_separator(".rds/".to_owned()), Some(&notepad_name));
                     write(&notepad, &data)?;
                     Box::new(PageStuff {
                         content: "Ok".to_string(),
@@ -343,7 +343,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     format!["notepad-{session}.txt"]},
                _ =>  "notepad.txt".to_string()
             };
-            let notepad = params.to_real_path(&param::adjust_separator("/.rustcgi/".to_owned()), Some(&notepad_name));
+            let notepad = params.to_real_path(&param::adjust_separator(".rds/".to_owned()), Some(&notepad_name));
             Box::new(PageStuff {
                 content: read_to_string(&notepad).unwrap_or("".to_string()),
             })
@@ -428,11 +428,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let settings = 
                             match  params.param("session") {
                                 Some(session) if  !session.is_empty()  => params.to_real_path(
-                                                    param::adjust_separator("/.rustcgi/settings-".to_string())+
+                                                    param::adjust_separator(".rds/settings-".to_string())+
                                                     &session+".prop",
                                                     None
                                                 ),
-                               _ =>  params.to_real_path(&param::adjust_separator("/.rustcgi/settings.prop".to_owned()), None)
+                               _ =>  params.to_real_path(&param::adjust_separator(".rds/settings.prop".to_owned()), None)
                             };
                             sanitize_path(&settings).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
                             let props = read_props(&settings);
@@ -549,10 +549,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-persist-tab") => {
             let storage = match params.param("session") {
                 Some(session) if !session.is_empty() => {
-                    param::adjust_separator("/.rustcgi/tabs-".to_string())+
+                    param::adjust_separator(".rds/tabs-".to_string())+
                                     &session+".sto"
                 }
-                _ => param::adjust_separator("/.rustcgi/tabs.sto".to_string()),
+                _ => param::adjust_separator(".rds/tabs.sto".to_string()),
             };
             sanitize_path(&storage).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             match read_to_string(params.to_real_path(&storage, None)) {
@@ -581,10 +581,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let storage = match params.param("session") {
                     Some(session) if !session.is_empty() => {
-                        param::adjust_separator("/.rustcgi/tabs-".to_string())+
+                        param::adjust_separator(".rds/tabs-".to_string())+
                                     &session+".sto"
                     }
-                    None | Some(_) =>  param::adjust_separator("/.rustcgi/tabs.sto".to_string()),
+                    None | Some(_) =>  param::adjust_separator(".rds/tabs.sto".to_string()),
                 };
                 sanitize_path(&storage).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
                 fs::write(params.to_real_path(&storage, None), params.param("tabs").unwrap_or("".to_string()))?;
@@ -714,10 +714,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let bookmark = match params.param("session") {
                     Some(session) if !session.is_empty() => {
-                        param::adjust_separator("/.rustcgi/bookmark-".to_string())+
+                        param::adjust_separator(".rds/bookmark-".to_string())+
                                     &session+".json"
                     }
-                    None | Some(_) =>  param::adjust_separator("/.rustcgi/bookmark.json".to_string()),
+                    None | Some(_) =>  param::adjust_separator(".rds/bookmark.json".to_string()),
                 };
                 sanitize_path(&bookmark).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
                 fs::write(params.to_real_path(&bookmark, None), params.param("bookmarks").unwrap_or("".to_string()))?;
@@ -729,10 +729,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-bookmark") => {
              let bookmark = params.to_real_path(match params.param("session") {
                 Some(session) if !session.is_empty() => {
-                    param::adjust_separator("/.rustcgi/bookmark-".to_string())+
+                    param::adjust_separator(".rds/bookmark-".to_string())+
                                 &session+".json"
                 }
-                None | Some(_) =>  param::adjust_separator("/.rustcgi/bookmark.json".to_string()),
+                None | Some(_) =>  param::adjust_separator(".rds/bookmark.json".to_string()),
             }, None);
             sanitize_path(&bookmark).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             if let Ok(bookmarks) = fs::read_to_string(&bookmark) {

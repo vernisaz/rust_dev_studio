@@ -1,20 +1,17 @@
-extern crate simcfg;
-use crate::web::sanitize_path;
+
 use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
 #[cfg(any(unix, target_os = "redox"))]
-use std::path::{MAIN_SEPARATOR,MAIN_SEPARATOR_STR,PathBuf};
+use std::path::{MAIN_SEPARATOR,MAIN_SEPARATOR_STR};
 #[cfg(target_os = "windows")]
-use std::path::{MAIN_SEPARATOR,PathBuf};
+use std::path::{MAIN_SEPARATOR};
 use simtime::get_datetime;
-use simcfg::read_config_root;
 
 #[derive(Debug)]
 pub struct Param {
     params: HashMap<String, String>,
     cookies: HashMap<String, String>,
-    pub config_dir: PathBuf,
 }
 
 pub const HTTP_DAYS_OF_WEEK: &[&str] = &[
@@ -29,7 +26,6 @@ impl Param {
         let mut res = Param {
             params: HashMap::new(),
             cookies: HashMap::new(),
-            config_dir: read_config_root().unwrap_or(PathBuf::new()),
         };
         if let std::result::Result::Ok(query) = std::env::var(String::from("QUERY_STRING")) {
             let parts = query.split("&");
@@ -123,36 +119,6 @@ impl Param {
             }
         }
         String::from_utf8_lossy(&res).to_string()
-    }
-
-    pub fn to_real_path(
-        &self,
-        project_path: impl AsRef<str> + std::fmt::Debug,
-        in_project_path: Option<&String>,
-    ) -> String {
-        let project_path = project_path.as_ref();
-        let mut res = self.config_dir.clone();
-        if project_path.starts_with('/') { // not allow absolute path yet, but Windows
-            res.push(project_path[1..].to_owned());
-        } else {
-            res.push(project_path);
-        }
-        
-        if let Some(in_project_path) = in_project_path {
-            res.push(in_project_path);
-        }
-        eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
-        res.display().to_string()
-    }
-
-    pub fn name_to_path(&self) -> Option<String> {
-        let name = self.params.get("name");
-        if let Some(name) = name {
-            let _ = sanitize_path(&name).ok()?;
-            Some(self.to_real_path(&name, None))
-        } else {
-            None
-        }
     }
 }
 

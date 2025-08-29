@@ -59,13 +59,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
             cwd = PathBuf::from(entry.0.clone());
-            send!("{}\u{000C}", cwd.as_path().display());
         } else {
-            send!("No {session} found\u{000C}");
+            send!("No {session} found\n");
         }
     } else {
         send!("No session specified, the terminal needs to be restarted\u{000C}");
     }
+    send!("{}\u{000C}", cwd.as_path().display());
     let aliases = read_aliases(HashMap::new(), &config, None::<String>);
     let child_env: HashMap<String, String> = env::vars().filter(|&(ref k, _)|
              k != "GATEWAY_INTERFACE"

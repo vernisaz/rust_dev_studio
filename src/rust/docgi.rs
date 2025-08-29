@@ -1,4 +1,4 @@
-#![feature(let_chains)]
+//#![feature(let_chains)]
 extern crate simtime;
 extern crate web_cgi as web;
 extern crate simtpool;
@@ -296,12 +296,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
                 let props = read_props(&settings_path);
-                let spec_name;
-                if let Some(spec) = props.get("projectnp") && spec == "true" {
-                    spec_name = params.param("session");
-                } else {
-                    spec_name = None;
-                }
+                let spec_name =
+                match props.get("projectnp") {
+                    Some(spec) if spec == "true" => params.param("session"),
+                    _ => None,
+                } ;
                 let np = config.get_config_path(&spec_name, "notepad", "txt");
                 let np_path = np.display().to_string();
                 sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
@@ -345,12 +344,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let settings_path = settings.display().to_string();
             sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             let props = read_props(&settings_path);
-            let spec_name;
-            if let Some(spec) = props.get("projectnp") && spec == "true" {
-                spec_name = params.param("session");
-            } else {
-                spec_name = None;
-            }
+            let spec_name =
+                match props.get("projectnp") {
+                    Some(spec) if spec == "true" => params.param("session"),
+                    _ => None,
+                } ;
             let np = config.get_config_path(&spec_name, "notepad", "txt");
             let np_path = np.display().to_string();
             sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;

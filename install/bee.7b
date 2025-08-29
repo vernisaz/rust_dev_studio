@@ -51,6 +51,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
   
+- using standard location for config files
 - issue queries to AI engine",
 	-E ${rds}/rds${script ext},
 	script,
@@ -92,20 +93,24 @@ target install:.:Install RDS if needed {
 	# a logic to ask a port number and HOME
 	ask(What's port number use for a web server [8443]?, 8443)
 	assign(PORT,~~)
-	ask(What's HOME directory [${home}]?, ${home})
+	cfg()
+	ask(What's apps config directory [${~~}]?, ${~~})
+	assign(CONFIG,${~~}${~/~}.rds)
+	ask(What's workspace directory [${home}]?, ${home})
 	assign(HOME,~~)
 
 	now("W, MMM-DD-YY hh:mm:ss Z")
 	assign(create time, ~~)
 	write(cfg.7b,"# auto created on ${create time}
 PORT=${PORT}
+CONFIG=${CONFIG}
 HOME=\"${HOME}\"")
-    mkd(${HOME}${~/~}.rds)
-    write(${HOME}${~/~}.rds${~/~}aliases.prop,"# current content is only for illustration
+    mkd(${CONFIG})
+    write(${CONFIG}${~/~}aliases.prop,"# current content is only for illustration
 alias ls='ls --color'")
-	write(${~cwd~}${~/~}cgi${~/~}.config,HOME)
-	# create config directory first
-	#mkd(${~cwd~}${~/~}config)
+	write(${CONFIG}${~/~}.workspace,${HOME})
+	write(${~cwd~}${~/~}cgi${~/~}.config,CONFIG)
+
     assign(os,${~os~})
 	case os {
        choice windows: {

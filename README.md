@@ -82,6 +82,7 @@ The following crates will be required to be built first:
 - The [Simple Time](https://github.com/vernisaz/simtime)
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
+- The [Simple Config](https://github.com/vernisaz/simconfig)
 
 Common scripts are containing scripts only and shouldn't be built. 
 The **crates** directory on the level of repository directories has to be created prior building unless it's

@@ -43,22 +43,23 @@ on your environment. Obviously you can change the application web path too.
 
 Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
 
-File *.config* residing in the same directory, where **rustcgi** executable stored, is required. The file has to specify fully qualified
-paths to the app config directory. (Actually it's any directory where the directory _.rds_ will be landed)
+File *.config* residing in the same directory, where **rustcgi** executable is stored, is required. The file has to specify a fully qualified
+path to the app config directory. (Actually it's any directory where the directory _.rds_ will be landed)
 
 Directory _.rds_ may contain file _.workplace_ which contains a path to the directory where
-all projects will be landed. If no such file presented, then the workplace directory 
-will be the ame as specified in _.config_ file.
+all projects will be landed. If there is no such file presented, then the workplace directory 
+will be the same as specified in the _.config_ file. For example a user _HOME_ directory
+can be provoded in the _.config_ file.
 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with **SimHTTP**,
-because the server only provides the WS CGI support.
+because only the server provides the WS CGI support.
 
 There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support but still
 can be obtained from [there](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
 
 ## Ace Cloud editor
-Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor.
+The Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor.
 
 RDS is coming bundled with some version of the Ace editor. You can always bundle it with any other version of the editor. 
 Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired version. A copy of it has to be placed in the directory
@@ -71,9 +72,12 @@ there is the predefined packaging.
 It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
 and you can start using the **RDS**. The access URL's stored in `rds.url`.
 
+There is a RustBee [file](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
+create a standard packaging.
+
 ## Building RDS components
 
-The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
+The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for a building. Obtain it first.
 
 The following crates will be required to be built first:
 
@@ -86,15 +90,15 @@ The following crates will be required to be built first:
 
 Common scripts are containing scripts only and shouldn't be built. 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
-already exists. Run **rb** in each component repository. 
+already exists. Run **rb** in the each component repository. 
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
 
 ## Working tips
 
-You will see an empty page when first time pointed a browser to **RDS** URL. Select menu *File/Project/New...*.
+You will see an empty page when first time pointed a browser to the **RDS** URL. Select menu *File/Project/New...*.
 Navigate to a project directory and then *Apply* for the new project.
-Open just created project from menu *File/Project/\<name\>* then. You can start to
+Open the just created project from menu *File/Project/\<name\>* then. You can start to
 navigate over the project tree, open and edit files, build its components and so on.
 
 If you do not have the project checked out yet, then you can check it out first, and then to set the project root 

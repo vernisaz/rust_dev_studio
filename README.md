@@ -35,15 +35,20 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
        "WS-CGI": true,
        "translated": "./../rust_dev_studio/terminal"}]
 ```
-Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
-File *.home* residing in the same directory, where **rustcgi** executable stored, is required. The file has to specify fully qualified
-paths to the _HOME_ directory. (Actually it's any directory where the directory _.rustcgi_ will be landed)
-
 The mapping is used to run the RDS from the dev environment, therefore the access URL
 will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
 however it will be in a simpler appearance in the standard packaging as
 `http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will be dependent
 on your environment. Obviously you can change the application web path too.
+
+Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
+
+File *.config* residing in the same directory, where **rustcgi** executable stored, is required. The file has to specify fully qualified
+paths to the app config directory. (Actually it's any directory where the directory _.rds_ will be landed)
+
+Directory _.rds_ may contain file _.workplace_ which contains a path to the directory where
+all projects will be landed. If no such file presented, then the workplace directory 
+will be the ame as specified in _.config_ file.
 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with **SimHTTP**,

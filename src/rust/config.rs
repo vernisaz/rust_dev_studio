@@ -6,6 +6,7 @@ use std::path::{PathBuf};
 use fs::read_to_string;
 use web::sanitize_path;
 
+pub const SETTINGS_PREF: &str = "settings";
 const RDS_CFG_DIR : &str = ".rds";
 
 pub struct Config {
@@ -36,6 +37,7 @@ impl Config {
         }
     }
     
+    #[allow(dead_code)]
     pub fn to_real_path(
         &self,
         project_path: impl AsRef<str> + std::fmt::Debug,
@@ -56,6 +58,7 @@ impl Config {
         res.display().to_string()
     }
     
+    #[allow(dead_code)]
     pub fn name_to_path(&self, name: Option<String>) -> Option<String> {
         if let Some(name) = name {
             let _ = sanitize_path(&name).ok()?;
@@ -63,5 +66,15 @@ impl Config {
         } else {
             None
         }
+    }
+    
+    pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {
+        let mut res = self.config_dir.clone();
+        match proj {
+            Some(proj) if !proj.is_empty() => res.push(file.to_string() + "-" + &proj),
+            _ => res.push(file),
+        }
+        res.set_extension(ext);
+        res
     }
 }

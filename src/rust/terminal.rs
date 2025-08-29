@@ -17,6 +17,8 @@ macro_rules! send {
 extern crate simcfg;
 extern crate simweb;
 extern crate simtime;
+extern crate web_cgi as web;
+mod config;
 use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
     fs::{self,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
     path::{PathBuf,MAIN_SEPARATOR_STR},collections::HashMap,time::{SystemTime,UNIX_EPOCH},
@@ -25,10 +27,10 @@ use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
 #[cfg(target_os = "windows")]
 use std::os::windows::prelude::*;
 use simtime::seconds_from_epoch;
+use web::{sanitize_path};
+use config::{Config,SETTINGS_PREF};
 
 const VERSION: &str = env!("VERSION");
-
-const RDS_CFG_DIR : &str = ".rds";
 
 const MAX_BLOCK_LEN : usize = 4096;
 
@@ -44,13 +46,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ver = web.param("version").unwrap_or("".to_owned());
     let mut stdin = io::stdin();
     //let handle = stdin.lock();
-    let home = simcfg::read_config_root()?;
+    let config = config::Config::new();
+    let home = config.workspace_dir.clone();
     send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
-    let project_path = get_project_home(&project, &home).
+    
+    let project_path = get_project_home(&config, project).
         unwrap_or_else(|| {send!("No project config found, the project is misconfigured\n"); home.display().to_string()}); 
     let mut cwd = PathBuf::from(&home);
     cwd.push(&project_path);
-    let mut sessions = load_persistent(&home);
+    let mut sessions = load_persistent(&config);
     if !session.is_empty() {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
@@ -62,7 +66,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         send!("No session specified, the terminal needs to be restarted\u{000C}");
     }
-    let aliases = read_aliases(HashMap::new(), &home, None::<String>);
+    let aliases = read_aliases(HashMap::new(), &config, None::<String>);
     let child_env: HashMap<String, String> = env::vars().filter(|&(ref k, _)|
              k != "GATEWAY_INTERFACE"
              && k != "QUERY_STRING"
@@ -245,9 +249,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 cwd_new = remove_redundant_components(&cwd_new);
                 if cwd_new.is_dir() {
                     cwd = cwd_new;
-                    sessions = load_persistent(&home);
+                    sessions = load_persistent(&config);
                     sessions.insert(session.to_string(),(cwd.clone().into_os_string().into_string().unwrap(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
-                    match save_persistent(&home,sessions) {
+                    match save_persistent(&config,sessions) {
                         _ => ()
                     }
                     send!("{}\u{000C}", cwd.as_path().display());
@@ -404,9 +408,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     //eprintln!{"exit and saving sess"}
-    sessions = load_persistent(&home);
+    sessions = load_persistent(&config);
     sessions.insert(session.to_string(),(cwd.into_os_string().into_string().unwrap(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
-    save_persistent(&home,sessions)
+    save_persistent(&config,sessions)
 }
 
 fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env: &HashMap<String, String>) -> Option<Vec<u8>> {
@@ -1066,14 +1070,8 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
     result
 }
 
-fn read_aliases(mut res: HashMap<String,Vec<String>>, home: &PathBuf, project: Option<impl AsRef<str> + std::fmt::Display> ) -> HashMap<String,Vec<String>> {
-    let mut aliases = home.clone();
-    aliases.push(RDS_CFG_DIR);
-    match project {
-        None => aliases.push("aliases"),
-        Some(project) => aliases.push(format!("aliases-{project}"))
-    }
-    aliases.set_extension("prop");
+fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: Option<String> ) -> HashMap<String,Vec<String>> {
+    let aliases = config.get_config_path(&project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
         for line in lines.map_while(Result::ok) {
@@ -1103,17 +1101,14 @@ fn read_lines(filename: &PathBuf) -> io::Result<io::Lines<io::BufReader<File>>> 
     Ok(io::BufReader::new(file).lines())
 }
 
-fn get_project_home(project: &(impl AsRef<str> + std::fmt::Display), home: &PathBuf) -> Option<String> {
-     let settings =
-        match  project.as_ref() {
-            "default" | "" => "settings",
-            _  => &format!{"settings-{project}"},
-        };
-    let mut project_prop_path = home.clone();
-    project_prop_path.push(RDS_CFG_DIR);
-    project_prop_path.push(settings);
-    project_prop_path.set_extension("prop");
-    let settings = read_props(&project_prop_path);
+fn get_project_home(config: &Config, project: &str) -> Option<String> {
+    let some_project = Some(project.to_string());
+    let settings = config.get_config_path(if project.is_empty() || project == "default" {&None} else {&some_project}, SETTINGS_PREF, "prop");
+    let settings_path = settings.display().to_string();
+    if sanitize_path(&settings_path).is_err() {
+        return None
+    }
+    let settings = read_props(&settings);
     if let Some(res) = settings.get("project_home") {
         return if res.starts_with("~") {
             Some(res[1..].to_string())
@@ -1149,11 +1144,9 @@ pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
     props
 }
 
-fn load_persistent(home: &PathBuf) -> HashMap<String, (String,u64)> {
-    let mut props = HashMap::new();
-    let mut props_path = home.clone();
-    props_path.push(RDS_CFG_DIR);
-    props_path.push("webdata.properties");
+fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
+     let mut props = HashMap::new();
+    let props_path = config.get_config_path(&None::<String>, "webdata", "properties");
     if let Ok(file) = File::open(&props_path) {
         let lines = io::BufReader::new(file).lines();
         for line in lines {
@@ -1193,14 +1186,13 @@ fn load_persistent(home: &PathBuf) -> HashMap<String, (String,u64)> {
     props
 }
 
-fn save_persistent(home: &PathBuf, sessions: HashMap<String, (String,u64)>) -> Result<(), Box<dyn std::error::Error>> {
+fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> Result<(), Box<dyn std::error::Error>> {
     // update current (before save)
     // TODO consider to write a lock wrapper for something like
     // lock(save_persistent())
 
     // as for now using webdata.LOCK file
-    let mut props_path = home.clone();
-    props_path.push(RDS_CFG_DIR);
+    let mut props_path = config.config_dir.clone();
     props_path.push("webdata");
     props_path.set_extension("LOCK");
     { // check if LOCK file is here

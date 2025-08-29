@@ -1,3 +1,4 @@
+#![feature(let_chains)]
 extern crate simtime;
 extern crate web_cgi as web;
 extern crate simtpool;
@@ -22,7 +23,7 @@ use crossref::{RefType,Reference};
 use web::{get_file_modified, json_encode, read_props, sanitize_path, Menu,
     save_props, PageOps, param, url_encode, /*html_encode,*/param::Param};
 use simtpool::ThreadPool;
-use config::Config;
+use config::{Config,SETTINGS_PREF};
 
 macro_rules! eprintln {
     ($($rest:tt)*) => {
@@ -32,8 +33,6 @@ macro_rules! eprintln {
 }
 
 const VERSION: &str = env!("VERSION");
-
-const SETTINGS_PREF: &str = "settings";
 
 fn get_project_home(config : &Config, params: &Param) -> Option<String> {
      let mut settings_path = config.config_dir.clone();
@@ -172,16 +171,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("settings-project") => {
-            let settings = match params.param("session") {
-                Some(session) if !session.is_empty() => {
-                    param::adjust_separator(".rds/settings-".to_string()) + &session + ".prop"
-                }
-                None | Some(_) => param::adjust_separator(".rds/settings.prop".to_string()),
-            };
-            sanitize_path(&settings).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+            let settings_file = settings.display().to_string();
+            sanitize_path(&settings_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             Box::new(JsonSettings {
                 file: PageFile {
-                    file_name: config.to_real_path(&settings.to_owned(), None),
+                    file_name: settings_file,
                     ..Default::default()
                 },
                 home_len: (config.workspace_dir.display().to_string().len()+1) as _,
@@ -194,12 +189,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     content: "Err : not a POST".to_string(),
                 })
             } else {
-                let settings_path = config.to_real_path(sanitize_path(&match params.param("session") {
-                    Some(session) if !session.is_empty() => {
-                        param::adjust_separator(".rds/settings-".to_string()) + &session + ".prop"
-                    }
-                    _ => param::adjust_separator(".rds/settings.prop".to_string()),
-                }).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?, None);
+                let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                let settings_path = settings.display().to_string();
+                sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
                 let mut props = read_props(&settings_path);
                 let mut set_value = |key| match params.param(&key) {
                     Some(val) => props.insert(key, val),
@@ -250,23 +242,31 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("del-project") => {
-            let Some(proj) = params.param("project") else {
+            let proj = params.param("project");
+            if proj.is_none() {
                 return Err(Box::new(MisconfigurationError{ cause: "no project param"}))
             };
             let del_fil  = |file| -> io::Result<()> {
                 remove_file(file)?;
                 Ok(())
             };
-            let conf_dir = param::adjust_separator(".rds/".to_owned());
-            let project = config.to_real_path(&conf_dir, Some(&format!("settings-{proj}.prop")));
+            let settings = config.get_config_path(&proj, SETTINGS_PREF, "prop");
+            let settings_path = settings.display().to_string();
+            sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             let mut all_fine = true;
-            all_fine &= del_fil(project).is_ok();
-            let np = config.to_real_path(&conf_dir, Some(&format!("notepad-{proj}.txt")));
-            let _ = del_fil(np).is_ok();
-            let tabs = config.to_real_path(&conf_dir, Some(&format!("tabs-{proj}.sto")));
-            let _ = del_fil(tabs).is_ok();
-            let bm = config.to_real_path(&conf_dir, Some(&format!("bookmark-{proj}.json")));
-            let _ = del_fil(bm).is_ok();
+            all_fine &= del_fil(settings_path).is_ok();
+            let np = config.get_config_path(&proj, "notepad", "txt");
+            let np_path = np.display().to_string();
+            sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let _ = del_fil(np_path).is_ok();
+            let tabs = config.get_config_path(&proj, "tabs", "sto");
+            let tabs_path = tabs.display().to_string();
+            sanitize_path(&tabs_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let _ = del_fil(tabs_path).is_ok();
+            let bm = config.get_config_path(&proj, "bookmark", "json");
+            let bm_path = bm.display().to_string();
+            sanitize_path(&bm_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let _ = del_fil(bm_path).is_ok();
             match all_fine {
                 true => Box::new(PageStuff {
                         content: "Ok".to_string(),
@@ -283,28 +283,31 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }),
         Some("session-list") => { // TODO rename to project-list
             // list of dirs in
-            //eprintln! {"Project sess: {:?}", config.to_real_path(param::adjust_separator(".rds".to_string()), None)};
             Box::new(JsonSess {
                 file: PageFile {
-                    file_name: config.to_real_path(param::adjust_separator(".rds".to_string()), None),
+                    file_name: config.config_dir.display().to_string(),
                     ..Default::default()
                 },
             })
         }
         Some("savenp") => {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
-                let session = &params.param("session").unwrap_or_else(|| params.cookie("session").unwrap_or("".to_string()).to_string());
-                let notepad_name = if !session.is_empty()
-                {
-                    sanitize_path(&session).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                    format!["notepad-{session}.txt"]
+                let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                let settings_path = settings.display().to_string();
+                sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let props = read_props(&settings_path);
+                let spec_name;
+                if let Some(spec) = props.get("projectnp") && spec == "true" {
+                    spec_name = params.param("session");
                 } else {
-                    "notepad.txt".to_string()
-                };
+                    spec_name = None;
+                }
+                let np = config.get_config_path(&spec_name, "notepad", "txt");
+                let np_path = np.display().to_string();
+                sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                
                 if let Some(data) = &params.param("name") {
-                    let notepad =
-                        config.to_real_path(&param::adjust_separator(".rds/".to_owned()), Some(&notepad_name));
-                    write(&notepad, &data)?;
+                    write(&np_path, &data)?;
                     Box::new(PageStuff {
                         content: "Ok".to_string(),
                     })
@@ -338,16 +341,21 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("loadnp") => {
-            let notepad_name = 
-            match  params.param("session") {
-                Some(session) if  !session.is_empty()  => {
-                    sanitize_path(&session).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                    format!["notepad-{session}.txt"]},
-               _ =>  "notepad.txt".to_string()
-            };
-            let notepad = config.to_real_path(&param::adjust_separator(".rds/".to_owned()), Some(&notepad_name));
+            let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+            let settings_path = settings.display().to_string();
+            sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let props = read_props(&settings_path);
+            let spec_name;
+            if let Some(spec) = props.get("projectnp") && spec == "true" {
+                spec_name = params.param("session");
+            } else {
+                spec_name = None;
+            }
+            let np = config.get_config_path(&spec_name, "notepad", "txt");
+            let np_path = np.display().to_string();
+            sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
             Box::new(PageStuff {
-                content: read_to_string(&notepad).unwrap_or("".to_string()),
+                content: read_to_string(&np_path).unwrap_or("".to_string()),
             })
         }
         Some("vcs-list") => {
@@ -426,18 +434,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .arg(&comment)
                                 .env("HOME", config.to_real_path("", None))
                                 .current_dir(&dir);
-    
-                            let settings = 
-                            match  params.param("session") {
-                                Some(session) if  !session.is_empty()  => config.to_real_path(
-                                                    param::adjust_separator(".rds/settings-".to_string())+
-                                                    &session+".prop",
-                                                    None
-                                                ),
-                               _ =>  config.to_real_path(&param::adjust_separator(".rds/settings.prop".to_owned()), None)
-                            };
-                            sanitize_path(&settings).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                            let props = read_props(&settings);
+                            let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                            let settings_file = settings.display().to_string();
+                            sanitize_path(&settings_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                            
+                            let props = read_props(&settings_file);
                             let user = props.get("user");
                             if let Some(user) = user {
                                 let author = format! {"--author={user}"};
@@ -549,15 +550,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("load-persist-tab") => {
-            let storage = match params.param("session") {
-                Some(session) if !session.is_empty() => {
-                    param::adjust_separator(".rds/tabs-".to_string())+
-                                    &session+".sto"
-                }
-                _ => param::adjust_separator(".rds/tabs.sto".to_string()),
-            };
-            sanitize_path(&storage).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-            match read_to_string(config.to_real_path(&storage, None)) {
+            let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
+            let tabs_file = tabs.display().to_string();
+            sanitize_path(&tabs_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            match read_to_string(&tabs_file) {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
                     let mut res = String::from("[");
@@ -581,15 +577,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("persist-tab") => {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
-                let storage = match params.param("session") {
-                    Some(session) if !session.is_empty() => {
-                        param::adjust_separator(".rds/tabs-".to_string())+
-                                    &session+".sto"
-                    }
-                    None | Some(_) =>  param::adjust_separator(".rds/tabs.sto".to_string()),
-                };
-                sanitize_path(&storage).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                fs::write(config.to_real_path(&storage, None), params.param("tabs").unwrap_or("".to_string()))?;
+                let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
+                let tabs_file = tabs.display().to_string();
+                sanitize_path(&tabs_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                fs::write(&tabs_file, params.param("tabs").unwrap_or("".to_string()))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
@@ -714,30 +705,20 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("save-bookmark") => {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
-                let bookmark = match params.param("session") {
-                    Some(session) if !session.is_empty() => {
-                        param::adjust_separator(".rds/bookmark-".to_string())+
-                                    &session+".json"
-                    }
-                    None | Some(_) =>  param::adjust_separator(".rds/bookmark.json".to_string()),
-                };
-                sanitize_path(&bookmark).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                fs::write(config.to_real_path(&bookmark, None), params.param("bookmarks").unwrap_or("".to_string()))?;
+                let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
+                let bm_file = bm.display().to_string();
+                sanitize_path(&bm_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                fs::write(bm_file, params.param("bookmarks").unwrap_or("".to_string()))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
             }
         }
         Some("load-bookmark") => {
-             let bookmark = config.to_real_path(match params.param("session") {
-                Some(session) if !session.is_empty() => {
-                    param::adjust_separator(".rds/bookmark-".to_string())+
-                                &session+".json"
-                }
-                None | Some(_) =>  param::adjust_separator(".rds/bookmark.json".to_string()),
-            }, None);
-            sanitize_path(&bookmark).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-            if let Ok(bookmarks) = fs::read_to_string(&bookmark) {
+            let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
+            let bm_file = bm.display().to_string();
+            sanitize_path(&bm_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if let Ok(bookmarks) = fs::read_to_string(&bm_file) {
                 Box::new(JsonStuff {
                     json: bookmarks,
                     name: "bookmarks".to_string()

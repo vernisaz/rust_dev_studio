@@ -51,7 +51,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
   
-- using standard location for config files
+- using the standard location for config files
 - issue queries to AI engine",
 	-E ${rds}/rds${script ext},
 	script,
@@ -90,7 +90,7 @@ target install:.:Install RDS if needed {
 	        # none
 	    }
 	}
-	# a logic to ask a port number and HOME
+	# a logic to ask a port number and CONFIG/HOME
 	ask(What's port number use for a web server [8443]?, 8443)
 	assign(PORT,~~)
 	cfg()
@@ -107,7 +107,7 @@ PORT=${PORT}
 CONFIG=${CONFIG}
 HOME=\"${HOME}\"")
     mkd(${CONFIG})
-    write(${CONFIG}${~/~}aliases.prop,"# current content is only for illustration
+    write(${CONFIG}${~/~}aliases.prop,"# the current content is only for illustration
 alias ls='ls --color'")
 	write(${CONFIG}${~/~}.workspace,${HOME})
 
@@ -196,6 +196,8 @@ target runrust:.:run TRWS for RDS {
 		    writex(stopserver,"#!/bin/sh
 kill ${pid}
 rm stopserver")
+		} else {
+			display("Use \033[91mtaskkill /F /PID ${pid}\033[0m to stop the server")
 		}
 	}
 }

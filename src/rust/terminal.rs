@@ -111,9 +111,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (mut cmd, piped, in_file, out_file, bkgr) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
-            let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1].clone(), &cwd));
+            let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1], &cwd));
             let mut beg = 
-            piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " + &esc_string_blanks(e2)).unwrap() + "|" );
+            piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " +
+                &esc_string_blanks(e2)).unwrap() + "|" );
            
             if cmd.len() > 1 {
                 cmd.pop();
@@ -303,7 +304,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             "echo" if cfg!(windows) => {
                 if cmd.len() == 2 {
-                    send!("{}\u{000C}", cmd[1]);
+                    if !out_file .is_empty() /*None*/ {
+                        let mut file = PathBuf::from(&out_file);
+                        if !file.has_root() {
+                           file = cwd.join(file); 
+                        }
+                        fs::write(file, &cmd[1])?
+                    } else {
+                        send!("{}\u{000C}", cmd[1]);
+                    }
                 }
             }
             "md" | "mkdir" if cfg!(windows) => {
@@ -351,8 +360,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     } else {
                         if in_file.is_empty() {
-                            prev = call_process(cmd, &cwd, &stdin, &child_env);
+                            if !out_file .is_empty() /*None*/ {
+                                let out_file = interpolate_env(out_file);
+                                let mut file = PathBuf::from(&out_file);
+                                if !file.has_root() {
+                                   file = cwd.join(file); 
+                                }
+                                let mut file = OpenOptions::new()
+                                    .write(true)
+                                    //.append(true) 
+                                    .create(true) 
+                                    .open(file)?; 
+                                prev = call_process_out_file(cmd, &cwd, &stdin, &mut file, &child_env);
+                            } else {
+                                prev = call_process(cmd, &cwd, &stdin, &child_env);
+                            }
                         } else {
+                            let in_file = interpolate_env(in_file);
                             let mut in_file = PathBuf::from(in_file);
                             if !in_file.has_root() {
                                 in_file = PathBuf::from(&cwd).join(in_file);
@@ -363,6 +387,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     if out_file.is_empty() {
                                         send!("{}\u{000C}",String::from_utf8_lossy(&res));
                                     } else {
+                                        let out_file = interpolate_env(out_file);
                                         let mut out_file = PathBuf::from(out_file);
                                         if !out_file.has_root() {
                                             out_file = PathBuf::from(&cwd).join(out_file);
@@ -502,6 +527,92 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
     }
     res
 }
+
+fn call_process_out_file(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, out: &mut dyn Write, filtered_env: &HashMap<String, String>) -> Option<Vec<u8>> {
+    let process = 
+        if cmd.len() > 1 {
+                Command::new(&cmd[0])
+             .args(&cmd[1..])
+             .stdout(Stdio::piped())
+             .stdin(Stdio::piped())
+             .stderr(Stdio::piped())
+             .env_clear()
+             .envs(filtered_env)
+             .current_dir(&cwd).spawn()
+         } else {
+            Command::new(&cmd[0])
+             .stdout(Stdio::piped())
+             .stdin(Stdio::piped())
+             .stderr(Stdio::piped())
+             .env_clear()
+             .envs(filtered_env)
+             .current_dir(&cwd).spawn()
+        };
+    let mut res : Option<Vec<u8>> = None;
+    match process {
+        Ok(mut process) => {
+            let Some(mut stdout) = process.stdout.take() else {return None};
+            let Some(mut stdin_child) = process.stdin.take()  else {return None};
+            let Some(stderr) = process.stderr.take() else {return None};
+            let share_process = Arc::new(Mutex::new(process));
+            let for_kill = Arc::clone(&share_process);
+            let for_wait = Arc::clone(&share_process);
+            thread::scope(|s| {
+                
+                s.spawn(|| {
+                     let reader = BufReader::new(stderr);
+                    /* it waits for new output */
+                    for line in reader.lines() {
+                        let string = line.unwrap();
+                        send!{"{}\n", string};
+                    }
+                });
+
+                s.spawn(|| {
+                    let mut buffer = [0_u8;MAX_BLOCK_LEN]; 
+                    loop {
+                        let Ok(len) = stdin.read(&mut buffer) else {break};
+                        if len == 0 {break};
+                        if len == 1 && buffer[0] == 3 {
+                            if for_kill.lock().unwrap().kill().is_ok() {
+                                send!("^C");
+                                break
+                            }
+                        }
+                        //let line = String::from_utf8_lossy(&buffer[0..len]);
+                        match stdin_child.write_all(&buffer[0..len]) {
+                            Ok(()) => {
+                                stdin_child.flush().unwrap(); // can be an error?
+                                send!{"{}", String::from_utf8_lossy(&buffer[0..len])} // echo
+                                res = None; // user input consumed by the child process
+                            }
+                            Err(_) => {
+                                res  = Some(buffer[0..len].to_vec()); // user input goes in the terminal way
+                                break
+                            }
+                        }
+                    }
+                });
+                
+                let mut buffer = [0_u8; MAX_BLOCK_LEN]; 
+                loop {
+                    let Ok(l) = stdout.read(&mut buffer) else {break};
+                    if l == 0 { break } // 
+                    if out.write(&buffer[..l]).is_err() {
+                        break
+                    };
+                }
+
+                for_wait.lock().unwrap().wait().unwrap();
+                send!("\u{000C}");
+                
+            });
+        }
+        Err(err) => {send!("Can't run: {} in {cwd:?} - {err}\u{000C}", &cmd[0]);},
+    }
+    res
+}
+
 
 fn call_process_piped(cmd: Vec<String>, cwd: &PathBuf, in_pipe: &Vec<u8>, filtered_env: &HashMap<String, String>) -> io::Result<Vec<u8>> {
     let mut process = 
@@ -999,7 +1110,8 @@ fn interpolate_env(s:String) -> String {
 }
 
 fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
-    let  path = PathBuf::from(arg.as_ref());
+    // unescape
+    let  path = PathBuf::from(unescape(arg));
     let (dir, part_name) =
     match path.parent() {
         None => (cwd.clone(), arg.as_ref().to_string()),
@@ -1017,7 +1129,8 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
         match dir.read_dir() {
             Ok(read_dir) => read_dir
               .filter(|r| r.is_ok())
-              .map(|r| {let p = r.unwrap().path(); p.file_name().unwrap().to_str().unwrap().to_owned() + if p.is_dir() {MAIN_SEPARATOR_STR} else {""}})
+              .map(|r| {let p = r.unwrap().path(); p.file_name().unwrap().to_str().unwrap().to_owned() + 
+                   if p.is_dir() {MAIN_SEPARATOR_STR} else {""}})
               .filter(|r| r.starts_with(&part_name))
               .collect(),
             Err(_) => vec![],
@@ -1260,7 +1373,7 @@ fn esc_string_blanks(string:String) -> String {
 let mut res = String::new();
     for c in string.chars() {
         match c {
-            ' ' | '\\' | '"' | '|' | '(' | ')' | '<' | '>' | ';' | '&' => { res.push('\\'); }
+            ' ' | '\\' | '"' | '|' | '(' | ')' | '<' | '>' | ';' | '&' | '$' => { res.push('\\'); }
             _ => ()
         }
         res.push(c);

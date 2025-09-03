@@ -471,7 +471,7 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
             let for_wait = Arc::clone(&share_process);
             thread::scope(|s| {
                 
-                s.spawn(|| {
+                let err_col = s.spawn(|| {
                      let reader = BufReader::new(stderr);
                     /* it waits for new output */
                     for line in reader.lines() {
@@ -518,8 +518,9 @@ fn call_process(cmd: Vec<String>, cwd: &PathBuf, mut stdin: &Stdin, filtered_env
                     }
                 //});
 
-                for_wait.lock().unwrap().wait().unwrap();
-                send!("\u{000C}");
+               for_wait.lock().unwrap().wait().unwrap();
+               let _ = err_col.join();
+               send!("\u{000C}");
                 
             });
         }

@@ -50,7 +50,8 @@ target package:.. {
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
     "What's New
-  
+    
+- added more the real terminal features
 - using the standard location for config files
 - issue queries to AI engine",
 	-E ${rds}/rds${script ext},

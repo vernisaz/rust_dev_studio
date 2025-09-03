@@ -9,11 +9,11 @@ duplicated by Google.
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
-perfectly suitable for using Rust. The terminal functionality is implemented using the websocket endpoint. So the RDS has
+perfectly suitable for using Rust. The terminal functionality is implemented using a websocket endpoint. So the RDS has
 written in Rust, HTML, CSS, and JavaScript and runs on Rust web server - [SimHttp](https://github.com/vernisaz/simhttp/tree/master).
 
 ## Implementation
-It's a really compact with footprint below 10 MB. All web requests are handled by one Rust CGI executable. The terminal is
+It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust CGI executable. The terminal is
 a websocket endpoint utilizing the WS-CGI technology.
 
 ## Config
@@ -37,8 +37,8 @@ of [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
 ```
 The mapping is used to run the RDS from the dev environment, therefore the access URL
 will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
-however it will be in a simpler appearance in the standard packaging as
-`http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will be dependent
+however it will be in a simpler form in the standard packaging as
+`http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will depend
 on your environment. Obviously you can change the application web path too.
 
 Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
@@ -72,8 +72,8 @@ there is the predefined packaging.
 It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
 and you can start using the **RDS**. The access URL's stored in `rds.url`.
 
-There is a RustBee [file](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
-create a standard packaging.
+There is a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
+create the standard packaging.
 
 ## Building RDS components
 
@@ -90,7 +90,7 @@ The following crates will be required to be built first:
 
 Common scripts are containing scripts only and shouldn't be built. 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
-already exists. Run **rb** in the each component repository. 
+already exists. Run **rb** in the each crate repository. 
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
 
@@ -112,7 +112,7 @@ color=always
 ```
 ## Cloud and multi users install
 If you plan to use the IDE on Cloud in a multi users environment, then you need to provide a proxy server in the front which provides:
-- SSL to plain connection conversion
+- SSL to plain connection translation
 - A user authentication
 - URL translation
 

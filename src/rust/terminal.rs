@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
     
     let project_path = get_project_home(&config, project).
-        unwrap_or_else(|| {send!("No project config found, the project is misconfigured\n"); home.display().to_string()}); 
+        unwrap_or_else(|| {send!("No {project} config found, the project is misconfigured\n"); home.display().to_string()}); 
     let mut cwd = PathBuf::from(&home);
     cwd.push(&project_path);
     let mut sessions = load_persistent(&config);

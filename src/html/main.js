@@ -805,8 +805,10 @@ function sendCommand(cmd) {
 	        return
 	    case "Backspace":
 	    case "Delete":
-	        if (cmd.textContent.length == 1) // prevent complete cleaning the field
+	        if (cmd.textContent.length == 1) {// prevent complete cleaning the field
 	            event.preventDefault()
+	            cmd.textContent = '\xa0'
+	        }
 	        return
 	    default:
 	       if (event.ctrlKey) {

@@ -4,7 +4,7 @@ use std::path::{PathBuf};
 #[cfg(target_os = "windows")]
 use std::path::{PathBuf};
 use fs::read_to_string;
-use web::sanitize_path;
+use simweb::sanitize_web_path;
 
 pub const SETTINGS_PREF: &str = "settings";
 const RDS_CFG_DIR : &str = ".rds";
@@ -60,12 +60,9 @@ impl Config {
     
     #[allow(dead_code)]
     pub fn name_to_path(&self, name: Option<String>) -> Option<String> {
-        if let Some(name) = name {
-            let _ = sanitize_path(&name).ok()?;
-            Some(self.to_real_path(&name, None))
-        } else {
-            None
-        }
+        let name = name?;
+        let name = sanitize_web_path(name).ok()?;
+        Some(self.to_real_path(&name, None))
     }
     
     pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {

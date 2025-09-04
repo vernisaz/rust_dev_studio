@@ -93,7 +93,6 @@ The **crates** directory on the level of repository directories has to be create
 already exists. Run **rb** in the each crate repository. 
 
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
-The RDS CGI executable has to be built first, because the terminal deneds on it.
 
 ## Working tips
 

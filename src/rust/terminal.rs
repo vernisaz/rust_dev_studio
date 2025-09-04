@@ -17,7 +17,7 @@ macro_rules! send {
 extern crate simcfg;
 extern crate simweb;
 extern crate simtime;
-extern crate web_cgi as web;
+
 mod config;
 use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
     fs::{self,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
@@ -27,8 +27,8 @@ use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
 #[cfg(target_os = "windows")]
 use std::os::windows::prelude::*;
 use simtime::seconds_from_epoch;
-use web::{sanitize_path};
 use config::{Config,SETTINGS_PREF};
+use simweb::sanitize_web_path;
 
 const VERSION: &str = env!("VERSION");
 
@@ -1219,9 +1219,9 @@ fn get_project_home(config: &Config, project: &str) -> Option<String> {
     let some_project = Some(project.to_string());
     let settings = config.get_config_path(if project.is_empty() || project == "default" {&None} else {&some_project}, SETTINGS_PREF, "prop");
     let settings_path = settings.display().to_string();
-    if sanitize_path(&settings_path).is_err() {
+    if sanitize_web_path(settings_path).is_err() {
         return None
-    }
+    };
     let settings = read_props(&settings);
     if let Some(res) = settings.get("project_home") {
         return if res.starts_with("~") {

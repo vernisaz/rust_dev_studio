@@ -1,6 +1,7 @@
 //#![feature(let_chains)]
 extern crate simtime;
 extern crate web_cgi as web;
+extern crate simweb;
 extern crate simtpool;
 extern crate simran;
 extern crate simcfg;

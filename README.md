@@ -43,13 +43,14 @@ on your environment. Obviously you can change the application web path too.
 
 Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
 
-File *.config* residing in the same directory, where **rustcgi** executable is stored, is required. The file has to specify a fully qualified
-path to the app config directory. (Actually it's any directory where the directory _.rds_ will be landed)
+File *.config* residing in the same directory, where **rustcgi** executable is stored, is required.
+The file has to specify a fully qualified
+path to the common config directory where RDS will land the directory _.rds_.
 
 Directory _.rds_ may contain file _.workplace_ which contains a path to the directory where
 all projects will be landed. If there is no such file presented, then the workplace directory 
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
-can be provoded in the _.config_ file.
+can be provided in the _.config_ file.
 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with **SimHTTP**,
@@ -88,7 +89,7 @@ The following crates will be required to be built first:
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 
-Common scripts are containing scripts only and shouldn't be built. 
+Common scripts are containing scripts only required to build other crates. 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
 already exists. Run **rb** in the each crate repository. 
 

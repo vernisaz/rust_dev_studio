@@ -108,7 +108,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let line = String::from_utf8_lossy(&vec_buf).into_owned();
         prev = None;
         let expand = line.chars().last() == Some('\t');
-        let (mut cmd, piped, in_file, out_file, bkgr) = parse_cmd(&line.trim());
+        let (mut cmd, piped, in_file, out_file, appnd, bkgr) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1], &cwd));
@@ -368,8 +368,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }
                                 let mut file = OpenOptions::new()
                                     .write(true)
-                                    //.append(true) 
-                                    .create(true) 
+                                    .append(appnd) 
+                                    .create(!appnd) 
                                     .open(file)?; 
                                 prev = call_process_out_file(cmd, &cwd, &stdin, &mut file, &child_env);
                             } else {
@@ -698,12 +698,14 @@ enum RedirectSate {
     Output,
 }
 
-fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String,bool) { // TODO add < for first group and > for last gropu which can be be the same
+fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String,bool,bool) {
+// TODO add < for first group and > for last gropu which can be be the same
     let mut pipe_res = vec![];
     let mut res = vec![];
     let mut input_file = String::new();
     let mut output_file = String::new();
     let mut asynch = false;
+    let mut append = false;
     let mut state = Default::default();
     let mut curr_comp = String::new();
     let mut red_state = RedirectSate::default();
@@ -720,7 +722,10 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                                 res.clear();
                             }
                             '<' => { red_state = RedirectSate::Input; }
-                            '>' => { red_state = RedirectSate::Output }
+                            '>' => match red_state {
+                                RedirectSate::Output => append = true,
+                                _ => red_state = RedirectSate::Output
+                                }
                             '&' => asynch = true,
                             _ => (),
                         }
@@ -741,7 +746,11 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                                 res.clear();
                             }
                             '<' => { red_state = RedirectSate::Input; }
-                            '>' => { red_state = RedirectSate::Output }
+                            '>' => { match red_state {
+                                RedirectSate::Output => append = true,
+                                _ => red_state = RedirectSate::Output
+                                }
+                            }
                             '&' => asynch = true,
                             _ => red_state = RedirectSate::NoRedirect,
                         }
@@ -833,7 +842,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
         CmdState:: StartArg => (),
         _ => todo!()
     }
-    (res, pipe_res,input_file,output_file,asynch)
+    (res, pipe_res,input_file,output_file,append,asynch)
 }
 
 fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<String>>

@@ -111,13 +111,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (mut cmd, piped, in_file, out_file, appnd, bkgr) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
-            let ext = esc_string_blanks(extend_name(if out_file.is_empty() {&cmd[cmd.len() - 1]} else {&out_file}, &cwd));
+            let ext = esc_string_blanks(extend_name(if out_file.is_empty() {
+                if in_file.is_empty() {&cmd[cmd.len() - 1]} else { &in_file} } else {&out_file}, &cwd));
             let mut beg = 
             piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " +
                 &esc_string_blanks(e2)).unwrap() + "|" );
            
             if cmd.len() > 1 {
-                if out_file.is_empty() {
+                if out_file.is_empty() && in_file.is_empty() {
                     cmd.pop();
                 }
                 beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap();
@@ -126,6 +127,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         beg.push('>');
                     }
                     beg.push('>');
+                } else {
+                    if !in_file.is_empty() {
+                        beg.push('<');
+                    }
                 }
             } 
             //eprintln!("line to send {} {ext}", beg);

@@ -111,14 +111,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (mut cmd, piped, in_file, out_file, appnd, bkgr) = parse_cmd(&line.trim());
         if cmd.is_empty() { continue };
         if expand {
-            let ext = esc_string_blanks(extend_name(&cmd[cmd.len() - 1], &cwd));
+            let ext = esc_string_blanks(extend_name(if out_file.is_empty() {&cmd[cmd.len() - 1]} else {&out_file}, &cwd));
             let mut beg = 
             piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " +
                 &esc_string_blanks(e2)).unwrap() + "|" );
            
             if cmd.len() > 1 {
-                cmd.pop();
-                beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap()
+                if out_file.is_empty() {
+                    cmd.pop();
+                }
+                beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap();
+                if !out_file.is_empty() {
+                    if appnd {
+                        beg.push('>');
+                    }
+                    beg.push('>');
+                }
             } 
             //eprintln!("line to send {} {ext}", beg);
             send!("\r{} {ext}", beg);// &line[..pos]);
@@ -370,6 +378,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     .write(true)
                                     .append(appnd) 
                                     .create(!appnd) 
+                                    .truncate(!appnd)
                                     .open(file)?; 
                                 prev = call_process_out_file(cmd, &cwd, &stdin, &mut file, &child_env);
                             } else {
@@ -699,7 +708,7 @@ enum RedirectSate {
 }
 
 fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,String,bool,bool) {
-// TODO add < for first group and > for last gropu which can be be the same
+// TODO add < for first group and > for last group which can be be the same
     let mut pipe_res = vec![];
     let mut res = vec![];
     let mut input_file = String::new();
@@ -772,9 +781,16 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                        state = CmdState:: QuotedArg;
                    }
                    CmdState:: QuotedArg => {
-                       state = CmdState:: StartArg;
-                       res.push(curr_comp.clone());
-                       curr_comp.clear();
+                        state = CmdState:: StartArg;
+                        match red_state {
+                            RedirectSate::NoRedirect => {
+                                res.push(curr_comp.clone());
+                                   curr_comp.clear();
+                            }
+                            RedirectSate::Input => {input_file = String::from(&curr_comp);}
+                            RedirectSate::Output => {output_file = curr_comp.clone();}
+                        }
+                        red_state = RedirectSate::NoRedirect;
                    }
                    CmdState:: InArg => {
                         state = CmdState:: QuotedArg;

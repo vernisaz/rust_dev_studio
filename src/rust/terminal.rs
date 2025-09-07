@@ -123,6 +123,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 beg += &cmd.into_iter().reduce(|a,e| a + " " + &esc_string_blanks(e) ).unwrap();
                 if !out_file.is_empty() {
+                    if !in_file.is_empty() {
+                        beg.push('<');
+                        beg.push_str(&in_file);
+                    }
                     if appnd {
                         beg.push('>');
                     }

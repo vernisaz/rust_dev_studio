@@ -214,7 +214,7 @@ var ajax = {
    put: function(req) {
 	   var self = this
       var xhr = new XMLHttpRequest();
-      xhr.open('PUT', req.url);
+      xhr.open('PUT', req.url, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.onload = function () {
     	  self.processResponse(xhr,req) 

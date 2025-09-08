@@ -1175,8 +1175,11 @@
             const selectedContent = editor.getSelectedText()
             ajax.put({url:"http://localhost:8080/learning/webbee/Query", 
                 payload: {text:selectedContent, id:"ask1"},
-                success: (resp) => {
-                    alert(`responded:${resp}`)
+                success: function (resp) {
+                    alert(`responded:${resp.text}`)
+                },
+                fail: function (code,text) {
+                    showErrorMessage(`The AI server is unreachable or returned ${code} with ${text}`)
                 }
             } );
         } else {

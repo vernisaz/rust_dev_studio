@@ -326,7 +326,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         if !file.has_root() {
                            file = cwd.join(file); 
                         }
-                        fs::write(file, &cmd[1])?
+                        fs::write(file, &cmd[1])?;
+                        send!("\u{000C}");
                     } else {
                         send!("{}\u{000C}", cmd[1]);
                     }

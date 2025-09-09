@@ -1623,9 +1623,11 @@ impl DeferData {
                 Op::CPY => {
                     let mut file = self.src.clone();
                     let mut dest = self.dst.clone().unwrap();
-                    file.push(name) ;
+                    file.push(&name) ;
                     if !name_to.is_empty() {
                         dest.push(&name_to)
+                    } else {
+                        dest.push(name) // 
                     }
                     if file.is_file() {
                         if fs::copy(&file, &dest).is_ok() {
@@ -1633,9 +1635,9 @@ impl DeferData {
                         };
                     } else if file.is_dir() {
                     }
-                    if !name_to.is_empty() {
+                    //if !name_to.is_empty() {
                         dest.pop();
-                    }
+                    //}
                 }
                 Op::REN => {
                     let mut file = self.src.clone();

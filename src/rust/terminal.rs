@@ -1154,6 +1154,7 @@ fn interpolate_env(s:String) -> String {
 fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
     // unescape
     let  path = PathBuf::from(unescape(arg));
+    //eprintln!("entered: {path:?}");
     let (dir, part_name) =
     match path.parent() {
         None => (cwd.clone(), arg.as_ref().to_string()),
@@ -1180,6 +1181,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
     let dir = dir.display().to_string(); // String =String::from(cwd.to_string_lossy());
     //let cwd = cwd.display().to_string();
     //let dir = dir.strip_prefix(&cwd).unwrap();
+    //eprintln!("dir: {dir} -> {} for {part_name}", files.len());
     match files.len() {
         0 => format!("{}{}{part_name}",dir,MAIN_SEPARATOR_STR),
         1 => format!("{}{}{}",dir,MAIN_SEPARATOR_STR,files[0].clone()),
@@ -1403,8 +1405,8 @@ fn unescape(string:&impl AsRef<str>) -> String {
     for c in string.as_ref().chars() {
         match c {
             '\\' => { if esc { esc=false;} else { esc = true; continue} }
-            //':' | ' ' | '!' => {esc=false;}
-            _ => esc=false,
+            ':' | ' ' | '!' => {esc=false;}
+            _ => {if esc {res.push('\\');} esc=false},
         }
         res.push(c);
     }

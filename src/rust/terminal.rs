@@ -904,7 +904,7 @@ fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<
 fn expand_alias(aliases: &HashMap<String,Vec<String>>, mut cmd: Vec<String>) -> Vec<String> {
     match aliases.get(&cmd[0]) {
         Some(expand) => { cmd.splice(0..1, expand.clone()); cmd }
-        _ => cmd
+        _ => {if cmd[0].starts_with("\\") {cmd[0] = cmd[0][1..].to_owned();} cmd}
     }
 }
 

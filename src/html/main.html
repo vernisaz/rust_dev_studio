@@ -1174,9 +1174,9 @@
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
             ajax.put({url:"http://orangepi5:8080/learning/webbee/Query", 
-                payload: {text:selectedContent, id:"ask1"},
+                payload: {text:selectedContent, id:"ask-q1"},
                 success: function (resp) {
-                    showErrorMessage(`responded:${resp.text}`)
+                    showErrorMessage(`responded:${resp[0].text}`)
                 },
                 fail: function (code,text) {
                     showErrorMessage(`The AI server is unreachable or returned ${code} with ${text}`)

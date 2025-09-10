@@ -71,8 +71,7 @@ mod windows {
             let Ok(metadata) = self.metadata() else {
                 return false
             };
-            metadata.is_dir() || (self.extension().is_some() &&
-              (self.extension().unwrap() == "exe" || self.extension().unwrap() == "bat"))
+            metadata.is_dir() || matches!(self.extension(), Some("exe" | "bat"))
         }
     }
 }

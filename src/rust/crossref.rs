@@ -208,6 +208,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
             }
             '0'..='9' => {
+                //eprintln!{"state in dig {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
@@ -454,11 +455,13 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 } 
             }
             '=' => {
+                //eprintln!{"state {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
                 match state {
                     ExpEndComment => state = InStarComment,
+                    Direct => (),
                     _ => state = InCallName,
                 }
             }

@@ -7,17 +7,16 @@ crate_dir=..${~/~}crates
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.20.05:165"
+version="1.20.05:166"
 set_env(VERSION,version)
 
 mode=mode:prop
 if {
 	eq(mode,release) then {
-		array(-C,opt-level=3)
-		array(comp opts, ~~)
+		array(comp opts, -C,opt-level=3)
 		assign(comp opts, ~~)
 	} else {
-	    array(comp opts, --cfg,feature="quiet")
+	    array(comp opts, --cfg, dbg_ref, --cfg,feature="quiet")
 		assign(comp opts, ~~)
 	}
 }

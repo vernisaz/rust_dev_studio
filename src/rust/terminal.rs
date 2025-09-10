@@ -35,7 +35,47 @@ const VERSION: &str = env!("VERSION");
 const MAX_BLOCK_LEN : usize = 4096;
 
 //const PROMPT: &str = "$"; // TODO customize accordingly underline OS as %,#...
+pub trait IsExecutable {
+    /// Returns `true` if there is a file at the given path and it is
+    /// executable. Returns `false` otherwise.
+    ///
+    /// See the module documentation for details.
+    fn is_executable(&self) -> bool;
+}
+#[cfg(unix)]
+mod unix {
+    use std::os::unix::fs::PermissionsExt;
+    use std::path::Path;
 
+    use super::IsExecutable;
+
+    impl IsExecutable for Path {
+        fn is_executable(&self) -> bool {
+            let metadata = match self.metadata() {
+                Ok(metadata) => metadata,
+                Err(_) => return false,
+            };
+            let permissions = metadata.permissions();
+            metadata.is_dir() || metadata.is_file() && permissions.mode() & 0o111 != 0
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+mod windows {
+    use std::path::Path;
+
+    use super::IsExecutable;
+    impl IsExecutable for Path {
+        fn is_executable(&self) -> bool {
+            let Ok(metadata) = self.metadata() else {
+                return false
+            };
+            metadata.is_dir() || (self.extension().is_some() &&
+              (self.extension().unwrap() == "exe" || self.extension().unwrap() == "bat"))
+        }
+    }
+}
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
     let binding = if web.path_info().starts_with("/") {web.path_info()[1..].to_string()} else {web.path_info()};
@@ -112,7 +152,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if cmd.is_empty() { continue };
         if expand {
             let ext = esc_string_blanks(extend_name(if out_file.is_empty() {
-                if in_file.is_empty() {&cmd[cmd.len() - 1]} else { &in_file} } else {&out_file}, &cwd));
+                if in_file.is_empty() {&cmd[cmd.len() - 1]} else { &in_file} } else {&out_file}, &cwd, cmd.len() == 1));
             let mut beg = 
             piped.into_iter().fold(String::new(), |a,e| a + &e.into_iter().reduce(|a2,e2| a2 + " " +
                 &esc_string_blanks(e2)).unwrap() + "|" );
@@ -1152,7 +1192,7 @@ fn interpolate_env(s:String) -> String {
     res
 }
 
-fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
+fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     // unescape
     let  path = PathBuf::from(unescape(arg));
     //eprintln!("entered: {path:?}");
@@ -1172,7 +1212,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf) -> String {
     let files: Vec<String> =
         match dir.read_dir() {
             Ok(read_dir) => read_dir
-              .filter(|r| r.is_ok())
+              .filter(|r| r.is_ok() && (!exe || r.as_ref().unwrap().path().is_executable()))
               .map(|r| {let p = r.unwrap().path(); p.file_name().unwrap().to_str().unwrap().to_owned() + 
                    if p.is_dir() {MAIN_SEPARATOR_STR} else {""}})
               .filter(|r| r.starts_with(&part_name))

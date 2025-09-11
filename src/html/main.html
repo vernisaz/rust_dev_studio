@@ -356,6 +356,8 @@
       
       let AI_SERVER_URL = ''
       
+      let caseId = 'num1@'
+      
       function newFile() {
           const pane = document.getElementById("fileForm")
           // clean current
@@ -507,7 +509,7 @@
               document.getElementById("autosave").checked = 'yes' == load.autosave
               document.getElementById("projectnp").checked = 'yes' == load.projectnp
               document.getElementById("user").value = load.user
-              document.getElementById("ai-access").value = load.ai_server_url
+              document.getElementById("ai-access").value = load.ai_server_url?load.ai_server_url:''
               document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
               var projectDir = load.project_home
               if (projectDir.startsWith('~/'))
@@ -1183,10 +1185,11 @@
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
             ajax.put({url:AI_SERVER_URL, 
-                payload: {text:selectedContent, id:"ask-q1"},
+                payload: {text:selectedContent, id:caseId},
                 success: function (resp) {
                     const range = editor.selection.getRange();
                     editor.session.replace(range, `${selectedContent}\n${resp[0].text}`);
+                    caseId = resp[0].id;
                 },
                 fail: function (code,text) {
                     showErrorMessage(`The AI server is unreachable or returned ${code} with ${text}`)

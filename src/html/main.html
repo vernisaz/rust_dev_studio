@@ -144,8 +144,8 @@
                 <input type="text" placeholder="Enter a user as Name <email>" id="user" size="42">
             </div>
             <div class="form-row">
-                <label for="ai-access">AI key</label>
-                <input type="password" placeholder="Enter AI access key (optional)" id="ai-access" size="42">
+                <label for="ai-access">AI server URL</label>
+                <input type="url" placeholder="Enter AI access URL (optional)" id="ai-access" size="42">
             </div>
             <div class="form-footer">
                 <button type="button" class="btn" onclick="saveSettings()">Apply</button>
@@ -354,7 +354,7 @@
       
       const WIN_SERVER = ${windows}
       
-      // TODO reconsider openFileMenu as close menu on screen
+      let AI_SERVER_URL = ''
       
       function newFile() {
           const pane = document.getElementById("fileForm")
@@ -507,6 +507,7 @@
               document.getElementById("autosave").checked = 'yes' == load.autosave
               document.getElementById("projectnp").checked = 'yes' == load.projectnp
               document.getElementById("user").value = load.user
+              document.getElementById("ai-access").value = load.ai_server_url
               document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
               var projectDir = load.project_home
               if (projectDir.startsWith('~/'))
@@ -554,7 +555,8 @@
             '&autosave='+ (document.getElementById("autosave").checked?'yes':'no') + 
             '&projectnp=' + (document.getElementById("projectnp").checked?'yes':'no') +
             '&persist_tabs='+ (document.getElementById("persisttabs").checked?'yes':'no') +
-            '&user='+encodeURIComponent(document.getElementById("user").value)
+            '&user='+encodeURIComponent(document.getElementById("user").value) +
+            '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value)
         }
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
         if (document.getElementById("session").value) 
@@ -582,6 +584,7 @@
                             SESSION = document.getElementById("session").value
                             
                             PROJECT_HOME = document.getElementById("proj_dir").value
+                            AI_SERVER_URL = document.getElementById("ai-access").value
                             if (SESSION) {
                                 document.title = SESSION + ' - RDS'
                                 // TODO uncomment when the tag returns
@@ -590,6 +593,7 @@
                                 document.title = 'Main - RDS'
                                 document.getElementById("proj_name").innerHTML = 'default'
                             }
+                            
                             STORE_TABS =  document.getElementById("persisttabs").checked 
                             // TODO do we need to save current?
                             closeAll()
@@ -613,6 +617,7 @@
                             document.getElementById("xrefs").replaceChildren() 
                             vcsStatus()
                         }
+                        AI_SERVER_URL = document.getElementById("ai-access").value
                         STORE_TABS = document.getElementById("persisttabs").checked
                         AUTOSAVE = document.getElementById("autosave").checked
                         jump('')
@@ -1169,21 +1174,26 @@
     }
     
     function promptAI() {
+        if (!AI_SERVER_URL) {
+            showErrorMessage("AI assistance hasn't been configured for the project")
+            return
+        }
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
-            ajax.put({url:"http://orangepi5:8080/learning/webbee/Query", 
+            ajax.put({url:AI_SERVER_URL, 
                 payload: {text:selectedContent, id:"ask-q1"},
                 success: function (resp) {
-                    showErrorMessage(`responded:${resp[0].text}`)
+                    const range = editor.selection.getRange();
+                    editor.session.replace(range, `${selectedContent}\n${resp[0].text}`);
                 },
                 fail: function (code,text) {
                     showErrorMessage(`The AI server is unreachable or returned ${code} with ${text}`)
                 }
             } );
         } else {
-            showErrorMessage('Select some content in edit window to ask AI')
+            showErrorMessage('Select some content in the edit window to ask AI')
         }
     }
     

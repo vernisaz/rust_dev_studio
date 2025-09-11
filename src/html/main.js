@@ -80,6 +80,8 @@ function loadSettings() {
                   STORE_TABS = false
               if (load && load.project_home)
                    PROJECT_HOME = load.project_home
+              if (load && load.ai_server_url)
+                   AI_SERVER_URL = load.ai_server_url
               if (load && load.project_config) {
                   PROJ_CONF = JSON.parse(load.project_config);
               }

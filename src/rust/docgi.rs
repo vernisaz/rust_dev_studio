@@ -9,7 +9,7 @@ extern crate simcfg;
 use std::{collections::HashMap,
         ffi::OsStr,
         fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write},
-        io::{self, ErrorKind},
+        io::{self},
         path::{Path,PathBuf},
         process::Command,
         sync::{Arc, Mutex},
@@ -96,9 +96,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("editor-file") => {
             let project_home = config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?;
             let in_project_path = params.param("path").ok_or(io::Error::new(io::ErrorKind::Other, "no parameter path"))?;
-            sanitize_path(&in_project_path).map_err(|_e| io::Error::new(io::ErrorKind::Other,"the path isn't allowed"))?; 
+            sanitize_path(&in_project_path)?; 
             let file = params.param("name").ok_or(io::Error::new(io::ErrorKind::Other, "no file name"))?;
-            sanitize_path(&file).map_err(|_e| io::Error::new(io::ErrorKind::Other,"the name isn't allowed"))?; 
+            sanitize_path(&file)?; 
             let file_path = PathBuf::from(&config.to_real_path(&project_home, Some(&in_project_path)));
             let modified = get_file_modified(&file_path);
             let edit: String = read_to_string(&file_path)?;
@@ -116,7 +116,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 eprintln!("name:{sub_path}");
                 let file_path =
                     config.to_real_path(&config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?, Some(&sub_path));
-                sanitize_path(&file_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?; 
+                sanitize_path(&file_path)?; 
                 let modified = get_file_modified(&file_path);
                 let remote_modifiled = &params
                     .param("modified")
@@ -153,7 +153,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("settings-project") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
             let settings_file = settings.display().to_string();
-            sanitize_path(&settings_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&settings_file)?;
             Box::new(JsonSettings {
                 file: PageFile {
                     file_name: settings_file,
@@ -171,7 +171,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             } else {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
-                sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&settings_path)?;
                 let mut props = read_props(&settings);
                 let mut set_value = |key| match params.param(&key) {
                     Some(val) => props.insert(key, val),
@@ -179,7 +179,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 };
                 
                 if  let Some(proj_dir ) =  params.param(&"project_home") {
-                    sanitize_path(&proj_dir).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                    sanitize_path(&proj_dir)?;
                     let real_dir = config.to_real_path(&proj_dir, None);
                     let real_dir = Path::new(&real_dir);
                     if !real_dir.exists() {
@@ -232,20 +232,20 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             };
             let settings = config.get_config_path(&proj, SETTINGS_PREF, "prop");
             let settings_path = settings.display().to_string();
-            sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&settings_path)?; 
             let mut all_fine = true;
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
             let np_path = np.display().to_string();
-            sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&np_path)?;
             let _ = del_fil(np_path).is_ok();
             let tabs = config.get_config_path(&proj, "tabs", "sto");
             let tabs_path = tabs.display().to_string();
-            sanitize_path(&tabs_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&tabs_path)?;
             let _ = del_fil(tabs_path).is_ok();
             let bm = config.get_config_path(&proj, "bookmark", "json");
             let bm_path = bm.display().to_string();
-            sanitize_path(&bm_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&bm_path)?;
             let _ = del_fil(bm_path).is_ok();
             match all_fine {
                 true => Box::new(PageStuff {
@@ -274,7 +274,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
-                sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&settings_path)?;
                 let props = read_props(&settings);
                 let spec_name =
                 match props.get("projectnp") {
@@ -283,7 +283,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 } ;
                 let np = config.get_config_path(&spec_name, "notepad", "txt");
                 let np_path = np.display().to_string();
-                sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&np_path)?;
                 
                 if let Some(data) = &params.param("name") {
                     write(&np_path, &data)?;
@@ -307,7 +307,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     &config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 );
-                sanitize_path(&file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&file)?;
                 eprintln! {"Project file to del: {:?}", &file};
                 remove_file(&file)?;
                 Box::new(PageStuff {
@@ -322,7 +322,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("loadnp") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
             let settings_path = settings.display().to_string();
-            sanitize_path(&settings_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&settings_path)?;
             let props = read_props(&settings);
             let spec_name =
                 match props.get("projectnp") {
@@ -331,7 +331,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 } ;
             let np = config.get_config_path(&spec_name, "notepad", "txt");
             let np_path = np.display().to_string();
-            sanitize_path(&np_path).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&np_path)?;
             Box::new(PageStuff {
                 content: read_to_string(&np_path).unwrap_or("".to_string()),
             })
@@ -371,8 +371,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         if output.status.success() {
                         } else {
                             #[allow(unused)]
-                            let stderr = String::from_utf8(output.stderr)
-                                .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                            let stderr = String::from_utf8(output.stderr)?;
                             eprintln! {"git reset executed err for {:?}: {stderr}", output.status}
                             result_oper = Err(stderr)
                         }
@@ -398,8 +397,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .output()?;
                             if !output.status.success() {
                                 #[allow(unused)]
-                                let stderr = String::from_utf8(output.stderr)
-                                    .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                                let stderr = String::from_utf8(output.stderr)?;
                                 eprintln! {"git add executed err for {:?}: {stderr}", output.status}
                                 result_oper = Err(stderr)
                             }
@@ -414,7 +412,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                             let settings_file = settings.display().to_string();
-                            sanitize_path(&settings_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                            sanitize_path(&settings_file)?;
                             
                             let props = read_props(&settings);
                             let user = props.get("user");
@@ -424,8 +422,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                             let output = command.output()?;
                             if !output.status.success() {
-                                let mut stderr = String::from_utf8(output.stderr)   // stdout may have too verbose explanation
-                                    .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                                let mut stderr = String::from_utf8(output.stderr) ?;  // stdout may have too verbose explanation
                                 if stderr.is_empty() {
                                     stderr = String::from("nothing to commit")
                                 }
@@ -433,7 +430,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 result_oper = Err(stderr)
                             } else {
                                 #[allow(unused)]
-                                let stdout = String::from_utf8(output.stdout).map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                                let stdout = String::from_utf8(output.stdout)?;
                                 eprintln! {"git commit success {stdout}"}
                             }
                         } else {
@@ -475,8 +472,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         })
                     } else {
                         #[allow(unused)]
-                        let stderr = String::from_utf8(output.stderr)
-                            .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                        let stderr = String::from_utf8(output.stderr)?;
                         eprintln! {"git restore executed err for {:?}: {stderr}", output.status};
                         Box::new(PageStuff {
                             content: format! {"Err : restore {stderr}"}.to_string(),
@@ -509,8 +505,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         })
                     } else {
                         #[allow(unused)]
-                        let stderr = String::from_utf8(output.stderr)
-                            .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+                        let stderr = String::from_utf8(output.stderr)?;
                         eprintln! {"git add executed err for {:?}: {stderr}", output.status};
                         Box::new(PageStuff {
                             content: format! {"Err : add {stderr}"}.to_string(),
@@ -530,7 +525,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-persist-tab") => {
             let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
             let tabs_file = tabs.display().to_string();
-            sanitize_path(&tabs_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&tabs_file)?;
             match read_to_string(&tabs_file) {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
@@ -557,7 +552,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
                 let tabs_file = tabs.display().to_string();
-                sanitize_path(&tabs_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&tabs_file)?;
                 fs::write(&tabs_file, params.param("tabs").unwrap_or("".to_string()))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
@@ -685,7 +680,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
-                sanitize_path(&bm_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                sanitize_path(&bm_file)?;
                 fs::write(bm_file, params.param("bookmarks").unwrap_or("".to_string()))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
@@ -695,7 +690,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-bookmark") => {
             let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
             let bm_file = bm.display().to_string();
-            sanitize_path(&bm_file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            sanitize_path(&bm_file)?;
             if let Ok(bookmarks) = fs::read_to_string(&bm_file) {
                 Box::new(JsonStuff {
                     json: bookmarks,
@@ -827,12 +822,13 @@ impl PageOps for JsonSettings {
 impl PageOps for JsonDirs {
     fn main_load(&self) -> Result<String, String> {
         let mut dirs: Vec<_> = read_dir(&self.file.file_name)
-            .map_err(|_| format!{"can't read {}", self.file.file_name})?
-            .map(|f| f.unwrap())
-            .filter(|f| 
-                f.metadata().unwrap().is_dir()
-                    && f.file_name().into_string().unwrap().to_string() != ".git"
+            .map_err(|e| format!{"can't read {} because {e:?}", self.file.file_name})?
+            //.map(|f| f.unwrap())
+            .filter(|f| f.as_ref().and_then(|f|
+                Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
+                    && f.file_name().into_string().unwrap().to_string() != ".git")).unwrap_or(false)
             )
+            .map(|f| f.unwrap())
             .collect();
         dirs.sort_by_key(|dir| dir.path());
         Ok("[".to_owned() + &dirs.iter().map(|curr| "\"".to_string() + &json_encode(&curr

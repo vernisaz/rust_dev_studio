@@ -27,8 +27,7 @@ use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
 #[cfg(target_os = "windows")]
 use std::os::windows::prelude::*;
 use simtime::seconds_from_epoch;
-use config::{Config,SETTINGS_PREF};
-use simweb::sanitize_web_path;
+use config::{Config};
 
 const VERSION: &str = env!("VERSION");
 
@@ -79,8 +78,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
     let binding = if web.path_info().starts_with("/") {web.path_info()[1..].to_string()} else {web.path_info()};
     let (project,session) = match binding.split_once('/') {
-        Some((project,session)) => (project,session.strip_prefix("webId-").unwrap_or(session)),
-        _ => ("","")
+        Some((project,session)) => (Some(project.to_owned()),session.strip_prefix("webId-").unwrap_or(session)),
+        _ => (None,"")
     };
     let ver = web.param("version").unwrap_or("".to_owned());
     let mut stdin = io::stdin();
@@ -89,8 +88,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let home = config.workspace_dir.clone();
     send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
     
-    let project_path = get_project_home(&config, project).
-        unwrap_or_else(|| {send!("No {project} config found, the project is misconfigured\n"); home.display().to_string()}); 
+    let project_path = config.get_project_home(&project).
+        unwrap_or_else(|| {send!("No {project:?} config found, the project is misconfigured\n"); home.display().to_string()}); 
     let mut cwd = PathBuf::from(&home);
     cwd.push(&project_path);
     let mut sessions = load_persistent(&config);
@@ -105,7 +104,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         send!("No session specified, the terminal needs to be restarted\u{000C}");
     }
     send!("{}\u{000C}", cwd.as_path().display());
-    let aliases = read_aliases(HashMap::new(), &config, None::<String>);
+    let aliases = read_aliases(HashMap::new(), &config, &None::<String>);
     let child_env: HashMap<String, String> = env::vars().filter(|&(ref k, _)|
              k != "GATEWAY_INTERFACE"
              && k != "QUERY_STRING"
@@ -1267,8 +1266,8 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
     result
 }
 
-fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: Option<String> ) -> HashMap<String,Vec<String>> {
-    let aliases = config.get_config_path(&project, "aliases", "prop");
+fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: &Option<String> ) -> HashMap<String,Vec<String>> {
+    let aliases = config.get_config_path(project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
         for line in lines.map_while(Result::ok) {
@@ -1296,49 +1295,6 @@ fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: 
 fn read_lines(filename: &PathBuf) -> io::Result<io::Lines<io::BufReader<File>>> {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
-}
-
-fn get_project_home(config: &Config, project: &str) -> Option<String> {
-    let some_project = Some(project.to_string());
-    let settings = config.get_config_path(if project.is_empty() || project == "default" {&None} else {&some_project}, SETTINGS_PREF, "prop");
-    let settings_path = settings.display().to_string();
-    if sanitize_web_path(settings_path).is_err() {
-        return None
-    };
-    let settings = read_props(&settings);
-    if let Some(res) = settings.get("project_home") {
-        return if res.starts_with("~") {
-            Some(res[1..].to_string())
-        } else {
-            Some(res.into())
-        }
-    }
-    None
-}
-
-pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
-    let mut props = HashMap::new();
-    if let Ok(file) = File::open(path) {
-        let lines = io::BufReader::new(file).lines();
-        for line in lines {
-            if let Ok(prop_def) = line {
-                if prop_def.starts_with("#") {
-                    // comment
-                    continue
-                }
-                if let Some(pos) = prop_def.find('=') {
-                    let name = &prop_def[0..pos];
-                    let val = &prop_def[pos + 1..];
-                    props.insert(name.to_string(), val.to_string());
-                } else {
-                    eprintln!("Invalid property definition: {}", &prop_def)
-                }
-            }
-        }
-    } else {
-        eprintln! {"Props: {path:?} not found"}
-    }
-    props
 }
 
 fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {

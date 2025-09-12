@@ -1,9 +1,8 @@
 use simcfg::read_config_root;
-#[cfg(any(unix, target_os = "redox"))]
-use std::path::{PathBuf};
-#[cfg(target_os = "windows")]
-use std::path::{PathBuf};
-use fs::read_to_string;
+
+use std::{path::{PathBuf}, collections::HashMap,
+    io::{BufReader, BufRead},
+    fs::{read_to_string,File}};
 use simweb::sanitize_web_path;
 
 pub const SETTINGS_PREF: &str = "settings";
@@ -68,10 +67,51 @@ impl Config {
     pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {
         let mut res = self.config_dir.clone();
         match proj {
-            Some(proj) if !proj.is_empty() => res.push(file.to_string() + "-" + &proj),
+            Some(proj) if !proj.is_empty() && proj != "default" => res.push(file.to_string() + "-" + &proj),
             _ => res.push(file),
         }
         res.set_extension(ext);
         res
     }
+    
+    pub fn get_project_home(&self, project: &Option<String>) -> Option<String> {
+        let settings = self.get_config_path(project, SETTINGS_PREF, "prop");
+        if sanitize_web_path(settings.display().to_string()).is_err() {
+            return None
+        };
+        let settings = read_props(&settings);
+        if let Some(res) = settings.get("project_home") {
+            return if res.starts_with("~") {
+                Some(res[1..].to_string())
+            } else {
+                Some(res.into())
+            }
+        }
+        None
+    }
+}
+
+pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
+    let mut props = HashMap::new();
+    if let Ok(file) = File::open(path) {
+        let lines = BufReader::new(file).lines();
+        for line in lines {
+            if let Ok(prop_def) = line {
+                if prop_def.starts_with("#") {
+                    // comment
+                    continue
+                }
+                if let Some(pos) = prop_def.find('=') {
+                    let name = &prop_def[0..pos];
+                    let val = &prop_def[pos + 1..];
+                    props.insert(name.to_string(), val.to_string());
+                } else {
+                    eprintln!("Invalid property definition: {}", &prop_def)
+                }
+            }
+        }
+    } else {
+        eprintln! {"Props: {path:?} not found"}
+    }
+    props
 }

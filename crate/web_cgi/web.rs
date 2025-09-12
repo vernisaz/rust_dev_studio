@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
-use std::fs::{File, metadata};
-use std::io::{self, BufRead};
+use std::fs::{metadata};
 use std::path::Path;
 use std::time::SystemTime;
 use crate::template;
@@ -11,13 +10,6 @@ use crate::param;
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
 
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
-
-macro_rules! eprintln {
-    ($($rest:tt)*) => {
-        #[cfg(feature = "quiet")]
-        std::eprintln!($($rest)*)
-    }
-}
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Menu {
@@ -213,32 +205,6 @@ pub fn sanitize_path<'l>(path: &'l impl AsRef<str>) -> Result<&'l str, &'static 
     {
        Ok(path.as_ref())
     }
-}
-
-pub fn read_props(path: &String) -> HashMap<String, String> {
-    let mut props = HashMap::new();
-    sanitize_path(&path).unwrap();
-    if let Ok(file) = File::open(path) {
-        let lines = io::BufReader::new(file).lines();
-        for line in lines {
-            if let Ok(prop_def) = line {
-                if prop_def.starts_with("#") {
-                    // comment
-                    continue
-                }
-                if let Some(pos) = prop_def.find('=') {
-                    let name = &prop_def[0..pos];
-                    let val = &prop_def[pos + 1..];
-                    props.insert(name.to_string(), val.to_string());
-                } else {
-                    eprintln!("Invalid property definition: {}", &prop_def)
-                }
-            }
-        }
-    } else {
-        eprintln! {"Props: {} not found", &path}
-    }
-    props
 }
 
 pub fn save_props(path: &String, props: &HashMap<String, String>) -> std::io::Result<()> {

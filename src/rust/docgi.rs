@@ -828,14 +828,13 @@ impl PageOps for JsonDirs {
                 Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
                     && f.file_name().into_string().unwrap().to_string() != ".git")).unwrap_or(false)
             )
-            .map(|f| f.unwrap())
+            .map(|f| f.unwrap().file_name().into_string().unwrap_or("???".to_string()))
             .collect();
-        dirs.sort_by_key(|dir| dir.path());
+        dirs.sort();
+        
+        //dirs.sort_by_key(|dir| dir.path());
         Ok("[".to_owned() + &dirs.iter().map(|curr| "\"".to_string() + &json_encode(&curr
-            .file_name()
-                .into_string()
-                .ok()
-                .unwrap_or("???".to_string()))
+            )
              + "\""). reduce(|acc,curr|
                 acc + "," + &curr).unwrap_or("".to_string()) + "]"
         

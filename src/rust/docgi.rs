@@ -825,8 +825,7 @@ impl PageOps for JsonDirs {
             .map_err(|e| format!{"can't read {} because {e:?}", self.file.file_name})?
             .filter(|f| f.as_ref().and_then(|f|
                 Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
-                    && f.file_name().into_string().unwrap().to_string() != ".git")).unwrap_or(false)
-            )
+                    && f.file_name().into_string().and_then(|n| Ok(n != ".git")).unwrap_or(false))).unwrap_or(false))
             .map(|f| f.unwrap().file_name().to_string_lossy().to_string())
             .collect();
         dirs.sort(); // TODO reconsider do sorting in a client, was sort_by_key

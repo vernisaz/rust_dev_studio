@@ -125,8 +125,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .unwrap_or(0);
                 if modified <= *remote_modifiled {
                     if let Some(data) = params.param("data") {
-                        if let Some(path) = Path::new(&file_path).parent() {
-                            let _ = create_dir_all(path);
+                        if modified == 0 {
+                            let _ = Path::new(&file_path).parent().and_then(|parent| create_dir_all(parent).ok());
                         }
                         match write(&file_path, &data) {
                             Ok(()) => {
@@ -135,7 +135,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 })
                             }
                             Err(err)=> Box::new(PageStuff {
-                                content: format!("Err: {err}"),
+                                content: format!("Err: {err} for {file_path:?}"),
                             })
                         }
                     } else {

@@ -359,7 +359,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     let reset_list = params.param("cache").unwrap_or("".into());
                     let mut files = reset_list
                         .split('\t')
-                        .into_iter()
                         .filter(|e| e.len() > 0)
                         .peekable();
                     if files.peek().is_some() {
@@ -384,7 +383,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         eprintln! {"to commit: {commit_list} for {comment}"};
                         let mut files = commit_list
                             .split('\t')
-                            .into_iter()
                             .filter(|e| e.len() > 0)
                             .peekable();
                         
@@ -828,7 +826,7 @@ impl PageOps for JsonDirs {
                        {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
         dirs.sort(); // TODO reconsider do sorting in a client, was sort_by_key
-        Ok("[".to_owned() + &dirs.iter().map(|curr| "\"".to_string() +
+        Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_string() +
             &json_encode(&curr)+ "\""). reduce(|acc,curr|
             acc + "," + &curr).unwrap_or("".to_string()) + "]"
         )
@@ -1234,7 +1232,7 @@ fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
 
     if meta.is_dir() && name != ".git" {
         buf.push_str("folder\", \"children\": [");
-        let mut paths: Vec<_> = read_dir(path)?.map(|r| r.unwrap()).collect();
+        let mut paths: Vec<_> = read_dir(path)?.filter_map(|r| r.ok()).collect();
         paths.sort_by_key(|dir| dir.path());
         let mut entries = paths.iter();
         if let Some(entry) = entries.next() {
@@ -1303,14 +1301,5 @@ fn refs_to_json(refs: & Vec<Reference>, exemp_len:usize) -> String {
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| format!{"{{\"name\":\"{}\",\"path\":\"{}\",\"line\":{},\"pos\":{}}}",
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
-    let mut it = refs.iter();
-    //let next it.next();
-    let mut res = String::new();
-    if let Some(el) = it.next() {
-        res.push_str(&ser_ref(el));
-        while let Some(el) = it.next() {
-            res.push(','); res.push_str(&ser_ref(el))
-        }
-    }
-    res
+    refs.into_iter().map(|r| ser_ref(r)).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
 }

@@ -823,10 +823,9 @@ impl PageOps for JsonDirs {
     fn main_load(&self) -> Result<String, String> {
         let mut dirs: Vec<_> = read_dir(&self.file.file_name)
             .map_err(|e| format!{"can't read {} because {e:?}", self.file.file_name})?
-            .filter(|f| f.as_ref().and_then(|f|
-                Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
-                    && f.file_name().into_string().and_then(|n| Ok(n != ".git")).unwrap_or(false))).unwrap_or(false))
-            .map(|f| f.unwrap().file_name().to_string_lossy().to_string())
+            .filter_map(|f| if f.as_ref().and_then(|f| Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
+                    && f.file_name().into_string().and_then(|n| Ok(n != ".git")).unwrap_or(false)) ).unwrap_or(false)
+                       {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
         dirs.sort(); // TODO reconsider do sorting in a client, was sort_by_key
         Ok("[".to_owned() + &dirs.iter().map(|curr| "\"".to_string() +

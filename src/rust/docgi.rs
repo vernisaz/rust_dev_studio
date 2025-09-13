@@ -1018,10 +1018,9 @@ impl PageOps for PageFile {
         if let Ok(paths) = read_dir(&self.home) {
             for file in paths {
                 if let Ok(file) = file {
-                    if file.file_type().unwrap().is_file() {
-                        let file_name = file.file_name().to_str().unwrap().to_string();
+                    if file.file_type().and_then(|t| Ok(t.is_file())).unwrap_or(false) {
+                        let file_name = file.file_name().to_string_lossy().to_string();
                         if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
-                            //let session_name = file_name.strip_prefix(SETTINGS_PREF),unwrap().strip_suffix(".prop").unwrap();
                             let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
                             if !session_name.is_empty() {
                                 if session_name[0..1] == *"-" {
@@ -1259,12 +1258,13 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> std::io::Result<JsonStr
     let meta = path.metadata()?;
     let mut buf = JsonStr::from("");
     if meta.is_dir() && path.file_name().unwrap().to_str().unwrap().to_string() != ".git" {
-        let dirs: Vec<_> = read_dir(&path)
-            .unwrap()
-            .map(|f| f.unwrap())
-            .filter(|f| f.metadata().unwrap().is_dir()
-                    && f.file_name().into_string().unwrap().to_string() != ".git"
-            )
+        let dirs: Vec<_> = read_dir(&path)?
+            .filter_map(|f| 
+                match f {
+                    Ok(f) if f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
+                        && f.file_name().into_string().unwrap().to_string() != ".git" => Some(f),
+                    _ => None
+                })
             // .sort_by_key(|dir| dir.path())
             .collect();
         let mut dirs_pick = dirs.iter().peekable();

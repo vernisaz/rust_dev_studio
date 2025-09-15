@@ -541,6 +541,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     res.push(']');
                     Box::new(PageStuff { content: res })
                 }
+                #[allow(unused)]
                 Err(err) => { eprintln!{"no tabs {err}"}
                     Box::new(PageStuff { content: "[]".to_owned() })
                 }
@@ -551,7 +552,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
                 let tabs_file = tabs.display().to_string();
                 sanitize_path(&tabs_file)?;
-                fs::write(&tabs_file, params.param("tabs").unwrap_or("".to_string()))?;
+                params.param("tabs").and_then(|v| fs::write(&tabs_file, v).ok());
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
@@ -563,7 +564,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut total_refs = Vec::new();
             
             let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
-            let dir_len = (&dir).len() as usize;
+            let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
             #[cfg(feature = "quiet")]
@@ -814,7 +815,6 @@ impl PageOps for JsonSettings {
     json_ret!{}
 
     name_of!{"JSON"}
-
 }
 
 impl PageOps for JsonDirs {
@@ -825,9 +825,9 @@ impl PageOps for JsonDirs {
                     && f.file_name().into_string().and_then(|n| Ok(n != ".git")).unwrap_or(false)) ).unwrap_or(false)
                        {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
-        dirs.sort(); // TODO reconsider do sorting in a client, was sort_by_key
+        dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
         Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_string() +
-            &json_encode(&curr)+ "\""). reduce(|acc,curr|
+            &json_encode(&curr) + "\""). reduce(|acc,curr|
             acc + "," + &curr).unwrap_or("".to_string()) + "]"
         )
     }

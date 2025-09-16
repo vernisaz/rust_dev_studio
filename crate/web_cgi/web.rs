@@ -84,11 +84,10 @@ pub trait PageOps {
     }
 }
 
-// CGI spec: https://datatracker.ietf.org/doc/html/rfc3875
 fn form_nav(items: Option<Vec<Menu>>) -> String {
     let mut res = String::from(r#"    <menu>"#);
     if let Some(items) = items {
-        let mut ident = 0;
+        let mut _ident = 0;
         for item in items {
             match item {
                 MenuBox {
@@ -96,7 +95,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     hint,
                     icon,
                 } => {
-                    ident += 4;
+                    _ident += 4;
                     res.push_str(&format! {r#"
         <menuitem>
             <a {1}>{2}{0}</a>
@@ -118,7 +117,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                           get_img(&icon), get_short(&short)})
                 }
                 MenuEnd => {
-                    ident -= 4;
+                    _ident -= 4;
                     res.push_str(&format! {r#"
             </menu>
         </menuitem>

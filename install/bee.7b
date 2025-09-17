@@ -51,9 +51,9 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- added more the real terminal features
+- improved the terminal functionality
 - using the standard location for config files
-- issue queries to AI engine",
+- added a mechanism of issuing AI prompts",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -1041,9 +1041,9 @@ fn interpolate_env(s:String) -> String {
             '~' => {
                 match state {
                     EnvExpState::InArg => {
-                        let env_value = env::var("HOME").unwrap_or_else(|_| "".to_string());
-                        if !env_value.is_empty() {
-                            res.push_str(&env_value)
+                        let env_value = env::home_dir();
+                        if env_value.is_some() {
+                            res.push_str(&env_value.unwrap().display().to_string())
                         }
                     }
                     EnvExpState::Esc => {
@@ -1191,22 +1191,39 @@ fn interpolate_env(s:String) -> String {
 }
 
 fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
-    // unescape
-    let  path = PathBuf::from(unescape(arg));
-    //eprintln!("entered: {path:?}");
-    let (dir, part_name) =
-    match path.parent() {
-        None => (cwd.clone(), arg.as_ref().to_string()),
-        Some(dir) => {
-            if !dir.has_root( ) {
-                let mut dir = cwd.join(dir);
-                dir.push(".");
-                (dir,path.file_name().unwrap().to_str().unwrap().to_string())
+    let entered = unescape(arg);
+    let mut path =
+        if entered.starts_with("~") { // '~, "~, \~
+            let env_value = env::home_dir();
+            if env_value.is_some() {
+                let res = PathBuf::from(env_value.unwrap().display().to_string());
+                if entered.len() > 2 {
+                    res.join(&entered[2..])
+                } else {
+                    res
+                }
             } else {
-                (dir.to_path_buf(),path.file_name().unwrap().to_str().unwrap().to_string())
+                PathBuf::from(entered)
             }
+        } else {
+            PathBuf::from(entered)
+        };
+    //eprintln!("entered: {path:?} {cwd:?}");
+    let part_name = path.file_name().unwrap().to_str().unwrap().to_string();
+    let dir;
+    if path.pop() {
+        if !path.has_root( ) {
+            //eprintln!("popped path {:?}", &path);
+            if path.to_str().and_then(|p| if p.is_empty() {None} else {Some(p)}).is_some() {
+                dir = cwd.join(path); 
+            } else {dir = cwd.clone();}
+        } else {
+            dir = path;
         }
-    };
+    } else {
+        dir = cwd.clone();
+    }
+    //eprintln!("entered: {cwd:?} {dir:?} {part_name:?}");
     let files: Vec<String> =
         match dir.read_dir() {
             Ok(read_dir) => read_dir
@@ -1222,9 +1239,9 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     //let dir = dir.strip_prefix(&cwd).unwrap();
     //eprintln!("dir: {dir} -> {} for {part_name}", files.len());
     match files.len() {
-        0 => format!("{}{}{part_name}",dir,MAIN_SEPARATOR_STR),
-        1 => format!("{}{}{}",dir,MAIN_SEPARATOR_STR,files[0].clone()),
-        _ => format!("{}{}{}\x07",dir,MAIN_SEPARATOR_STR,longest_common_prefix(files))
+        0 => format!("{dir}{MAIN_SEPARATOR_STR}{part_name}"),
+        1 => format!("{dir}{MAIN_SEPARATOR_STR}{}",files[0].clone()),
+        _ => format!("{dir}{MAIN_SEPARATOR_STR}{}\x07",longest_common_prefix(files))
     }
 }
 

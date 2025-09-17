@@ -1050,14 +1050,14 @@ fn interpolate_env(s:String) -> String {
                         res.push(c); state =  EnvExpState::InArg
                     }
                     EnvExpState::InEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
+                        let env_variable = env::var(&curr_env);
+                        if env_variable.is_ok() {
+                            res.push_str(&env_variable.unwrap())
                         }
                         curr_env.clear();
-                        let env_value = env::var("HOME").unwrap_or_else(|_| "".to_string());
-                        if !env_value.is_empty() {
-                            res.push_str(&env_value)
+                        let env_value = env::home_dir();
+                        if env_value.is_some() {
+                            res.push_str(&env_value.unwrap().display().to_string())
                         }
                         state = EnvExpState::InArg
                     }

@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.30.01
+version=1.40.00
 
 include(cfg.7b) # created by the install
 
@@ -51,9 +51,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- improved the terminal functionality
-- using the standard location for config files
-- added a mechanism of issuing AI prompts",
+- nothing is new yet",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

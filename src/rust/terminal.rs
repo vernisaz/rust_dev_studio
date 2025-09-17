@@ -1214,9 +1214,9 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     if path.pop() {
         if !path.has_root( ) {
             //eprintln!("popped path {:?}", &path);
-            if path.to_str().and_then(|p| if p.is_empty() {None} else {Some(p)}).is_some() {
-                dir = cwd.join(path); 
-            } else {dir = cwd.clone();}
+            if path.as_os_str().is_empty() {
+                 dir = cwd.clone();
+            } else {dir = cwd.join(path);}
         } else {
             dir = path;
         }

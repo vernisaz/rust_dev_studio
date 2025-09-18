@@ -21,7 +21,7 @@ extern crate simtime;
 mod config;
 use std::{io::{stdout,self,Read,BufRead,Write,Stdin,BufReader},
     fs::{self,File,OpenOptions,Metadata},thread,process::{Command,Stdio},
-    path::{PathBuf,MAIN_SEPARATOR_STR},collections::HashMap,time::{SystemTime,UNIX_EPOCH},
+    path::{PathBuf,MAIN_SEPARATOR_STR,Component},collections::HashMap,time::{SystemTime,UNIX_EPOCH},
     env, fmt,sync::{Arc,Mutex},
 };
 #[cfg(target_os = "windows")]
@@ -30,6 +30,8 @@ use simtime::seconds_from_epoch;
 use config::{Config};
 
 const VERSION: &str = env!("VERSION");
+
+const TERMINAL_NAME : &str = "rds/terminal";
 
 const MAX_BLOCK_LEN : usize = 4096;
 
@@ -980,10 +982,8 @@ fn interpolate_env(s:String) -> String {
                         state = EnvExpState:: ExpEnvName,
                     EnvExpState::Esc => { state = EnvExpState::InArg; res.push(c) },
                     EnvExpState::InEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         state = EnvExpState::ExpEnvName
                     }
@@ -1005,10 +1005,8 @@ fn interpolate_env(s:String) -> String {
                         state =  EnvExpState::InArg
                     }
                     EnvExpState::InEnvName | EnvExpState::ExpEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         state = EnvExpState::Esc
                     }
@@ -1050,10 +1048,8 @@ fn interpolate_env(s:String) -> String {
                         res.push(c); state =  EnvExpState::InArg
                     }
                     EnvExpState::InEnvName => {
-                        let env_variable = env::var(&curr_env);
-                        if env_variable.is_ok() {
-                            res.push_str(&env_variable.unwrap())
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         let env_value = env::home_dir();
                         if env_value.is_some() {
@@ -1081,10 +1077,8 @@ fn interpolate_env(s:String) -> String {
                         res.push(c); state =  EnvExpState::InArg
                     }
                     EnvExpState::InEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         res.push(c);
                         state = EnvExpState::InArg
@@ -1112,19 +1106,15 @@ fn interpolate_env(s:String) -> String {
                         res.push(c); state =  EnvExpState::InArg
                     }
                     EnvExpState::InEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         res.push(c);
                         state = EnvExpState::InArg
                     }
                     EnvExpState::InBracketEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         state = EnvExpState::InArg
                     }
@@ -1160,10 +1150,8 @@ fn interpolate_env(s:String) -> String {
                         res.push(c); state =  EnvExpState::NoInterpol
                     }
                     EnvExpState::InEnvName | EnvExpState::ExpEnvName => {
-                        let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-                        if !env_variable.is_empty() {
-                            res.push_str(&env_variable)
-                        }
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
                         curr_env.clear();
                         res.push(c);
                         state = EnvExpState::InArg
@@ -1179,12 +1167,8 @@ fn interpolate_env(s:String) -> String {
         EnvExpState::Esc | EnvExpState::EscNoInterpol => { res.push('\\');
         }
         EnvExpState::InEnvName => {
-            let env_variable = env::var(&curr_env).unwrap_or_else(|_| "".to_string());
-            if !env_variable.is_empty() {
-                res.push_str(&env_variable)
-            } else if curr_env == "0" {
-                res.push_str("rds/terminal")
-            }
+            let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
         }
     }
     res
@@ -1227,10 +1211,16 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     let files: Vec<String> =
         match dir.read_dir() {
             Ok(read_dir) => read_dir
-              .filter(|r| r.is_ok() && (!exe || r.as_ref().unwrap().path().is_executable()))
-              .map(|r| {let p = r.unwrap().path(); p.file_name().unwrap().to_str().unwrap().to_owned() + 
-                   if p.is_dir() {MAIN_SEPARATOR_STR} else {""}})
-              .filter(|r| r.starts_with(&part_name))
+                .filter_map(|p| p.ok().and_then(|p| {
+                    let ep = p.path();
+                    let binding = p.file_name();
+                    let n = binding.to_string_lossy();
+                    if (!exe || ep.is_executable()) &&
+                        n.starts_with(&part_name) {
+                            let n = n.to_string();
+                            if ep.is_dir() { Some(n + MAIN_SEPARATOR_STR) } else { Some(n) }
+                        } else { None } } )
+                )
               .collect(),
             Err(_) => vec![],
         };
@@ -1272,8 +1262,8 @@ fn remove_redundant_components(path: &PathBuf) -> PathBuf {
 
     while let Some(component) = components.next() {
         match component {
-            std::path::Component::CurDir => continue,
-            std::path::Component::ParentDir => {
+            Component::CurDir => continue,
+            Component::ParentDir => {
                 result.pop();
             },
             _ => result.push(component.as_os_str()),

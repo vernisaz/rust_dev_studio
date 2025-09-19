@@ -871,14 +871,23 @@ function sendCommand(cmd) {
    }
 
 // //////  Util methods
-function getSelectionText() {
-    var text = "";
-    if (window.getSelection) {
-        text = window.getSelection().toString();
-    } else if (document.selection && document.selection.type != "Control") {
-        text = document.selection.createRange().text;
+function getSelectionText(everywhere) {
+    if (everywhere) {
+        var text = "";
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        } else if (document.selection && document.selection.type != "Control") {
+            text = document.selection.createRange().text;
+        }
+        return text;
+    } else {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            return editor.getSelectedText()
+        }
     }
-    return text;
+    return ''
 }
 
 function removeOptions(selectElement) {

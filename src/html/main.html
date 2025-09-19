@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.08.02.110">
+       <input type="hidden" name="version" id="version" value="1.08.02.111">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -364,7 +364,7 @@
           document.forms[0].filename.value = ''; document.forms[0].place.value = ''
           pane.style.display = "block"
           const btn = document.querySelector(".form-container .btn")
-          btn.innerHTML='Create'
+          btn.innerText='Create'
           btn.onclick = function() {
               if (document.forms[0].filename.value) {
                 submitFile(document.forms[0].filename.value, document.forms[0].place.value)
@@ -381,8 +381,7 @@
                   projDirs.appendChild(new Option(optDir));
                   //console.log('added: '+optDir) 
               }
-              
-          }, respType:"json"})
+          }})
       }
       
       function saveCurrentAs() {
@@ -399,7 +398,7 @@
                    document.forms[0].place.value = ''
                    document.forms[0].filename.value = saveId
                }
-               btn.innerHTML='Save'
+               btn.textContent='Save'
                // TODO use POST
                ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
                   const projDirs = document.getElementById("places")
@@ -430,7 +429,7 @@
                   pane.style.display = "block"
                   centerElement(pane)
                   document.forms[0].filename.focus()
-               }, respType:"json"})
+               }})
           }
       }
       
@@ -811,7 +810,7 @@
                 } //else 
                 
             }
-         }, fail: function(errCode, errMsg) { showErrorMessage( 'Err: ' + errMsg ); }, respType:"json"})
+         }, fail: function(errCode, errMsg) { showErrorMessage( 'Err: ' + errMsg ); }})
     }
     
     function vcsCommit() {
@@ -952,7 +951,7 @@
                 }
                 refs.appendChild(dtEl)
             }
-         }, respType:"json"})
+         }})
         document.getElementById("searchForm").style.display = "none"
     }
     

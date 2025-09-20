@@ -1126,22 +1126,24 @@
     
     function loadProjConf() {
         // load settings
-        document.forms['project_conf'].debug_build.value = PROJ_CONF['compile_debug'] || 'rb'
-        document.forms['project_conf'].release_build.value = PROJ_CONF['compile_release'] || 'rb -Dmode=release'
-        document.forms['project_conf'].debug_app.value = PROJ_CONF['debug_app']  || ''
-        document.forms['project_conf'].run_app.value = PROJ_CONF['run_app']  || '' 
-        document.forms['project_conf'].test_app.value = PROJ_CONF['test_app']  || '' 
-        document.forms['project_conf'].package_app.value = PROJ_CONF['package_app']  || 'rb package'
+        const tarFrm = document.forms['project_conf']
+        tarFrm.debug_build.value = PROJ_CONF['compile_debug'] || 'rb'
+        tarFrm.release_build.value = PROJ_CONF['compile_release'] || 'rb -Dmode=release'
+        tarFrm.debug_app.value = PROJ_CONF['debug_app']  || ''
+        tarFrm.run_app.value = PROJ_CONF['run_app']  || '' 
+        tarFrm.test_app.value = PROJ_CONF['test_app']  || '' 
+        tarFrm.package_app.value = PROJ_CONF['package_app']  || 'rb package'
     }
     
     function saveProjConf() {
         // save settings
-        PROJ_CONF['compile_debug'] = document.forms['project_conf'].debug_build.value
-        PROJ_CONF['compile_release'] = document.forms['project_conf'].release_build.value
-        PROJ_CONF['debug_app'] = document.forms['project_conf'].debug_app.value
-        PROJ_CONF['run_app'] = document.forms['project_conf'].run_app.value
-        PROJ_CONF['test_app'] = document.forms['project_conf'].test_app.value
-        PROJ_CONF['package_app'] = document.forms['project_conf'].package_app.value
+        const tarFrm = document.forms['project_conf']
+        PROJ_CONF['compile_debug'] = tarFrm.debug_build.value
+        PROJ_CONF['compile_release'] = tarFrm.release_build.value
+        PROJ_CONF['debug_app'] = tarFrm.debug_app.value
+        PROJ_CONF['run_app'] = tarFrm.run_app.value
+        PROJ_CONF['test_app'] = tarFrm.test_app.value
+        PROJ_CONF['package_app'] = tarFrm.package_app.value
         saveSettings(true)
         // close
         hideProjConf()

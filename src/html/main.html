@@ -1079,6 +1079,7 @@
             editor.session.replace(range, res);
         }
     }
+    
     function isAlpha(char) {
         const code = char.charCodeAt(0);
         return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
@@ -1097,6 +1098,18 @@
                 editor.session.replace(range, res);
             }
         }    
+    }
+    
+    function fromNotepad() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        const notepad = document.getElementById("notepad")
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedText = notepad.value.substring(notepad.selectionStart, notepad.selectionEnd);
+            const range = editor.selection.getRange();
+            editor.session.replace(range, selectedText);
+        }
+        
     }
     
     function convert32BitUnicodeToSurrogates(codepoint) {

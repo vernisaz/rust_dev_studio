@@ -1332,11 +1332,11 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
                             props.insert(key.to_string(), (cwd.to_string(),last));
                         }
                     } else {
-                        eprintln!("Invalid property value: {}", &val)
+                        eprintln!("Invalid property value: {val}")
                     };
                     
                 } else {
-                    eprintln!("Invalid property definition: {}", &prop_def)
+                    eprintln!("Invalid property definition: {prop_def}")
                 }
             }
         }

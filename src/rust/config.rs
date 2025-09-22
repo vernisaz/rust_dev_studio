@@ -53,7 +53,7 @@ impl Config {
         if let Some(in_project_path) = in_project_path {
             res.push(in_project_path);
         }
-        eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
+        //eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
         res.display().to_string()
     }
     

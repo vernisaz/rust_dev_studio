@@ -1198,7 +1198,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     if path.pop() {
         if !path.has_root( ) {
             //eprintln!("popped path {:?}", &path);
-            if path.as_os_str().is_empty() {
+            if path.as_os_str().is_empty() { // join with an empty PathBuf actually add slash because behaves as empty file_name 
                  dir = cwd.clone();
             } else {dir = cwd.join(path);}
         } else {

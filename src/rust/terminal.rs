@@ -1196,7 +1196,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     let part_name = path.file_name().unwrap().to_str().unwrap().to_string();
     let dir;
     if path.pop() {
-        if !path.has_root( ) {
+        if path.is_relative( ) {
             //eprintln!("popped path {:?}", &path);
             if path.as_os_str().is_empty() { // join with an empty PathBuf actually add slash because behaves as empty file_name 
                  dir = cwd.clone();

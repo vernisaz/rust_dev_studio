@@ -106,7 +106,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 json_encode(&file), json_encode(&in_project_path), json_encode(&edit))}, params:params,})
         }
         Some("save") => {
-            if let Ok(_) = std::env::var("REQUEST_METHOD").and_then(|m| if m == "POST" {Ok(m)} else {Err(env::VarError::NotPresent)}) {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let sub_path = &params.param("name").ok_or(io::Error::new(io::ErrorKind::Other,"No parameter 'name'".to_string()))?; 
                 eprintln!("name:{sub_path}");
                 let file_path =
@@ -162,7 +162,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-settings-project") => {
-            if let Ok(_) = std::env::var("REQUEST_METHOD").and_then(|m| if m == "POST" {Ok(m)} else {Err(env::VarError::NotPresent)}) {
+            if let Ok(met) = std::env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path)?;
@@ -210,7 +210,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("project-dir-list") => {
             // list of dirs in
-            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or("".to_string()), None);
+            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| "".to_string()), None);
             //eprintln! {"Project conn dir: {:?}", &dir};
             Box::new(JsonProj {
                 file: PageFile {
@@ -219,7 +219,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             })
         }
-        Some("del-project") => {
+        Some("del-project") => if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
             let proj = params.param("project");
             if proj.is_none() {
                 return Err(Box::new(MisconfigurationError{ cause: "no project param"}))
@@ -253,10 +253,14 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     content: format!("Err : Some project files weren't deleted"),
                 })
             }
+        } else {
+            Box::new(PageStuff {
+                content: "Err : not a POST".to_string(),
+            })
         }
         Some("info-about") => Box::new(PageFrag { fragment: PageStuff {
             content: format!{r#"{{"version":"{VERSION}", "server": "{}", "author": "D Rogatkin"}}"#,
-                json_encode(&std::env::var(String::from("SERVER_SOFTWARE")).unwrap_or("Unknown server software".to_owned()))
+                json_encode(&std::env::var(String::from("SERVER_SOFTWARE")).unwrap_or_else(|_| "Unknown server software".to_owned()))
             }}, params:params,
         }),
         Some("session-list") => { // TODO rename to project-list
@@ -269,7 +273,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("savenp") => {
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) = std::env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path)?;
@@ -300,7 +304,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("delete") => {
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
                     &config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
@@ -331,12 +335,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let np_path = np.display().to_string();
             sanitize_path(&np_path)?;
             Box::new(PageStuff {
-                content: read_to_string(&np_path).unwrap_or("".to_string()),
+                content: read_to_string(&np_path).unwrap_or_else(|_| "".to_string()),
             })
         }
         Some("vcs-list") => {
             let dir =
-                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or("".to_string()), None);
+                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| "".to_string()), None);
             eprintln! {"VCS dir: {:?}", &dir};
             Box::new(JsonVCS {
                 dir: PageFile {
@@ -347,14 +351,14 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("vcs-commit") => {
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
                     let mut result_oper: Result<(), String> = Ok(());
                     // git rm --cached file
                     // git reset file
-                    let reset_list = params.param("cache").unwrap_or("".into());
+                    let reset_list = params.param("cache").unwrap_or_else(|| "".into());
                     let mut files = reset_list
                         .split('\t')
                         .filter(|e| e.len() > 0)
@@ -375,9 +379,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     if result_oper.is_ok() {
                         // git commit -m <msg>
-                        let commit_list = params.param("name").unwrap_or("".to_owned());
+                        let commit_list = params.param("name").unwrap_or_else(|| "".to_owned());
     
-                        let comment = params.param("comment").unwrap_or("".to_owned());
+                        let comment = params.param("comment").unwrap_or_else(|| "".to_owned());
                         eprintln! {"to commit: {commit_list} for {comment}"};
                         let mut files = commit_list
                             .split('\t')
@@ -454,7 +458,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             // git checkout -- <file>
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("restore")
@@ -488,7 +492,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("vcs-stage") => {
             // git add <file>
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("add")
@@ -561,7 +565,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut use_pnts  = HashMap::new();
             let mut total_refs = Vec::new();
             
-            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
+            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -634,7 +638,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let shared = Arc::new(Mutex::new(String::from("[")));
             let tp = ThreadPool::new(3);
             if let Some(string) = params.param("name") {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
                 let dir_len = (&dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
                 let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts";
@@ -679,7 +683,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
                 sanitize_path(&bm_file)?;
-                fs::write(bm_file, params.param("bookmarks").unwrap_or("".to_string()))?;
+                fs::write(bm_file, params.param("bookmarks").unwrap_or_else(|| "".to_string()))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })

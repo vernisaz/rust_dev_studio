@@ -4,7 +4,7 @@ use std::fs::File;
 //use std::io;
 use std::io::prelude::*;
 
-use crossref::LexState::{InCallName, InParams, InCallParams, InKW, InName, Start, ExpInName, 
+use crate::crossref::LexState::{InCallName, InParams, InCallParams, InKW, InName, Start, ExpInName, 
      InColSep, ExPNamSep, InNum, ExpInCallName, ExpInStruct, ExpInEnum, InDataDef, InStruct, InEnum,
      ExpImplName, InImplName, InExpFor, InForName, InForKW, ExpInForName, InExpOpenImpl, StartInScope,
      InTraitName, ExpInTraitName, ExpFnBody, InFnBody, ExpDirect, Direct, InComment, ExpComment, InStarComment,

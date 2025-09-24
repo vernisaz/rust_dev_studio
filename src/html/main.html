@@ -992,7 +992,7 @@
     
     function deleteProj() {
         const sess = document.querySelector("#avail_ses")
-        ajax.get({url:"./rustcgi?mode=del-project&project="+encodeURIComponent(sess.value), success: function(res) {
+        ajax.post({url:"./rustcgi?mode=del-project&project="+encodeURIComponent(sess.value), success: function(res) {
             if (res.startsWith('Ok')) {
                 sess.options[sess.selectedIndex].remove();
                 //sess.removeChild(sess[sess.selectedIndex]);

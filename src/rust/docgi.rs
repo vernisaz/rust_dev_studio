@@ -1030,7 +1030,7 @@ impl PageOps for PageFile {
                                     continue
                                 }
                             }
-                            let path_info = std::env::var("PATH_INFO").unwrap_or("".to_string());
+                            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| "".to_string());
                             projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
                                  session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
                         }
@@ -1146,7 +1146,7 @@ impl PageOps for PageFrag {
     }
 
     fn name(&self) -> String {
-        self.params.param("name").unwrap_or(String::new())
+        self.params.param("name").unwrap_or_else(|| String::new())
     }
 }
 
@@ -1198,7 +1198,7 @@ impl PageOps for Redirect {
     
     fn get_extra(&self) -> Option<Vec<(String, String)>> {
         let id = simran::generate_random_sequence(12);
-        let path_info = std::env::var("PATH_INFO").unwrap_or("".to_string());
+        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| "".to_string());
         Some(vec![("Location".to_string(), 
             format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
         
@@ -1260,12 +1260,12 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> std::io::Result<JsonStr
     //eprintln! {"called with parent {:?}", parent};
     let meta = path.metadata()?;
     let mut buf = JsonStr::from("");
-    if meta.is_dir() && path.file_name().unwrap().to_str().unwrap().to_string() != ".git" {
+    if meta.is_dir() && path.file_name().unwrap().to_str() != Some(".git") {
         let dirs: Vec<_> = read_dir(&path)?
             .filter_map(|f| 
                 match f {
                     Ok(f) if f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
-                        && f.file_name().into_string().unwrap().to_string() != ".git" => Some(f),
+                        && f.file_name().to_str() != Some(".git") => Some(f),
                     _ => None
                 })
             // .sort_by_key(|dir| dir.path())

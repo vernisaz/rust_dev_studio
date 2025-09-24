@@ -452,7 +452,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-restore") => {
             // git checkout -- <file>
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
                 if let Some(file) = params.param("name") {
@@ -487,7 +487,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-stage") => {
             // git add <file>
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or(String::new()), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
@@ -546,7 +546,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("persist-tab") => {
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
                 let tabs_file = tabs.display().to_string();
                 sanitize_path(&tabs_file)?;
@@ -675,7 +675,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-bookmark") => {
-            if std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string()) == "POST" {
+            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
                 sanitize_path(&bm_file)?;

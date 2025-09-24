@@ -83,7 +83,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some((project,session)) => (Some(project.to_owned()),session.strip_prefix("webId-").unwrap_or(session)),
         _ => (None,"")
     };
-    let ver = web.param("version").unwrap_or("".to_owned());
+    let ver = web.param("version").unwrap_or_else(|| "".to_owned());
     let mut stdin = io::stdin();
     //let handle = stdin.lock();
     let config = config::Config::new();

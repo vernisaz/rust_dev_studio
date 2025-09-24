@@ -15,7 +15,7 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        let config = read_config_root().unwrap_or(PathBuf::new());
+        let config = read_config_root().unwrap_or_else(|_| PathBuf::new());
         // TODO : return error if empty
         let mut config_dir = config.join(RDS_CFG_DIR);
         config_dir.push(".workspace");

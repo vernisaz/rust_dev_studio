@@ -106,12 +106,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 json_encode(&file), json_encode(&in_project_path), json_encode(&edit))}, params:params,})
         }
         Some("save") => {
-            let method = std::env::var("REQUEST_METHOD").unwrap_or("GET".to_string());
-            if method != "POST" {
-                Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
-                })
-            } else {
+            if let Ok(_) = std::env::var("REQUEST_METHOD").and_then(|m| if m == "POST" {Ok(m)} else {Err(env::VarError::NotPresent)}) {
                 let sub_path = &params.param("name").ok_or(io::Error::new(io::ErrorKind::Other,"No parameter 'name'".to_string()))?; 
                 eprintln!("name:{sub_path}");
                 let file_path =
@@ -120,9 +115,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let modified = get_file_modified(&file_path);
                 let remote_modifiled = &params
                     .param("modified")
-                    .unwrap_or("0".to_string())
+                    .unwrap_or_else(||"0".to_string())
                     .parse::<u64>()
-                    .unwrap_or(0);
+                    .unwrap_or_else(|_|0);
                 if modified <= *remote_modifiled {
                     if let Some(data) = params.param("data") {
                         if modified == 0 {
@@ -148,7 +143,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         content: format!{"Err: file is too old {modified} vs {remote_modifiled}"}
                     })
                 }
-            }
+            } else {
+                Box::new(PageStuff {
+                    content: "Err : not a POST".to_string(),
+                })
+            } 
         }
         Some("settings-project") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
@@ -163,12 +162,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-settings-project") => {
-            let method = env::var("REQUEST_METHOD").unwrap_or("GET".to_string());
-            if method != "POST" {
-                Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
-                })
-            } else {
+            if let Ok(_) = std::env::var("REQUEST_METHOD").and_then(|m| if m == "POST" {Ok(m)} else {Err(env::VarError::NotPresent)}) {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path)?;
@@ -197,7 +191,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 Box::new(PageStuff {
                     content: "Ok".to_string(),
                 })
-            }
+            } else {
+                Box::new(PageStuff {
+                    content: "Err : not a POST".to_string(),
+                })
+            } 
         }
         Some("dir-list") => {
             // list of dirs in

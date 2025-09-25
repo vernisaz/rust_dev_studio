@@ -66,21 +66,11 @@ RDS is coming bundled with some version of the Ace editor. You can always bundle
 Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired version. A copy of it has to be placed in the directory
 **resource/ace**. It's reflected in the install script.
 
-## Packaging
-Although you can configure the development studio yourself accordingly to a web server and other components location,
-there is a predefined packaging.
-
-It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
-and you can start using the **RDS**. The access URL's stored in `rds.url`.
-
-There is a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
-create the standard packaging.
-
 ## Building RDS components
 
-The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for a building. Obtain it first.
+The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.
 
-The following crates will be required to be built as dependencies:
+The following crates are required for building the product:
 
 - The [Common building scripts](https://github.com/vernisaz/simscript) (it isn't a crate, but building scripts)
 - The [SimWeb](https://github.com/vernisaz/simweb)
@@ -89,11 +79,22 @@ The following crates will be required to be built as dependencies:
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 
-Common scripts are containing scripts only required to build other crates. 
-The **crates** directory on the level of repository directories has to be created prior building unless it's
+Common scripts are containing scripts used for building crates. 
+The **crates** directory on the level of repository directories has to be created prior a building unless it's
 already exists. Run **rb** in the each crate repository. 
 
-[bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the terminal.
+Finally
+[bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
+
+## Packaging
+Although you can configure the development studio yourself accordingly to a web server and other components location,
+there is the predefined packaging.
+
+It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
+and you can start using the **RDS**. The access URL's stored in `rds.url`.
+
+There is a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
+create the standard packaging.
 
 ## Working tips
 
@@ -112,12 +113,12 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 ## Cloud and multi users install
-If you plan to use the IDE on Cloud in a multi users environment, then you need to provide a proxy server in the front which provides:
-- SSL to plain connection translation
+If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front which provides:
+- Decryption/Re-encryption (SSL Forward Proxy)
 - A user authentication
 - URL translation
 
-For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://innerhost:3000/rustcgi/rustcgi`,
+For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://internalhost:3000/`,
 the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed
 `
 
@@ -154,4 +155,4 @@ github communication way. Entry level people are welcome.
 
 Current tasks:
 
-1. implement a communication with ChatGPT and similar systems
+1. Build AI engine on different principles than ChatGPT

@@ -795,7 +795,7 @@ macro_rules! name_of{
 impl PageOps for JsonSettings {
     fn main_load(&self) -> Result<String, String> {
         let props = read_props(&PathBuf::from(&self.file.file_name));
-        let binding = "".to_string();
+        let binding = String::new();
         let project_home = props.get("project_home").unwrap_or(&binding);
         let light = "light".to_string();
         let theme = props.get("theme").unwrap_or(&light);
@@ -830,7 +830,7 @@ impl PageOps for JsonDirs {
         dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
         Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_string() +
             &json_encode(&curr) + "\""). reduce(|acc,curr|
-            acc + "," + &curr).unwrap_or("".to_string()) + "]"
+            acc + "," + &curr).unwrap_or_else(String::new) + "]"
         )
     }
 
@@ -1255,7 +1255,7 @@ fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
     Ok(buf)
 }
 
-fn recurse_dirs(path: &Path, parent: Option<&String>) -> std::io::Result<JsonStr> {
+fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
     //eprintln! {"called with parent {:?}", parent};
     let meta = path.metadata()?;
     let mut buf = JsonStr::from("");

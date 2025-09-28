@@ -117,7 +117,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .param("modified")
                     .unwrap_or_else(||"0".to_string())
                     .parse::<u64>()
-                    .unwrap_or_else(|_|0);
+                    .unwrap_or_else(|_| u64::default());
                 if modified <= *remote_modifiled {
                     if let Some(data) = params.param("data") {
                         if modified == 0 {
@@ -210,7 +210,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("project-dir-list") => {
             // list of dirs in
-            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| "".to_string()), None);
+            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
             //eprintln! {"Project conn dir: {:?}", &dir};
             Box::new(JsonProj {
                 file: PageFile {
@@ -340,7 +340,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-list") => {
             let dir =
-                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| "".to_string()), None);
+                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
             eprintln! {"VCS dir: {:?}", &dir};
             Box::new(JsonVCS {
                 dir: PageFile {
@@ -352,13 +352,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-commit") => {
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
                     let mut result_oper: Result<(), String> = Ok(());
                     // git rm --cached file
                     // git reset file
-                    let reset_list = params.param("cache").unwrap_or_else(|| "".into());
+                    let reset_list = params.param("cache").unwrap_or_else(String::new);
                     let mut files = reset_list
                         .split('\t')
                         .filter(|e| e.len() > 0)
@@ -369,8 +369,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             .args(files)
                             .current_dir(&dir)
                             .output()?;
-                        if output.status.success() {
-                        } else {
+                        if !output.status.success() {
                             #[allow(unused)]
                             let stderr = String::from_utf8(output.stderr)?;
                             eprintln! {"git reset executed err for {:?}: {stderr}", output.status}
@@ -379,9 +378,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     if result_oper.is_ok() {
                         // git commit -m <msg>
-                        let commit_list = params.param("name").unwrap_or_else(|| "".to_owned());
+                        let commit_list = params.param("name").unwrap_or_else(String::new);
     
-                        let comment = params.param("comment").unwrap_or_else(|| "".to_owned());
+                        let comment = params.param("comment").unwrap_or_else(String::new);
                         eprintln! {"to commit: {commit_list} for {comment}"};
                         let mut files = commit_list
                             .split('\t')
@@ -417,7 +416,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let props = read_props(&settings);
                             let user = props.get("user");
                             if let Some(user) = user {
-                                let author = format! {"--author={user}"};
+                                let author = format! {r#"--author="{user}""#};
                                 command.arg(&author);
                             }
                             let output = command.output()?;
@@ -458,7 +457,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             // git checkout -- <file>
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("restore")
@@ -492,7 +491,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("vcs-stage") => {
             // git add <file>
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("add")
@@ -565,7 +564,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut use_pnts  = HashMap::new();
             let mut total_refs = Vec::new();
             
-            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
+            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -638,7 +637,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let shared = Arc::new(Mutex::new(String::from("[")));
             let tp = ThreadPool::new(3);
             if let Some(string) = params.param("name") {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(|| String::new()), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 let dir_len = (&dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
                 let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts";
@@ -683,7 +682,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
                 sanitize_path(&bm_file)?;
-                fs::write(bm_file, params.param("bookmarks").unwrap_or_else(|| "".to_string()))?;
+                fs::write(bm_file, params.param("bookmarks").unwrap_or_else(String::new))?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
@@ -801,9 +800,9 @@ impl PageOps for JsonSettings {
         let light = "light".to_string();
         let theme = props.get("theme").unwrap_or(&light);
         let no = "no".to_string();
-
+        let f_no = || &no;
         let autosave = props.get("autosave").unwrap_or(&no); // == "yes";
-        let projectnp = props.get("projectnp").unwrap_or(&no);
+        let projectnp = props.get("projectnp").unwrap_or_else(f_no);
         let user = props.get("user").unwrap_or(&binding);
         let persist_tabs = props.get("persist_tabs").unwrap_or(&no);
         let home_len = self.home_len;
@@ -1030,7 +1029,7 @@ impl PageOps for PageFile {
                                     continue
                                 }
                             }
-                            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| "".to_string());
+                            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
                             projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
                                  session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
                         }
@@ -1146,7 +1145,7 @@ impl PageOps for PageFrag {
     }
 
     fn name(&self) -> String {
-        self.params.param("name").unwrap_or_else(|| String::new())
+        self.params.param("name").unwrap_or_else(String::new)
     }
 }
 
@@ -1198,7 +1197,7 @@ impl PageOps for Redirect {
     
     fn get_extra(&self) -> Option<Vec<(String, String)>> {
         let id = simran::generate_random_sequence(12);
-        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| "".to_string());
+        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
         Some(vec![("Location".to_string(), 
             format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
         

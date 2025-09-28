@@ -36,10 +36,10 @@ of the [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
        "translated": "./../rust_dev_studio/terminal"}]
 ```
 The mapping is used to run the RDS from the dev environment, therefore an access URL
-will look like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
-however it will be in a simpler form in the standard packaging as
-`http://orangepi5:3000/rustcgi/rustcgi`. Port and host name will depend
-on your environment. Obviously you can change the application web path too.
+looks like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
+however a simpler form is used in the standard packaging as
+`http://orangepi5:3000/rustcgi/rustcgi`. A port and a host name will depend
+on your environment. Even CGI mapping can be changed.
 
 Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
 

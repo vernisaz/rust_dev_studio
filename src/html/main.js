@@ -99,6 +99,10 @@ function loadSettings() {
               ws_connect()
               if (!load.project_home)
                 newProject()
+          }, fail: function(cc, err) {
+              console.log(err)
+              ws_setup()
+              ws_connect()
           }})
 }
 

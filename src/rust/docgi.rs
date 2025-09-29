@@ -812,10 +812,10 @@ impl PageOps for JsonSettings {
         let ai_url = props.get("ai_server_url").unwrap_or(&binding);
         let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(f_binding);
         Ok(format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
-            "projectnp":"{projectnp}", "user":"{user}", "persist_tabs":"{persist_tabs}",
+            "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
             "colapsed_dirs":"{}"
-        }}"#, &json_encode(&ai_url), &json_encode(&colapsed_dirs)})
+        }}"#, &json_encode(&ai_url), &json_encode(&colapsed_dirs), &json_encode(&user)})
     }
 
     json_ret!{}

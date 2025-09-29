@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.05.087'
+    return '1.08.05.088'
 }
 
 function populateProjectTree() {
@@ -85,6 +85,8 @@ function loadSettings() {
               if (load && load.project_config) {
                   PROJ_CONF = JSON.parse(load.project_config);
               }
+              if (load && load.colapsed_dirs)
+                COLAPSED_DIRS = load.colapsed_dirs
               // TODO other inits
               populateProjectTree()
               if (STORE_TABS)
@@ -185,7 +187,7 @@ function renderTree(data, parentElement) {
                 lockLoad = true
                ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(decodeHtmlEntity(item.name))+"&path="+encodeURIComponent(decodeHtmlEntity(pathstr))+
                  "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)},
-                 fail: function(ecode,etext) {lockLoad = false}})
+                 fail: function(ecode,etext) {lockLoad = false;showErrorMessage(`File ${pathstr} can't be load currently`)}})
             }
         } else if (item.type == 'folder') {
             for (var el of li.children) {
@@ -196,12 +198,20 @@ function renderTree(data, parentElement) {
                        el.style.display = 'none'
                     break
                 }
-              }
+            }
           }
     }//)
 
     if (item.children && item.children.length > 0) {
-      renderTree(item.children, li);
+        renderTree(item.children, li);
+        if (COLAPSED_DIRS.includes(item.name) && item.type == 'folder') {
+          for (child of li.children) {
+              if (child.tagName == 'UL') {
+                    child.style.display = 'none'
+                    break
+              }
+          }
+        }
     }
   });
 }

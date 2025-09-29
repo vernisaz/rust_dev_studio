@@ -183,7 +183,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         return Err(Box::new(MisconfigurationError{ cause: "a file specified instead of a directory"}))
                     }
                 }
-                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url"] {
+                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs"] {
                     set_value(key.to_string());
                 }
                 // TOOO there is a race condition which is currently ignored
@@ -801,6 +801,7 @@ impl PageOps for JsonSettings {
         let theme = props.get("theme").unwrap_or(&light);
         let no = "no".to_string();
         let f_no = || &no;
+        let f_binding = || &binding;
         let autosave = props.get("autosave").unwrap_or(&no); // == "yes";
         let projectnp = props.get("projectnp").unwrap_or_else(f_no);
         let user = props.get("user").unwrap_or(&binding);
@@ -809,9 +810,12 @@ impl PageOps for JsonSettings {
         let empty_obj = "{}".to_string();
         let proj_conf = props.get("proj_conf").unwrap_or(&empty_obj);
         let ai_url = props.get("ai_server_url").unwrap_or(&binding);
+        let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(f_binding);
         Ok(format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
             "projectnp":"{projectnp}", "user":"{user}", "persist_tabs":"{persist_tabs}",
-            "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}"}}"#, &json_encode(&ai_url)})
+            "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
+            "colapsed_dirs":"{}"
+        }}"#, &json_encode(&ai_url), &json_encode(&colapsed_dirs)})
     }
 
     json_ret!{}

@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.08.02.111">
+       <input type="hidden" name="version" id="version" value="1.08.03.112">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -142,6 +142,10 @@
             <div class="form-row">
                 <label for="user">User for VCS</label>
                 <input type="text" placeholder="Enter a user as Name <email>" id="user" size="42">
+            </div>
+            <div class="form-row">
+                <label for="colaps-dir">Colapsed folders</label>
+                <input type="text" placeholder="Foldres to be colapes in the project tree" id="colaps-dir" size="42">
             </div>
             <div class="form-row">
                 <label for="ai-access">AI server URL</label>
@@ -356,6 +360,8 @@
       
       let AI_SERVER_URL = ''
       
+      let COLAPSED_DIRS = ''
+      
       let caseId = 'num1@'
       
       function newFile() {
@@ -510,6 +516,7 @@
               document.getElementById("user").value = load.user
               document.getElementById("ai-access").value = load.ai_server_url?load.ai_server_url:''
               document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
+              document.getElementById('colaps-dir').value = load.colapsed_dirs
               var projectDir = load.project_home
               if (projectDir.startsWith('~/'))
                   projectDir = projectDir.substring(2)
@@ -557,7 +564,8 @@
             '&projectnp=' + (document.getElementById("projectnp").checked?'yes':'no') +
             '&persist_tabs='+ (document.getElementById("persisttabs").checked?'yes':'no') +
             '&user='+encodeURIComponent(document.getElementById("user").value) +
-            '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value)
+            '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value) +
+            '&colapsed_dirs='+encodeURIComponent(document.getElementById('colaps-dir').value)
         }
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
         if (document.getElementById("session").value) 
@@ -621,6 +629,7 @@
                         AI_SERVER_URL = document.getElementById("ai-access").value
                         STORE_TABS = document.getElementById("persisttabs").checked
                         AUTOSAVE = document.getElementById("autosave").checked
+                        COLAPSED_DIRS = document.getElementById('colaps-dir').value
                         jump('')
                     }
                  }

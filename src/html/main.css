@@ -315,7 +315,7 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 }
 
 .form-header {
-    background-color: rgba(254, 254, 254, 0.8);
+    background-color: rgba(177, 177, 177, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
   font-weight: bold;
   padding: 20px;

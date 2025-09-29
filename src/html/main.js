@@ -99,7 +99,7 @@ function loadSettings() {
               ws_connect()
               if (!load.project_home)
                 newProject()
-          }, respType:"json"})
+          }})
 }
 
 function render_editor(edittab, path) {

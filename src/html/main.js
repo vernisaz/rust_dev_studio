@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.05.088'
+    return '1.08.05.089'
 }
 
 function populateProjectTree() {
@@ -100,7 +100,6 @@ function loadSettings() {
               if (!load.project_home)
                 newProject()
           }, fail: function(cc, err) {
-              console.log(err)
               ws_setup()
               ws_connect()
           }})

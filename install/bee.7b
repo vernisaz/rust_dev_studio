@@ -51,7 +51,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- nothing is new yet",
+- a posssibily to define auto colapsed directories",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

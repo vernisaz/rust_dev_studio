@@ -87,7 +87,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stdin = io::stdin();
     //let handle = stdin.lock();
     let config = config::Config::new();
-    let home = config.workspace_dir.clone();
+    let home = &config.workspace_dir;
     send!("\nOS terminal {VERSION}\n") ;// {ver:?} {project} {session}");
     
     let project_path = config.get_project_home(&project).
@@ -98,7 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !session.is_empty() {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
-            cwd = PathBuf::from(entry.0.clone());
+            cwd = PathBuf::from(&entry.0);
         } else {
             send!("No {session} found\n");
         }
@@ -934,7 +934,7 @@ fn expand_wildcard(cwd: &PathBuf, cmd: Vec<String>) -> Vec<String> { // Vec<Cow<
         } else {
             let mut comp_path = PathBuf::from(&comp);
             if !comp_path.has_root() {
-                comp_path = cwd.clone().join(comp_path)
+                comp_path = cwd.join(comp_path)
             }
             let data = DeferData::from(&comp_path);
             comp_path.pop();
@@ -1230,7 +1230,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     //eprintln!("dir: {dir} -> {} for {part_name}", files.len());
     match files.len() {
         0 => format!("{dir}{MAIN_SEPARATOR_STR}{part_name}"),
-        1 => format!("{dir}{MAIN_SEPARATOR_STR}{}",files[0].clone()),
+        1 => format!("{dir}{MAIN_SEPARATOR_STR}{}",&files[0]),
         _ => format!("{dir}{MAIN_SEPARATOR_STR}{}\x07",longest_common_prefix(files))
     }
 }

@@ -831,7 +831,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
             '"' | '\'' => {
                 asynch = false;
                 match state {
-                   CmdState:: StartArg | CmdState:: InArg => {
+                   CmdState:: StartArg  => {
                        state = CmdState:: QuotedArg; q_char = c;
                    }
                    CmdState:: QuotedArg if q_char == c => {
@@ -846,7 +846,7 @@ fn parse_cmd(input: &impl AsRef<str>) -> (Vec<String>,Vec<Vec<String>>,String,St
                         }
                         red_state = RedirectSate::NoRedirect;
                    }
-                   CmdState:: QuotedArg => curr_comp.push(c),
+                   CmdState:: QuotedArg | CmdState:: InArg => curr_comp.push(c),
                    CmdState::Esc => { curr_comp.push(c); state = CmdState:: InArg; }
                    CmdState::QEsc => { curr_comp.push(c); state = CmdState:: QuotedArg; }
                 }

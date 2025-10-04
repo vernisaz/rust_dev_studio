@@ -328,7 +328,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let props = read_props(&settings);
             let spec_name =
                 match props.get("projectnp") {
-                    Some(spec) if spec == "true" => params.param("session"),
+                    Some(spec) if spec == "yes" => params.param("session"), // same question - true?
                     _ => None,
                 } ;
             let np = config.get_config_path(&spec_name, "notepad", "txt");

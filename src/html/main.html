@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.08.03.112">
+       <input type="hidden" name="version" id="version" value="1.08.03.115">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -1051,6 +1051,9 @@
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
+            if (selectedContent.indexOf('_') >= 0) { // already
+                return
+            }
             let res = '';
             for (let char of selectedContent) {
                 if (isAlpha(char) && char == char.toUpperCase()) {
@@ -1071,7 +1074,15 @@
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
-            let res = '';
+            if (!selectedContent || selectedContent == '')
+                return
+            const range = editor.selection.getRange();
+            let res = ''
+            // if there  is no _ then capitalize just first letter
+            if (selectedContent.indexOf('_') < 0) {
+                res = selectedContent.charAt(0).toUpperCase() + selectedContent.slice(1)
+                editor.session.replace(range, res); return
+            }
             let up = false
             for (let char of selectedContent) {
                 if (char == '_') {
@@ -1084,7 +1095,6 @@
                         res += char.toLowerCase()
                 }
             }
-            const range = editor.selection.getRange();
             editor.session.replace(range, res);
         }
     }
@@ -1243,11 +1253,14 @@
         const currentLineText = editor.session.getLine(currentRow);
         // look for the bookmark first
         const bookmarks = document.querySelector('#bookmarks')
+        var afterEl = null
         for (const child of bookmarks.children) {
             if (child.dataset.src == selTab.id && child.dataset.line == currentRow + 1) {
                 child.remove()
                 return
             }
+            if (afterEl == null && child.dataset.src > selTab.id)
+                afterEl = child
         }
         const bookmark = document.createElement("LI");
         bookmark.dataset.line = currentRow + 1
@@ -1259,7 +1272,10 @@
             // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)
         });
-        bookmarks.appendChild(bookmark)
+        if (afterEl != null)
+            afterEl.after(bookmark)
+        else
+            bookmarks.appendChild(bookmark)
         document.querySelector('#bookmrk').checked = true
     }
       

@@ -103,7 +103,7 @@ target install:.:Install RDS if needed {
 	assign(create time, ~~)
 	write(cfg.7b,"# auto created on ${create time}
 PORT=${PORT}
-CONFIG=${CONFIG}
+CONFIG=\"${CONFIG}\"
 HOME=\"${HOME}\"")
     mkd(${CONFIG})
     write(${CONFIG}${~/~}aliases.prop,"# the current content is only for illustration

@@ -1253,14 +1253,14 @@
         const currentLineText = editor.session.getLine(currentRow);
         // look for the bookmark first
         const bookmarks = document.querySelector('#bookmarks')
-        var afterEl = null
+        var beforeEl = null
         for (const child of bookmarks.children) {
             if (child.dataset.src == selTab.id && child.dataset.line == currentRow + 1) {
                 child.remove()
                 return
             }
-            if (afterEl == null && child.dataset.src > selTab.id)
-                afterEl = child
+            if (beforeEl == null && child.dataset.src > selTab.id)
+                beforeEl = child
         }
         const bookmark = document.createElement("LI");
         bookmark.dataset.line = currentRow + 1
@@ -1272,8 +1272,8 @@
             // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)
         });
-        if (afterEl != null)
-            afterEl.after(bookmark)
+        if (beforeEl != null)
+            bookmarks.insertBefore(beforeEl, bookmark)
         else
             bookmarks.appendChild(bookmark)
         document.querySelector('#bookmrk').checked = true

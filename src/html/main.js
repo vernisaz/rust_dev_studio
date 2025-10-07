@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.05.089'
+    return '1.08.05.090'
 }
 
 function populateProjectTree() {
@@ -346,6 +346,7 @@ function storeBookmarks() {
 function loadBookmarks() {
      ajax.get({url:"./rustcgi?mode=load-bookmark&session="+encodeURIComponent(SESSION), success: function(bookmarks) {
             const bookmarkList = document.querySelector('#bookmarks')
+            bookmarks.sort((a, b) => a.src == b.src?a.line - b.line:a.src > b.src?1:-1 );
             for (const bookmark of bookmarks) {
                 const bookmarkEl = document.createElement("LI");
                 bookmarkEl.dataset.line = bookmark.line

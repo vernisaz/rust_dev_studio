@@ -64,7 +64,7 @@ The Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor
 
 RDS is coming bundled with some version of the Ace editor. You can always bundle it with any other version of the editor. 
 Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired version. A copy of it has to be placed in the directory
-**resource/ace**. It's reflected in the install script.
+**resource/ace**. It's reflected in the installation script.
 
 ## Building RDS components
 

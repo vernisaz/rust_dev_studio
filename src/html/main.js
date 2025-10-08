@@ -708,9 +708,9 @@ function ws_connect() {
                     } else {
                         var fileNameReg
                         if (WIN_SERVER)
-                            fileNameReg =  /(?<path>(\w:\\)?((\w+|\.\.)\\)*)(?<file>\w+\.rs):(?<line>\d+):(?<col>\d+)/gm
+                            fileNameReg =  /(?<path>(\w:\\)?((\w+|\.\.)\\)*)(?<file>\w+\.(rs|swift)):(?<line>\d+):(?<col>\d+)/gm
                         else
-                            fileNameReg = /(?<path>\/?((\w+|\.\.)\/)*)(?<file>\w+\.rs):(?<line>\d+):(?<col>\d+)/gm // TODO introduce path
+                            fileNameReg = /(?<path>\/?((\w+|\.\.)\/)*)(?<file>\w+\.(rs|swift)):(?<line>\d+):(?<col>\d+)/gm // TODO introduce path
                         const lineStr = htmlEncode(ans.substring(shift>0?shift + 1:0))
                        // const matches = lineStr.matchAll(fileNameReg); 
                         const matches = Array.from(lineStr.matchAll(fileNameReg)); // [...matchAll]

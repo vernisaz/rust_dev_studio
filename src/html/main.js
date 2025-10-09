@@ -48,7 +48,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.05.090'
+    return '1.08.05.092'
 }
 
 function populateProjectTree() {
@@ -280,20 +280,13 @@ function saveData(path, newpath, onsave) {
             }
         }
     }
-    const xhr = new XMLHttpRequest()
-
     const docTab =    document.getElementById(path)
     const modified = docTab? docTab.dataset.modified:0
     const payload = 'mode=save&name='+encodeURIComponent(path)+'&data='+encodeURIComponent(data)+'&modified='+modified
-        +"&session="+encodeURIComponent(SESSION) //document.getElementById("session").value
-      
-   xhr.open('POST', './rustcgi', true)
-   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-   xhr.onload = function () {
-      if (xhr.status === 200) {
-          var resp = xhr.responseText
-          //alert("gt "+xhr.responseType+ " with "+xhr.response+" and status "+xhr.statusText+" resp "+resp)
-          if (resp && resp.trim() && !resp.startsWith('Ok')) {
+        +"&session="+encodeURIComponent(SESSION)
+    ajax.post({url:"./rustcgi", query: payload,
+        success: function (resp) { 
+          if (resp && !resp.startsWith('Ok')) {
               showErrorMessage('File '+path+' can\'t be saved, (' + resp + ')')
           	  EDITORS[path]['editor'].setReadOnly(true)
           } else {
@@ -310,14 +303,10 @@ function saveData(path, newpath, onsave) {
              } else 
                 showErrorMessage('File '+path+' can\'t be saved, see log for details: '+ resp)
           }
-       } else {
-          showErrorMessage('Error ' + xhr.status + ' occurred!')
-       }
-    }
-    xhr.onerror = function () {
-    	showErrorMessage('A network error occurred! Try again later.')
-    }
-    xhr.send(payload)
+        },
+        fail: function(code, reason) {
+            showErrorMessage('File '+path+' can\'t be saved, see log for details: '+ reason)
+        }, respType:"html"})
     return true
 }
 
@@ -336,11 +325,10 @@ function storeBookmarks() {
     for (const child of bookmarks.children) {
         res.push({src:child.dataset.src,line:child.dataset.line,content:child.dataset.snip,comment:child.dataset.note})
     }
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', './rustcgi', true)
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-    xhr.send('mode=save-bookmark&session='+encodeURIComponent(SESSION)+'&bookmarks='+encodeURIComponent(JSON.stringify(res)))
-    // no check sucess since at exit
+    ajax.post({url:"./rustcgi", query: 'mode=save-bookmark&session='+encodeURIComponent(SESSION)+'&bookmarks='+encodeURIComponent(JSON.stringify(res)),
+        success: function (data) { 
+                 // no check sucess since at exit
+             }, respType:"html"})
 }
 
 function loadBookmarks() {

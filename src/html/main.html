@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.08.04.116">
+       <input type="hidden" name="version" id="version" value="1.08.04.117">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -405,7 +405,6 @@
                    document.forms[0].filename.value = saveId
                }
                btn.textContent='Save'
-               // TODO use POST
                ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
                   const projDirs = document.getElementById("places")
                   projDirs.innerHTML = ''
@@ -548,7 +547,6 @@
       }
       
       function saveSettings(current) {
-        const xhr = new XMLHttpRequest()
         const themeSelect = document.getElementById("theme")
         var payload
         if (current) {
@@ -570,14 +568,9 @@
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
         if (document.getElementById("session").value) 
             payload += "&session="+encodeURIComponent(document.getElementById("session").value)
-          
-       xhr.open('POST', './rustcgi', true)
-       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-       xhr.onload = function () {
-          if (xhr.status === 200) {
-              var resp = xhr.responseText
-              //alert("gt "+xhr.responseType+ " with "+xhr.response+" and status "+xhr.statusText+" resp "+resp)
-              if (resp && resp.trim() && !resp.startsWith('Ok')) {
+        ajax.post({url:"./rustcgi", query: payload, success:
+            function (resp) {
+              if (resp && !resp.startsWith('Ok')) {
                 	showErrorMessage('Settings weren\'t saved because of ' + resp)
               } else {
                  if (!current && resp.startsWith('Ok')) {
@@ -636,31 +629,21 @@
                  //jump('')
                 // showBkgStatus()
               }
-           } else {
-              showErrorMessage('An error occurred!')
-           }
-        }
-        xhr.onerror = function () {
-        	showErrorMessage('Network error')
-        }
-        xhr.send(payload)
+           }, fail: function () {
+        	    showErrorMessage('Network error')
+             }, respType: 'html'})
       }
       
       function createProj() {
            const payload = 'mode=save-settings-project&project_home='+encodeURIComponent(document.getElementById("new_proj_dir").value)+
             "&session="+encodeURIComponent(document.getElementById("proj_name").value);
-           const xhr = new XMLHttpRequest()
-           xhr.open('POST', './rustcgi', true)
-           xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-           xhr.onload = function () {
-              if (xhr.status === 200) {
-                  const resp = xhr.responseText
-                  document.getElementById("proj_name").value = ""
-                  updateProjMenuList()
-              }
-              hideCreateProj()
-           }
-           xhr.send(payload)
+           ajax.post({url:"./rustcgi", query: payload, success: function (text) {
+                if (text == 'Ok') {
+                   document.getElementById("proj_name").value = ""
+                   updateProjMenuList()
+                }
+                hideCreateProj()
+            }, respType: 'html'})
       }
       
       function reloadCurrent(tab) {

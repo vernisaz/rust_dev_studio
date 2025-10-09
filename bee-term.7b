@@ -6,10 +6,10 @@ crate_dir=..${~/~}crates
 # license = "MIT"
 # keywords = ["process", "subprocess", "command", "child", "pipe", "pty", "tty", "pseudo", "terminal"]
 # authors = ["D Rogatkin <javaarchitect@msn.com>"]
-# repository = "https://github.com/vernisaz/rust_dev_studio/tree/master?tab=readme-ov-file"
+# repository = "https://github.com/vernisaz/rust_dev_studio/tree/master"
 comp opts=[]
 
-version="1.23:041"
+version="1.23:042"
 set_env(VERSION,version)
 
 mode=mode:prop

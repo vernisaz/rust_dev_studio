@@ -959,6 +959,7 @@ fn expand_alias(aliases: &HashMap<String,Vec<String>>, mut cmd: Vec<String>) -> 
 #[derive(Debug, Clone, PartialEq, Default)]
 enum EnvExpState {
     #[default]
+    TildeCan,
     InArg ,
     ExpEnvName,
     InBracketEnvName,
@@ -978,7 +979,7 @@ fn interpolate_env(s:String) -> String {
         match c {
             '$' => {
                 match state {
-                    EnvExpState::InArg => 
+                    EnvExpState::InArg | EnvExpState::TildeCan => 
                         state = EnvExpState:: ExpEnvName,
                     EnvExpState::Esc => { state = EnvExpState::InArg; res.push(c) },
                     EnvExpState::InEnvName => {
@@ -1000,7 +1001,7 @@ fn interpolate_env(s:String) -> String {
             }
             '\\' => {
                 match state {
-                    EnvExpState::InArg => { state =  EnvExpState::Esc }
+                    EnvExpState::InArg | EnvExpState::TildeCan => { state =  EnvExpState::Esc }
                     EnvExpState::Esc => { res.push('\\');
                         state =  EnvExpState::InArg
                     }
@@ -1020,6 +1021,10 @@ fn interpolate_env(s:String) -> String {
             'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
                 match state {
                     EnvExpState::InArg => { res.push(c) }
+                    EnvExpState::TildeCan => {
+                        state = EnvExpState::InArg;
+                        res.push(c)
+                    }
                     EnvExpState::Esc => { res.push('\\');
                         res.push(c); state =  EnvExpState::InArg
                     }
@@ -1038,12 +1043,14 @@ fn interpolate_env(s:String) -> String {
             }
             '~' => {
                 match state {
-                    EnvExpState::InArg => {
+                    EnvExpState::TildeCan => { // expansion can consider another user name after but not implemented yet
                         let env_value = env::home_dir();
                         if env_value.is_some() {
                             res.push_str(&env_value.unwrap().display().to_string())
                         }
+                        state = EnvExpState::InArg
                     }
+                    EnvExpState::InArg => { res.push(c) }
                     EnvExpState::Esc => {
                         res.push(c); state =  EnvExpState::InArg
                     }
@@ -1073,6 +1080,10 @@ fn interpolate_env(s:String) -> String {
                     EnvExpState::InArg => {
                         res.push(c)
                     }
+                    EnvExpState::TildeCan => {
+                        state = EnvExpState::InArg;
+                        res.push(c)
+                    }
                     EnvExpState::Esc => { res.push('\\');
                         res.push(c); state =  EnvExpState::InArg
                     }
@@ -1096,6 +1107,10 @@ fn interpolate_env(s:String) -> String {
             '}' => {
                 match state {
                     EnvExpState::InArg | EnvExpState:: NoInterpol => {
+                        res.push(c)
+                    }
+                    EnvExpState::TildeCan => {
+                        state = EnvExpState::InArg;
                         res.push(c)
                     }
                     EnvExpState::ExpEnvName => {
@@ -1125,7 +1140,7 @@ fn interpolate_env(s:String) -> String {
             }
             '\'' => { // no interpolation inside ''
                 match state {
-                    EnvExpState::InArg => 
+                    EnvExpState::InArg | EnvExpState::TildeCan => 
                         state = EnvExpState:: NoInterpol,
                     EnvExpState:: NoInterpol => state = EnvExpState::InArg,
                     EnvExpState::EscNoInterpol => {
@@ -1138,9 +1153,42 @@ fn interpolate_env(s:String) -> String {
                     EnvExpState::InBracketEnvName | EnvExpState::InEnvName | EnvExpState::ExpEnvName => (), // generally error
                 }
             }
+            '=' | ':' => {
+                match state {
+                    EnvExpState:: NoInterpol => {
+                        res.push(c)
+                    }
+                    EnvExpState::InArg => {
+                        state = EnvExpState::TildeCan;
+                        res.push(c)
+                    }
+                    EnvExpState::TildeCan => {
+                        state = EnvExpState::InArg;
+                        res.push(c)
+                    }
+                    EnvExpState::Esc => { res.push('\\');
+                        res.push(c); state =  EnvExpState::InArg
+                    }
+                    EnvExpState::EscNoInterpol => { res.push('\\');
+                        res.push(c); state =  EnvExpState::NoInterpol
+                    }
+                    EnvExpState::InEnvName | EnvExpState::ExpEnvName => {
+                        let _ = env::var(&curr_env).and_then(|v| Ok(res.push_str(&v))).or_else(|e| if curr_env == "0" {
+                            Ok(res.push_str(TERMINAL_NAME))} else {Err(e)});
+                        curr_env.clear();
+                        res.push(c);
+                        state = EnvExpState::InArg
+                    }
+                    EnvExpState::InBracketEnvName => curr_env.push(c),
+                }
+            }
             _ => {
                 match state {
                     EnvExpState::InArg | EnvExpState:: NoInterpol => {
+                        res.push(c)
+                    }
+                    EnvExpState::TildeCan => {
+                        state = EnvExpState::InArg;
                         res.push(c)
                     }
                     EnvExpState::Esc => { res.push('\\');
@@ -1162,7 +1210,8 @@ fn interpolate_env(s:String) -> String {
         }
     }
     match state {
-        EnvExpState::InArg | EnvExpState::ExpEnvName | EnvExpState::InBracketEnvName | EnvExpState::NoInterpol=> {
+        EnvExpState::InArg | EnvExpState::ExpEnvName | EnvExpState::InBracketEnvName
+            | EnvExpState::NoInterpol | EnvExpState::TildeCan => {
         }
         EnvExpState::Esc | EnvExpState::EscNoInterpol => { res.push('\\');
         }
@@ -1176,8 +1225,8 @@ fn interpolate_env(s:String) -> String {
 
 fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     let entered = unescape(arg);
-    let mut path =
-        if entered.starts_with("~") { // '~, "~, \~
+    let mut path = PathBuf::from(entered);
+    /*    if entered.starts_with("~") { // '~, "~, \~ - no expansion
             let env_value = env::home_dir();
             if env_value.is_some() {
                 let res = PathBuf::from(env_value.unwrap().display().to_string());
@@ -1191,7 +1240,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
             }
         } else {
             PathBuf::from(entered)
-        };
+        };*/
     //eprintln!("entered: {path:?} {cwd:?}");
     let part_name = path.file_name().unwrap().to_str().unwrap().to_string();
     let dir;

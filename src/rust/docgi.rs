@@ -307,7 +307,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("delete") => {
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
-                    &config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?, 
+                    &config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 );
                 sanitize_path(&file)?;

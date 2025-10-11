@@ -20,6 +20,7 @@ mod crossref;
 mod search;
 mod config;
 
+use simweb::WebError;
 use crossref::{RefType,Reference};
 use web::{get_file_modified, json_encode, sanitize_path, Menu,
     save_props, PageOps, url_encode, param /*, html_encode*/};
@@ -94,10 +95,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
              }),
         }
         Some("editor-file") => {
-            let project_home = config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?;
-            let in_project_path = params.param("path").ok_or(io::Error::new(io::ErrorKind::Other, "no parameter path"))?;
+            let project_home = config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?;
+            let in_project_path = params.param("path").ok_or(WebError{cause:None, reason: "no parameter path".to_string()})?;
             sanitize_path(&in_project_path)?; 
-            let file = params.param("name").ok_or(io::Error::new(io::ErrorKind::Other, "no file name"))?;
+            let file = params.param("name").ok_or(WebError{cause:None, reason: "no file name".to_string()})?;
             sanitize_path(&file)?; 
             let file_path = PathBuf::from(&config.to_real_path(&project_home, Some(&in_project_path)));
             let modified = get_file_modified(&file_path);
@@ -107,10 +108,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("save") => {
             if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
-                let sub_path = &params.param("name").ok_or(io::Error::new(io::ErrorKind::Other,"No parameter 'name'".to_string()))?; 
+                let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
                 eprintln!("name:{sub_path}");
                 let file_path =
-                    config.to_real_path(&config.get_project_home(&params.param("session")).ok_or(io::Error::new(io::ErrorKind::Other, "project home misconfiguration"))?, Some(&sub_path));
+                    config.to_real_path(&config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?, Some(&sub_path));
                 sanitize_path(&file_path)?; 
                 let modified = get_file_modified(&file_path);
                 let remote_modifiled = &params
@@ -199,7 +200,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("dir-list") => {
             // list of dirs in
-            let dir = config.name_to_path(params.param("name")).ok_or(io::Error::new(io::ErrorKind::Other, "projects misconfiguration"))?;
+            let dir = config.name_to_path(params.param("name")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?;
             eprintln! {"Project dir: {:?}", &dir};
             Box::new(JsonDirs {
                 file: PageFile {

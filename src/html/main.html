@@ -933,7 +933,7 @@
             const refs = document.getElementById("xrefs")
             refs.replaceChildren()
             for (elem of jsonres) {
-                const dtEl = document.createElement("dt")
+                const dtEl = document.createElement("DT")
                 dtEl.innerText = elem.name
                 dtEl.dataset.path = elem.path
                 dtEl.dataset.line = elem.line
@@ -953,7 +953,7 @@
     }
     
     function removeDD(el) {
-        const ddels = el.getElementsByTagName('dd')
+        const ddels = el.getElementsByTagName('DD')
         for (var i=ddels.length-1; i>=0 ; --i)
             el.removeChild(ddels[i])
         

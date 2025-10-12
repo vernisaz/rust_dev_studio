@@ -20,9 +20,9 @@ mod crossref;
 mod search;
 mod config;
 
-use simweb::WebError;
+use simweb::{WebError,json_encode};
 use crossref::{RefType,Reference};
-use web::{get_file_modified, json_encode, sanitize_path, Menu,
+use web::{get_file_modified, sanitize_path, Menu,
     save_props, PageOps, url_encode, param /*, html_encode*/};
 use simtpool::ThreadPool;
 use config::{SETTINGS_PREF,read_props};
@@ -618,7 +618,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     };
                     fn_ref.push_str(&format!{",\"trait\":\"{}\", \"data\":\"{}\"", scope.name, data_name})
                 }
-                let refs_to = match use_pnts.get(&json_encode(&entry.name)) {
+                let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
                     None => String::new(),
                     Some(vec_val) => refs_to_json(vec_val, dir_len)
                 };

@@ -639,7 +639,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 let dir_len = (&dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
-                let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift";
+                let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf";
             
                 let files = web::list_files(&dir, &exts); // faster to pass an array of exts
                 //eprintln! {"...in {} files", files.len()}

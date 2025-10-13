@@ -23,7 +23,7 @@ mod config;
 use simweb::{WebError,json_encode};
 use crossref::{RefType,Reference};
 use web::{get_file_modified, sanitize_path, Menu,
-    save_props, PageOps, url_encode, param /*, html_encode*/};
+    save_props, PageOps, url_encode, param};
 use simtpool::ThreadPool;
 use config::{SETTINGS_PREF,read_props};
 
@@ -236,15 +236,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
             let np_path = np.display().to_string();
-            sanitize_path(&np_path)?;
+            sanitize_path(&np_path)?; // further sanitizing are not required
             let _ = del_fil(np_path).is_ok();
             let tabs = config.get_config_path(&proj, "tabs", "sto");
             let tabs_path = tabs.display().to_string();
-            sanitize_path(&tabs_path)?;
             let _ = del_fil(tabs_path).is_ok();
             let bm = config.get_config_path(&proj, "bookmark", "json");
             let bm_path = bm.display().to_string();
-            sanitize_path(&bm_path)?;
             let _ = del_fil(bm_path).is_ok();
             match all_fine {
                 true => Box::new(PageStuff {

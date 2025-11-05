@@ -1,12 +1,7 @@
-use std::collections::HashMap;
-use std::fs;
-use std::fs::{metadata};
-use std::path::Path;
-use std::time::SystemTime;
+use std::{collections::HashMap, io, fs::{self, metadata},
+    path::Path, time::SystemTime};
 use crate::template;
 use crate::param;
-//use std::fmt::Display;
-
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
 
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
@@ -190,12 +185,15 @@ pub fn sanitize_path<'l>(path: &'l impl AsRef<str>) -> Result<&'l str, &'static 
     }
 }
 
-pub fn save_props(path: &String, props: &HashMap<String, String>) -> std::io::Result<()> {
+pub fn save_props(path: &String, props: &HashMap<String, String>) -> io::Result<()> {
     let mut data =
         format! {"# property file on {}\n", &format_system_time(SystemTime::now())}.to_string();
     for (key, value) in props {
         data.push_str(&format! {"{}={}\n", key, value})
     }
+    // since writing can happen concurrently
+    // try create PROP.LOCK
+    // if success, do write and then delete the LOCK
     fs::write(path, data)
 }
 

@@ -107,7 +107,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 json_encode(&file), json_encode(&in_project_path), json_encode(&edit))}, params:params,})
         }
         Some("save") => {
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
                 eprintln!("name:{sub_path}");
                 let file_path =
@@ -163,7 +163,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-settings-project") => {
-            if let Ok(met) = std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path)?;
@@ -220,7 +220,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             })
         }
-        Some("del-project") => if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+        Some("del-project") => if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
             let proj = params.param("project");
             if proj.is_none() {
                 return Err(Box::new(MisconfigurationError{ cause: "no project param"}))
@@ -236,7 +236,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
             let np_path = np.display().to_string();
-            sanitize_path(&np_path)?; // further sanitizing are not required
+            sanitize_path(&np_path)?; // further sanitizing is not required
             let _ = del_fil(np_path).is_ok();
             let tabs = config.get_config_path(&proj, "tabs", "sto");
             let tabs_path = tabs.display().to_string();
@@ -272,7 +272,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("savenp") => {
-            if let Ok(met) = std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = settings.display().to_string();
                 sanitize_path(&settings_path)?;
@@ -303,7 +303,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("delete") => {
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
                     &config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
@@ -350,7 +350,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("vcs-commit") => {
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
@@ -454,7 +454,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-restore") => {
             // git checkout -- <file>
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(file) = params.param("name") {
@@ -489,7 +489,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-stage") => {
             // git add <file>
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
@@ -548,7 +548,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("persist-tab") => {
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
                 let tabs_file = tabs.display().to_string();
                 sanitize_path(&tabs_file)?;
@@ -561,7 +561,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("crossref-list") => {
             // get list of all .rs files of the project
             let mut use_pnts  = HashMap::new();
-            let mut total_refs = Vec::new();
+            let mut total_refs = vec![];
             
             let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
             let dir_len = dir.len();
@@ -677,7 +677,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-bookmark") => {
-            if let Ok(met) =std::env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
                 sanitize_path(&bm_file)?;
@@ -933,12 +933,12 @@ impl PageOps for JsonVCS {
                             &entry[3..]
                         };
                         let name = if let Some(slash) = path.rfind('/') {
-                            if  slash < path.len() - 1
-                        {
-                            path[slash + 1..].to_owned()
+                            if  slash < path.len() - 1 {
+                                path[slash + 1..].to_owned()
+                            } else {
+                                path.to_owned()
+                            } 
                         } else {
-                            path.to_owned()
-                        } } else {
                             path.to_owned()
                         };
                         eprintln! {"--> {path} status {status_curr}:{status_prev}"};
@@ -997,7 +997,7 @@ impl PageOps for PageFile {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
                 let main;
-                if std::env::var("PATH_INFO").is_ok(){
+                if env::var("PATH_INFO").is_ok(){
                     main = PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name);
                 } else {
                     main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
@@ -1124,7 +1124,6 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Stage".to_string(), link:"javascript:vcsStage()".to_string(), hint:Some("Stage the current file".to_string()), icon:None,short:None},
         web::Menu::MenuEnd,
         
-     
         web::Menu::MenuItem{title:"Settings".to_string(), link:"javascript:showSettings()".to_string(), hint:None, icon:None,short:None},
         
         web::Menu::MenuBox{title:"Help".to_string(), hint:None, icon:None},
@@ -1201,6 +1200,7 @@ impl PageOps for Redirect {
     fn get_extra(&self) -> Option<Vec<(String, String)>> {
         let id = simran::generate_random_sequence(12);
         let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
+        // TODO use ".?session={}&id={id}"
         Some(vec![("Location".to_string(), 
             format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
         
@@ -1226,16 +1226,16 @@ fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
         Ok(metadata) => metadata,
         #[cfg(feature = "quiet")]
         Err(_err) => { // probably symlink, skip
-            buf.push_str("\", \"type\": \"dead\"}");
+            buf.push_str(r#"", "type": "dead"}"#);
             return Ok(buf)},
         #[cfg(not(feature = "quiet"))]
         Err(_err) => { // probably symlink, skip
             eprintln!("No metadata for {path:?} {err:?}"); 
-            buf.push_str("\", \"type\": \"dead\"}");
+            buf.push_str(r#"", "type": "dead"}"#);
             return Ok(buf)},
     };
     
-    buf.push_str("\", \"type\": \"");
+    buf.push_str(r#"", "type": ""#);
 
     if meta.is_dir() && name != ".git" {
         buf.push_str("folder\", \"children\": [");
@@ -1303,10 +1303,10 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
 
 fn refs_to_json(refs: & Vec<Reference>, exemp_len:usize) -> String {
     #[cfg(any(unix, target_os = "redox"))]
-    let ser_ref = |current: &Reference| format!{"{{\"name\":\"{}\",\"path\":\"{}\",\"line\":{},\"pos\":{}}}",
+    let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&current.src[exemp_len+1..].to_owned()), current.line, current.column};
     #[cfg(target_os = "windows")]
-    let ser_ref = |current: &Reference| format!{"{{\"name\":\"{}\",\"path\":\"{}\",\"line\":{},\"pos\":{}}}",
+    let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
     refs.into_iter().map(|r| ser_ref(r)).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
 }

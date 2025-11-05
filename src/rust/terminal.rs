@@ -1241,7 +1241,7 @@ fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
         } else {
             PathBuf::from(&entered)
         };
-    eprintln!("entered: {path:?} {cwd:?}");
+    //eprintln!("entered: {path:?} {cwd:?}");
     let part_name = path.file_name().unwrap().to_str().unwrap().to_string();
     let dir;
     if path.pop() {

@@ -1225,23 +1225,23 @@ fn interpolate_env(s:String) -> String {
 
 fn extend_name(arg: &impl AsRef<str>, cwd: &PathBuf, exe: bool) -> String {
     let entered = unescape(arg);
-    let mut path = PathBuf::from(entered);
-    /*    if entered.starts_with("~") { // '~, "~, \~ - no expansion
+    let mut path = //PathBuf::from(&entered);
+        if entered.starts_with('~') { // '~, "~, \~ - no expansion
             let env_value = env::home_dir();
             if env_value.is_some() {
                 let res = PathBuf::from(env_value.unwrap().display().to_string());
-                if entered.len() > 2 {
+                if entered.len() > 1 {
                     res.join(&entered[2..])
                 } else {
                     res
                 }
             } else {
-                PathBuf::from(entered)
+                PathBuf::from(&entered)
             }
         } else {
-            PathBuf::from(entered)
-        };*/
-    //eprintln!("entered: {path:?} {cwd:?}");
+            PathBuf::from(&entered)
+        };
+    eprintln!("entered: {path:?} {cwd:?}");
     let part_name = path.file_name().unwrap().to_str().unwrap().to_string();
     let dir;
     if path.pop() {

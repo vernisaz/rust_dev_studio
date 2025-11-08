@@ -72,10 +72,11 @@ mod windows {
             let Ok(metadata) = self.metadata() else {
                 return false
             };
-            metadata.is_dir() || self.extension().is_some_and(|s| s == "exe" || s == "bat")
+            metadata.is_dir() || self.extension().is_some_and(|s| s == "exe" || s == "bat" || s == "com" || s == "msi")
         }
     }
 }
+// TODO make it a crate
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
     let binding = if web.path_info().starts_with("/") {web.path_info()[1..].to_string()} else {web.path_info()};

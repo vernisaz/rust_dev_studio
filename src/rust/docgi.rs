@@ -1074,6 +1074,8 @@ impl PageOps for PageFile {
                   hint:Some("Build debug version of the project".to_string()), icon:None,short:None},
                 Menu::MenuItem{title:"Release".to_string(), link:"javascript:build_release()".to_string(),
                   hint:Some("Build a release version of the project".to_string()), icon:None,short:None},
+                Menu::MenuItem{title:"Clippy".to_string(), link:"javascript:clippy_build()".to_string(),
+                  hint:Some("Clippy for possible  the project code improvements".to_string()), icon:None,short:None},
            web::Menu::MenuEnd,
            web::Menu::MenuBox{title:"Run".to_string(), hint:None, icon:None},
                 Menu::MenuItem{title:"Debug".to_string(), link:"javascript:run_debug()".to_string(),

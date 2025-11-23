@@ -170,6 +170,10 @@
             <input type="text" name="debug_build" value="rb" size="50">
             </div>
             <div class="form-row">
+            <label for="clippy">Run Clippy:</label>
+            <input type="text" name="clippy" value="rb clippy" size="50">
+            </div>
+            <div class="form-row">
             <label for="release_build">Release Build:</label>
             <input type="text" name="release_build" value="rb -Drelease" size="50">
             </div>
@@ -1131,6 +1135,7 @@
         const tarFrm = document.forms['project_conf']
         tarFrm.debug_build.value = PROJ_CONF['compile_debug'] || 'rb'
         tarFrm.release_build.value = PROJ_CONF['compile_release'] || 'rb -Dmode=release'
+        tarFrm.clippy.value = PROJ_CONF['clippy'] || 'rb clippy'
         tarFrm.debug_app.value = PROJ_CONF['debug_app']  || ''
         tarFrm.run_app.value = PROJ_CONF['run_app']  || '' 
         tarFrm.test_app.value = PROJ_CONF['test_app']  || '' 
@@ -1142,6 +1147,7 @@
         const tarFrm = document.forms['project_conf']
         PROJ_CONF['compile_debug'] = tarFrm.debug_build.value
         PROJ_CONF['compile_release'] = tarFrm.release_build.value
+        PROJ_CONF['clippy'] = tarFrm.clippy.value
         PROJ_CONF['debug_app'] = tarFrm.debug_app.value
         PROJ_CONF['run_app'] = tarFrm.run_app.value
         PROJ_CONF['test_app'] = tarFrm.test_app.value
@@ -1177,6 +1183,10 @@
     
     function build_release() {
         runCmd(PROJ_CONF['compile_release'])
+    }
+    
+    function clippy_build() {
+        runCmd(PROJ_CONF['clippy'])
     }
     
     function run_release() {

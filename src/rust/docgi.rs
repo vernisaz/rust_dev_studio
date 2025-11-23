@@ -1182,7 +1182,7 @@ impl PageOps for Redirect {
         let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
         // TODO use ".?session={}&id={id}"
         Some(vec![("Location".to_string(), 
-            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or(String::new()))))])
+            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or_default())))])
         
     }
     
@@ -1201,7 +1201,7 @@ fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
         .unwrap();
     
     let mut buf = JsonStr::from("{\"name\": \"");
-    buf.push_str(&json_encode(&name.to_string()));
+    buf.push_str(&json_encode(name));
     let meta = match path.metadata() {
         Ok(metadata) => metadata,
         #[cfg(feature = "quiet")]
@@ -1224,7 +1224,7 @@ fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
         let mut entries = paths.iter();
         if let Some(entry) = entries.next() {
             buf.push_str(&recurse_files(&entry.path())?);
-            while let Some(entry) = entries.next() {
+            for entry in entries {
                 buf.push(',');
                 buf.push_str(&recurse_files(&entry.path())?);
             }
@@ -1284,9 +1284,9 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
 fn refs_to_json(refs: & Vec<Reference>, exemp_len:usize) -> String {
     #[cfg(any(unix, target_os = "redox"))]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
-        json_encode(&current.name), json_encode(&current.src[exemp_len+1..].to_owned()), current.line, current.column};
+        json_encode(&current.name), json_encode(&current.src[exemp_len+1..]), current.line, current.column};
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
-    refs.into_iter().map(|r| ser_ref(r)).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
+    refs.into_iter().map(ser_ref).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
 }

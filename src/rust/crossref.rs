@@ -64,11 +64,7 @@ impl Reader {
         self.pos += 1;
         if self.pos >= self.end {
             self.end = self.file.read(&mut self.buf).unwrap_or(0);
-
-            match self.end {
-                0 => return None,
-                _ => (),
-            }
+            if self.end == 0 { return None }
             self.pos = 0
         }
         self.line_offset += 1;

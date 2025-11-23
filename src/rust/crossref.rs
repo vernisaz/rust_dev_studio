@@ -114,7 +114,7 @@ impl Reader {
 pub fn scan_file(file: &impl AsRef<str>) -> Vec< Reference> {
     let path = file.as_ref();
     let mut r = Reader {
-        file: File::open(&path).unwrap(),
+        file: File::open(path).unwrap(),
         path: path.to_string(),
         line: 1,
         buf: [0; 1024],

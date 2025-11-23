@@ -24,15 +24,15 @@ impl Config {
             if workspace_dir.exists() && workspace_dir.is_dir() {
                 config_dir.pop();
                 return Config {
-                    config_dir: config_dir,
-                    workspace_dir: workspace_dir,
+                    config_dir,
+                    workspace_dir,
                 }
             }
         }
         config_dir.pop();
         Config {
-            config_dir: config_dir,
-            workspace_dir: PathBuf::from(config),
+            config_dir,
+            workspace_dir: config,
         }
     }
     
@@ -67,7 +67,7 @@ impl Config {
     pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {
         let mut res = self.config_dir.clone();
         match proj {
-            Some(proj) if !proj.is_empty() && proj != "default" => res.push(file.to_string() + "-" + &proj),
+            Some(proj) if !proj.is_empty() && proj != "default" => res.push(file.to_string() + "-" + proj),
             _ => res.push(file),
         }
         res.set_extension(ext);
@@ -95,19 +95,16 @@ pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
     let mut props = HashMap::new();
     if let Ok(file) = File::open(path) {
         let lines = BufReader::new(file).lines();
-        for line in lines {
-            if let Ok(prop_def) = line {
-                if prop_def.starts_with("#") {
-                    // comment
-                    continue
-                }
-                if let Some(pos) = prop_def.find('=') {
-                    let name = &prop_def[0..pos];
-                    let val = &prop_def[pos + 1..];
-                    props.insert(name.to_string(), val.to_string());
-                } else {
-                    eprintln!("Invalid property definition: {}", &prop_def)
-                }
+        for prop_def in lines.map_while(Result::ok) {
+            if prop_def.starts_with("#") {
+                 continue // comment
+            }
+            if let Some(pos) = prop_def.find('=') {
+                 let name = &prop_def[0..pos];
+                 let val = &prop_def[pos + 1..];
+                 props.insert(name.to_string(), val.to_string());
+            } else {
+                 eprintln!("Invalid property definition: {}", &prop_def)
             }
         }
     } else {

@@ -1,5 +1,5 @@
 use std::{collections::HashMap, io, fs::{self, metadata},
-    path::Path, time::SystemTime};
+    path::Path, time::SystemTime, error::Error};
 use crate::template;
 use crate::param;
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
@@ -30,7 +30,7 @@ pub trait PageOps {
         "text/html".to_string()
     }
 
-    fn main_load(&self) -> Result<String, String>;
+    fn main_load(&self) -> Result<String, Box<dyn Error>>;
 
     fn name(&self) -> String;
 
@@ -74,7 +74,7 @@ pub trait PageOps {
                 //eprintln! {"{page_items:?}"};
                 print! {"{}", if page_items.is_empty() {page} else {template::interpolate(&page, &page_items)}}
             }
-            Err(error) => Self::err_out(&self, error)
+            Err(error) => Self::err_out(&self, error.to_string())
         }
     }
 }

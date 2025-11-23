@@ -227,7 +227,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         content: "Ok".to_string(),
                     }),
                 _ => Box::new(PageStuff {
-                    content: format!("Err : Some project files weren't deleted"),
+                    content: "Err : Some project files weren't deleted".to_string(),
                 })
             }
         } else {
@@ -317,7 +317,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-list") => {
             let dir =
-                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
+                config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_default(), None);
             eprintln! {"VCS dir: {:?}", &dir};
             Box::new(JsonVCS {
                 dir: PageFile {
@@ -329,16 +329,16 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-commit") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_default(), None);
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
                     let mut result_oper: Result<(), String> = Ok(());
                     // git rm --cached file
                     // git reset file
-                    let reset_list = params.param("cache").unwrap_or_else(String::new);
+                    let reset_list = params.param("cache").unwrap_or_default();
                     let mut files = reset_list
                         .split('\t')
-                        .filter(|e| e.len() > 0)
+                        .filter(!is_empty)
                         .peekable();
                     if files.peek().is_some() {
                         let output = Command::new("git")
@@ -355,13 +355,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     if result_oper.is_ok() {
                         // git commit -m <msg>
-                        let commit_list = params.param("name").unwrap_or_else(String::new);
+                        let commit_list = params.param("name").unwrap_or_default();
     
-                        let comment = params.param("comment").unwrap_or_else(String::new);
+                        let comment = params.param("comment").unwrap_or_default();
                         eprintln! {"to commit: {commit_list} for {comment}"};
                         let mut files = commit_list
                             .split('\t')
-                            .filter(|e| e.len() > 0)
+                            .filter(!is_empty)
                             .peekable();
                         
                         if files.peek().is_some() {
@@ -541,7 +541,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut use_pnts  = HashMap::new();
             let mut total_refs = vec![];
             
-            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
+            let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_default(), None);
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -614,8 +614,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let shared = Arc::new(Mutex::new(String::from("[")));
             let tp = ThreadPool::new(3);
             if let Some(string) = params.param("name") {
-                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_else(String::new), None);
-                let dir_len = (&dir).len();
+                let dir = config.to_real_path(&config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir_len = (dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
                 let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf";
             
@@ -626,8 +626,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     let string = string.clone();
                     tp.execute(move ||
                         // get file content in string in rust
-                        if let Ok(content) = &fs::read_to_string(&file) {
-                            if let Some((line,col)) = search::boyer_moore_search(&content, &string) {
+                        if let Ok(content) = &fs::read_to_string(&file) 
+                            && let Some((line,col)) = search::boyer_moore_search(content, &string) {
                                eprintln! {"found in {file}"}
                                let mut json_res = res.lock().unwrap(); // if let Ok(...)
                                if json_res.len() > 1 {
@@ -640,7 +640,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                let path = param::to_web_separator(file [dir_len+1..].to_owned());
                                json_res.push_str(&format!{"{{\"path\":\"{}\",\"line\":{line},\"col\":{col},\"name\":\"{}\"}}",
                                   &json_encode(&path), &json_encode(&name)})
-                            }
+                            
                         }
                     );
                 }
@@ -659,7 +659,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = bm.display().to_string();
                 sanitize_path(&bm_file)?;
-                fs::write(bm_file, params.param("bookmarks").unwrap_or_else(String::new))?;
+                fs::write(bm_file, params.param("bookmarks").unwrap_or_default())?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
@@ -770,7 +770,7 @@ macro_rules! name_of{
 }
 
 impl PageOps for JsonSettings {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let props = read_props(&PathBuf::from(&self.file.file_name));
         let binding = String::new();
         let project_home = props.get("project_home").unwrap_or(&binding);
@@ -792,7 +792,7 @@ impl PageOps for JsonSettings {
             "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
             "colapsed_dirs":"{}"
-        }}"#, &json_encode(&ai_url), &json_encode(&colapsed_dirs), &json_encode(&user)})
+        }}"#, &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user)})
     }
 
     json_ret!{}
@@ -801,11 +801,11 @@ impl PageOps for JsonSettings {
 }
 
 impl PageOps for JsonDirs {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let mut dirs: Vec<_> = read_dir(&self.file.file_name)
             .map_err(|e| format!{"can't read {} because {e:?}", self.file.file_name})?
-            .filter_map(|f| if f.as_ref().and_then(|f| Ok(f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
-                    && f.file_name().into_string().and_then(|n| Ok(n != ".git")).unwrap_or(false)) ).unwrap_or(false)
+            .filter_map(|f| if f.as_ref().and_then(|f| Ok(f.file_type().map(|t| t.is_dir()).unwrap_or(false)
+                    && f.file_name().into_string().map(|n| n != ".git").unwrap_or(false)) ).unwrap_or(false)
                        {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
         dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
@@ -821,7 +821,7 @@ impl PageOps for JsonDirs {
 }
 
 impl PageOps for JsonProj {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let mut res = "[".to_string();
         if let Ok(data) = recurse_dirs(Path::new(&self.file.file_name), None) {
             res.push_str(&data);
@@ -837,7 +837,7 @@ impl PageOps for JsonProj {
 }
 
 impl PageOps for JsonSess {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let paths = read_dir(&self.file.file_name).map_err(|err| format!("Directory {} can't be read: {err}", &self.file.file_name))?;
         //eprintln!("looking in:{}", &self.file.file_name);
         let mut res = paths.fold("[".to_string(), |mut accum, path| {
@@ -856,7 +856,7 @@ impl PageOps for JsonSess {
                 }
                 accum.push('"');
                 if !session_name.is_empty() {
-                    accum.push_str(&json_encode(&session_name.to_owned()));
+                    accum.push_str(&json_encode(session_name));
                 }
                 accum.push('"')
             }
@@ -873,8 +873,8 @@ impl PageOps for JsonSess {
 }
 
 impl PageOps for JsonData {
-    fn main_load(&self) -> Result<String, String> {
-        recurse_files(Path::new(&self.file.file_name)).map_err(|err| format!("Directory {} can't be read: {err}", &self.file.file_name))
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
+        recurse_files(Path::new(&self.file.file_name)).map_err(|err| format!("Directory {} can't be read: {err}", &self.file.file_name).into())
     }
 
     json_ret!{}
@@ -883,7 +883,7 @@ impl PageOps for JsonData {
 }
 
 impl PageOps for JsonVCS {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         if let Some(dir) = web::is_git_covered(&self.dir.file_name, &self.home)
         {
             let output = Command::new("git")
@@ -920,7 +920,7 @@ impl PageOps for JsonVCS {
                             path.to_owned()
                         };
                         eprintln! {"--> {path} status {status_curr}:{status_prev}"};
-                        res.push_str(&json_encode(&path));
+                        res.push_str(&json_encode(path));
                         res.push_str("\",\"name\":\"");
                         res.push_str(&json_encode(&name));
                         res.push_str("\",\"status\":\"");
@@ -940,7 +940,7 @@ impl PageOps for JsonVCS {
             eprintln!("vcs entries:{res}");
             Ok(res)
         } else {
-            Err("No VCS established for the repository yet. Try 'git init' first.".to_string())
+            Err("No VCS established for the repository yet. Try 'git init' first.".into())
         }
     }
 
@@ -971,25 +971,25 @@ impl PageOps for PageFile {
         );
     }
 
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
-                let main;
+                let main ;
                 if env::var("PATH_INFO").is_ok(){
-                    main = PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name);
+                     main = PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name);
                 } else {
                     main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
                 }
                 read_to_string(&main)
-                  .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main})
+                  .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main}.into())
             }
-            Err(_err) => Err("ERROR: misconfiguration - can't get CGI script path".to_string())
+            Err(_err) => Err("ERROR: misconfiguration - can't get CGI script path".into())
         }
     }
 
     fn name(&self) -> String {
         match &self.session {
-           Some(session) if !session.is_empty() =>  format! {"{session}"},
+           Some(session) if !session.is_empty() =>  session.to_string(),
            _ => "Main".to_string()
         }
     }
@@ -997,23 +997,21 @@ impl PageOps for PageFile {
     fn get_nav(&self) -> Option<Vec<web::Menu>> {
         let mut projs = Vec::new();
         if let Ok(paths) = read_dir(&self.home) {
-            for file in paths {
-                if let Ok(file) = file {
-                    if file.file_type().and_then(|t| Ok(t.is_file())).unwrap_or(false) {
-                        let file_name = file.file_name().to_string_lossy().to_string();
-                        if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
-                            let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
-                            if !session_name.is_empty() {
-                                if session_name[0..1] == *"-" {
-                                    session_name = &session_name[1..]
-                                } else {
-                                    continue
-                                }
+            for file in paths.flatten() {
+                if file.file_type().map(|t| t.is_file()).unwrap_or(false) {
+                    let file_name = file.file_name().to_string_lossy().to_string();
+                    if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
+                        let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
+                        if !session_name.is_empty() {
+                            if session_name[0..1] == *"-" {
+                                session_name = &session_name[1..]
+                            } else {
+                                continue
                             }
-                            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
-                            projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
-                                 session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
                         }
+                        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
+                        projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
+                             session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
                     }
                 }
             }
@@ -1117,7 +1115,7 @@ impl PageOps for PageFile {
 
 impl PageOps for PageFrag {
 
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         Ok(self.fragment.content.clone())
     }
     
@@ -1127,12 +1125,12 @@ impl PageOps for PageFrag {
     }
 
     fn name(&self) -> String {
-        self.params.param("name").unwrap_or_else(String::new)
+        self.params.param("name").unwrap_or_default()
     }
 }
 
 impl PageOps for PageStuff {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         Ok(self.content.clone())
     }
     
@@ -1144,7 +1142,7 @@ impl PageOps for PageStuff {
 }
 
 impl PageOps for PageStuffE {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         Ok(self.content.clone())
     }
 
@@ -1161,7 +1159,7 @@ impl PageOps for PageStuffE {
 
 
 impl PageOps for JsonStuff {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         Ok(self.json.to_owned())
     }
 
@@ -1173,7 +1171,7 @@ impl PageOps for JsonStuff {
 }
 
 impl PageOps for Redirect {
-    fn main_load(&self) -> Result<String, String> {
+    fn main_load(&self) -> Result<String, Box<dyn Error>> {
         Ok("redirect".to_string())
     }
     
@@ -1193,7 +1191,7 @@ impl PageOps for Redirect {
    name_of!{"None"}
 }
 
-fn recurse_files(path: &Path) -> std::io::Result<JsonStr> {
+fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
     let name = path
         .file_name()
         .unwrap_or(OsStr::new("."))
@@ -1243,10 +1241,10 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
     let meta = path.metadata()?;
     let mut buf = JsonStr::from("");
     if meta.is_dir() && path.file_name().unwrap().to_str() != Some(".git") {
-        let dirs: Vec<_> = read_dir(&path)?
+        let dirs: Vec<_> = read_dir(path)?
             .filter_map(|f| 
                 match f {
-                    Ok(f) if f.file_type().and_then(|t| Ok(t.is_dir())).unwrap_or(false)
+                    Ok(f) if f.file_type().map(|t| t.is_dir()).unwrap_or(false)
                         && f.file_name().to_str() != Some(".git") => Some(f),
                     _ => None
                 })
@@ -1281,12 +1279,12 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
     Ok(buf)
 }
 
-fn refs_to_json(refs: & Vec<Reference>, exemp_len:usize) -> String {
+fn refs_to_json(refs: &[Reference], exemp_len:usize) -> String {
     #[cfg(any(unix, target_os = "redox"))]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&current.src[exemp_len+1..]), current.line, current.column};
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
-    refs.into_iter().map(ser_ref).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
+    refs.iter().map(ser_ref).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
 }

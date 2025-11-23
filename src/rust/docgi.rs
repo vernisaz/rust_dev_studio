@@ -13,8 +13,8 @@ use std::{collections::HashMap,
         path::{Path,PathBuf},
         process::Command,
         sync::{Arc, Mutex},
-        error::Error, env,
-        fmt::{self,Display}};
+        env, error::Error,
+        };
 
 mod crossref;
 mod search;
@@ -35,28 +35,6 @@ macro_rules! eprintln {
 }
 
 const VERSION: &str = env!("VERSION");
-
-#[derive(Debug)] 
-struct MisconfigurationError <'a>{
-    cause: &'a str,
-}
-
-impl Display for MisconfigurationError<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Misconfiguration: {}", self.cause)
-    }
-}
-
-impl Error for MisconfigurationError<'_> {
-    // The `source` method is optional but recommended for chaining errors
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            // If your error wraps another `Error` type, return a reference to it here.
-            // For example, if InvalidInput wrapped a `std::io::Error`, you'd return `Some(inner_error)`.
-            _ => None, // No source error in this simple example
-        }
-    }
-}
 
 fn main() {
     if let Err(e) = inner_main() {
@@ -95,7 +73,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
              }),
         }
         Some("editor-file") => {
-            let project_home = config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?;
+            let project_home = config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?;
             let in_project_path = params.param("path").ok_or(WebError{cause:None, reason: "no parameter path".to_string()})?;
             sanitize_path(&in_project_path)?; 
             let file = params.param("name").ok_or(WebError{cause:None, reason: "no file name".to_string()})?;
@@ -111,7 +89,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
                 eprintln!("name:{sub_path}");
                 let file_path =
-                    config.to_real_path(&config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?, Some(&sub_path));
+                    config.to_real_path(&config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(&sub_path));
                 sanitize_path(&file_path)?; 
                 let modified = get_file_modified(&file_path);
                 let remote_modifiled = &params
@@ -181,7 +159,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         // create dir if non existent (too many directories attack possible)
                         fs::create_dir_all(real_dir)?;
                     } else if real_dir.is_file() {
-                        return Err(Box::new(MisconfigurationError{ cause: "a file specified instead of a directory"}))
+                        return Err("a file specified instead of a directory".into())
                     }
                 }
                 for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs"] {
@@ -200,7 +178,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("dir-list") => {
             // list of dirs in
-            let dir = config.name_to_path(params.param("name")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?;
+            let dir = config.name_to_path(params.param("name")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?;
             eprintln! {"Project dir: {:?}", &dir};
             Box::new(JsonDirs {
                 file: PageFile {
@@ -223,7 +201,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("del-project") => if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
             let proj = params.param("project");
             if proj.is_none() {
-                return Err(Box::new(MisconfigurationError{ cause: "no project param"}))
+                return Err("no project param".into())
             };
             let del_fil  = |file| -> io::Result<()> {
                 remove_file(file)?;
@@ -305,7 +283,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("delete") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
-                    &config.get_project_home(&params.param("session")).ok_or(MisconfigurationError{cause: "project home misconfiguration"})?, 
+                    &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 );
                 sanitize_path(&file)?;

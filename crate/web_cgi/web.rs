@@ -7,19 +7,19 @@ use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Menu {
+pub enum Menu <'a> {
     MenuBox {
         title: String, // HTML encode applied
-        hint: Option<String>, // HTML encode applied
-        icon: Option<String>,
+        hint: Option<&'a str>, // HTML encode applied
+        icon: Option<&'a str>,
     },
     
     MenuItem {
         link: String,  // URL encode isn't applied
         title: String, // HTML encode applied
-        short: Option<String>,
-        hint: Option<String>,
-        icon: Option<String>,
+        short: Option<&'a str>,
+        hint: Option<&'a str>,
+        icon: Option<&'a str>,
     },
     MenuEnd,
     Separator,
@@ -34,7 +34,7 @@ pub trait PageOps {
 
     fn name(&self) -> String;
 
-    fn get_nav(&self) -> Option<Vec<Menu>> {None}
+    fn get_nav(&self) -> Option<Vec<Menu<'_>>> {None}
     
     // any additional header including cookie set
     fn get_extra(&self) -> Option<Vec<(String, String)>> {None}
@@ -238,7 +238,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
     res
 }
 
-fn get_hint(hint: &Option<String>) -> String {
+fn get_hint(hint: &Option<&str>) -> String {
     if let Some(hint) = hint {
         format! {" alt=\"{0}\" title=\"{0}\"", html_encode(&hint)}
     } else {
@@ -246,7 +246,7 @@ fn get_hint(hint: &Option<String>) -> String {
     }
 }
 
-fn get_img(icon: &Option<String>) -> String {
+fn get_img(icon: &Option<&str>) -> String {
     if let Some(icon) = icon {
         format! {"<img src=\"{}\">", icon}
     } else {
@@ -254,7 +254,7 @@ fn get_img(icon: &Option<String>) -> String {
     }
 }
 
-fn get_short(short: &Option<String>) -> String {
+fn get_short(short: &Option<&str>) -> String {
     if let Some(short) = short {
         format! {"<span style=\"float:right\">{0}</span>", html_encode(&short)}
     } else {

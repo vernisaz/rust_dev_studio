@@ -32,6 +32,47 @@ function main() {
     
     document.getElementById('commandarea').addEventListener("focus", (event) => { autosave() }) // can be an overhead and a race condition
     
+    document.addEventListener('copy', function(event) {
+        if (!CPY_SPEC)
+            return
+        // Get the selected text
+        let selectedText = window.getSelection().toString();
+        
+        // Modify the text
+        const lines = selectedText.split(/\r?\n/);
+        let modifiedText = ''
+        for (const line of lines) {
+            const len = line.length
+            var i=0
+            var frstBl = true
+            for (; i<len; ++i) {
+                const char = line.charAt(i)
+                if (char >= '0' && char <= '9' || char == '+' || char == '-' || char == '~') {
+                    continue
+                }
+                if (frstBl && char == ' ') {
+                    frstBl = false
+                    continue
+                }
+                break
+            }
+            if (i > 0) {
+                modifiedText += line.slice(i)
+            } else {
+                modifiedText += line
+            }
+            modifiedText += '\n'
+        }
+        
+        // Set the modified data to the clipboard
+        event.clipboardData.setData('text/plain', modifiedText);
+        
+        // Prevent the default copy action
+        event.preventDefault(); 
+        
+        //console.log("Copied modified text via event listener: " + modifiedText);
+    })
+        
     if (UID) {
         wsSession = 'webId-' + UID
     } else {

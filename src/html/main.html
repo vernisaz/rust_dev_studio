@@ -356,6 +356,8 @@
       
       var AUTOSAVE = false
       
+      var CPY_SPEC = false
+      
       let PROJ_CONF = {}
       
       let UID = '${id}'
@@ -711,6 +713,10 @@
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab)
             EDITORS[editor_tab.id].editor.session.getUndoManager().redo()        
+    }
+    
+    function copySpec() {
+        CPY_SPEC = !CPY_SPEC
     }
     
     function saveNotepad() {

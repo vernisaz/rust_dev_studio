@@ -449,6 +449,10 @@ span+a {
 
 #projects_div li a:hover {background: #F1DF93}
 
+.marked:before {
+    content: " ✓ ";
+}
+
 @media (prefers-color-scheme: dark) {
   /* Dark theme styles go here */
    :root {

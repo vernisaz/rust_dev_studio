@@ -716,7 +716,8 @@
     }
     
     function copySpec() {
-        CPY_SPEC = !CPY_SPEC
+        document.querySelector('#cpySpec').classList.toggle("marked")
+        //CPY_SPEC = !CPY_SPEC
     }
     
     function saveNotepad() {

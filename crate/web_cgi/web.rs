@@ -240,7 +240,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
 
 fn get_hint(hint: &Option<&str>) -> String {
     if let Some(hint) = hint {
-        format! {" alt=\"{0}\" title=\"{0}\"", html_encode(&hint)}
+        format! {r#" alt="{0}" title="{0}""#, html_encode(&hint)}
     } else {
         "".to_string()
     }

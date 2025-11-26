@@ -33,7 +33,8 @@ function main() {
     document.getElementById('commandarea').addEventListener("focus", (event) => { autosave() }) // can be an overhead and a race condition
     
     document.addEventListener('copy', function(event) {
-        if (!CPY_SPEC)
+        if (!document.querySelector('cpySpec').classList.contains('marked'))
+        //if (!CPY_SPEC)
             return
         // Get the selected text
         let selectedText = window.getSelection().toString();

@@ -81,8 +81,8 @@ impl Config {
         };
         let settings = read_props(&settings);
         if let Some(res) = settings.get("project_home") {
-            return if res.starts_with("~") {
-                Some(res[1..].to_string())
+            return if let Some(res) = res.strip_prefix("~") {
+                 Some(res.to_string())
             } else {
                 Some(res.into())
             }

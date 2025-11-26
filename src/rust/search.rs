@@ -131,8 +131,8 @@ pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize,usize)> { //Ve
 fn pos_to_line(text: &[char], pos: usize) -> (usize,usize) {
     let mut line = 1;
     let mut col = 0;
-    for i in 0..pos {
-        if text[i] == '\n' {
+    for chr in text.iter().take(pos) {
+        if *chr == '\n' {
             line += 1;
             col = 0
         } else {

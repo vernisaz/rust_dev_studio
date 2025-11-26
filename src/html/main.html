@@ -120,12 +120,18 @@
                 <select name="dirs" id="dirs" onchange="changeDir()">
                 </select>
             </div>
-            <div class="form-row">
-                <label for="theme">Theme</label>
-                <select name="theme" placeholder="Enter a theme" id="theme">
-                </select>
+            <div class="form-row" style="display:flex; gap: 2em;">
+                <div class="form-col">
+                    <label for="theme">Theme</label>
+                    <select name="theme" placeholder="Enter a theme" id="theme">
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="src-dir">Compilation folder</label>
+                    <input type="text" placeholder="Compilation in the directory" id="src-dir" size="16">
+                </div>
             </div>
-            <div class="form-row" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+            <div class="form-row" style="display:flex; gap: 2em;">
                 <div class="form-col">
                     <label for="autosave">Auto save</label>
                     <input type="checkbox" placeholder="Check off for auto-save" id="autosave">

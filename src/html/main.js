@@ -34,7 +34,6 @@ function main() {
     
     document.addEventListener('copy', function(event) {
         if (!document.querySelector('#cpySpec').classList.contains('marked'))
-        //if (!CPY_SPEC)
             return
         // Get the selected text
         let selectedText = window.getSelection().toString();

@@ -754,7 +754,7 @@ function ws_connect() {
                             if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                                 path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                             path = path.replaceAll('\\', '/')
-                            const extraPath = SRC_DIR + '/' //'src/'
+                            const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
                             ansi_html += `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
                         } else {
                            ansi_html += lineStr //htmlEncode(ans.substring(shift>0?shift + 1:0))

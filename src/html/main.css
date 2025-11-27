@@ -34,7 +34,7 @@ nav> menu> menuitem> a {
 nav a {
     position: relative;
     min-width: 192px;
-    padding: 6px 38px;
+    padding: 10px 36px;
     margin: 0px 2px 2px 0px;
     box-sizing: border-box;
     background: #414141;

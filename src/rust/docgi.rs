@@ -788,11 +788,13 @@ impl PageOps for JsonSettings {
         let proj_conf = props.get("proj_conf").unwrap_or(&empty_obj);
         let ai_url = props.get("ai_server_url").unwrap_or(&binding);
         let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(f_binding);
+        let src_dir = props.get("src_dir").unwrap_or(&binding);
+        let project_home = json_encode(project_home);
         Ok(format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
             "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
-            "colapsed_dirs":"{}"
-        }}"#, &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user)})
+            "colapsed_dirs":"{}", "src_dir":"{3}"
+        }}"#, &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user), json_encode(src_dir)})
     }
 
     json_ret!{}

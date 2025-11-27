@@ -372,6 +372,8 @@
       
       let COLAPSED_DIRS = ''
       
+      let SRC_DIR = ''
+      
       let caseId = 'num1@'
       
       function newFile() {
@@ -526,6 +528,7 @@
               document.getElementById("ai-access").value = load.ai_server_url?load.ai_server_url:''
               document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
               document.getElementById('colaps-dir').value = load.colapsed_dirs
+              document.getElementById('src-dir').value = load.src_dir
               var projectDir = load.project_home
               if (projectDir.startsWith('~/'))
                   projectDir = projectDir.substring(2)
@@ -573,6 +576,7 @@
             '&persist_tabs='+ (document.getElementById("persisttabs").checked?'yes':'no') +
             '&user='+encodeURIComponent(document.getElementById("user").value) +
             '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value) +
+            '&src_dir='+encodeURIComponent(document.getElementById("src-dir").value) +
             '&colapsed_dirs='+encodeURIComponent(document.getElementById('colaps-dir').value)
         }
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
@@ -633,6 +637,7 @@
                         STORE_TABS = document.getElementById("persisttabs").checked
                         AUTOSAVE = document.getElementById("autosave").checked
                         COLAPSED_DIRS = document.getElementById('colaps-dir').value
+                        SRC_DIR = document.getElementById('src-dir').value
                         jump('')
                     }
                  }

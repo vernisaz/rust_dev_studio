@@ -127,7 +127,9 @@ function loadSettings() {
                   PROJ_CONF = JSON.parse(load.project_config);
               }
               if (load && load.colapsed_dirs)
-                COLAPSED_DIRS = load.colapsed_dirs
+                  COLAPSED_DIRS = load.colapsed_dirs
+              if (load && load.src_dir)
+                  SRC_DIR= load.src_dir
               // TODO other inits
               populateProjectTree()
               if (STORE_TABS)
@@ -752,7 +754,7 @@ function ws_connect() {
                             if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                                 path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                             path = path.replaceAll('\\', '/')
-                            const extraPath = '' //'src/'
+                            const extraPath = SRC_DIR + '/' //'src/'
                             ansi_html += `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
                         } else {
                            ansi_html += lineStr //htmlEncode(ans.substring(shift>0?shift + 1:0))

@@ -331,6 +331,11 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
   font-size: 12pt;
 }
 
+.form-row {
+    padding-left:2em;
+    padding-right:2em;
+}
+
 .form-col {
    grid-column: auto; 
 }
@@ -398,10 +403,9 @@ label,input{
     position: absolute;
     margin: 0 auto;
     top: 5%;
-    left: 35%;
+    left: 42%;
     display: grid;
     grid-template-columns: auto;
-    width: 25%;
 }
 
 #terminal-container {

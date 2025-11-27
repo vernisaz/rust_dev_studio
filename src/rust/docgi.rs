@@ -162,7 +162,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         return Err("a file specified instead of a directory".into())
                     }
                 }
-                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs"] {
+                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs", "src_dir"] {
                     set_value(key.to_string());
                 }
                 // TOOO there is a race condition which is currently ignored

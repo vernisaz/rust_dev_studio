@@ -1200,7 +1200,7 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
         .unwrap_or(OsStr::new("."))
         .to_str()
         .unwrap();
-    
+
     let mut buf = JsonStr::from("{\"name\": \"");
     buf.push_str(&json_encode(name));
     let meta = match path.metadata() {

@@ -203,6 +203,8 @@ function renderTree(data, parentElement) {
   parentElement.appendChild(ul);
 
   data.forEach((item) => {
+      if (item.type == 'dead')
+        return
     const li = document.createElement('li');
     const span = document.createElement('span');
     span.textContent = item.name;

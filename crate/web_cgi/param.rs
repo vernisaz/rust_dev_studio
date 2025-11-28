@@ -1,4 +1,3 @@
-
 use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
@@ -91,7 +90,7 @@ impl Param {
     }
 
     pub fn path_info(&self) -> String {
-        if let std::result::Result::Ok(pi) = std::env::var(String::from("PATH_INFO")) {
+        if let Result::Ok(pi) = std::env::var(String::from("PATH_INFO")) {
             pi.to_string()
         } else {
         // since path info is never an empty string

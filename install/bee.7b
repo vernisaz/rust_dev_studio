@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.40.00
+version=1.45.01
 
 include(cfg.7b) # created by the install
 

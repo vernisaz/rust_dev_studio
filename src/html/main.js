@@ -743,9 +743,7 @@ function ws_connect() {
                         else
                             fileNameReg = /(?<path>\/?((\w+|\.\.)\/)*)(?<file>\w+\.(rs|swift)):(?<line>\d+):(?<col>\d+)/gm // TODO introduce path
                         const lineStr = htmlEncode(ans.substring(shift>0?shift + 1:0))
-                       // const matches = lineStr.matchAll(fileNameReg); 
                         const matches = Array.from(lineStr.matchAll(fileNameReg)); // [...matchAll]
-                       //if (false) {
                         if (matches.length > 0) {
                             const file = matches[0].groups.file;
                             const line = matches[0].groups.line;
@@ -757,7 +755,11 @@ function ws_connect() {
                             const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
                             ansi_html += `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
                         } else {
-                           ansi_html += lineStr //htmlEncode(ans.substring(shift>0?shift + 1:0))
+                            const urlRegex = /https?:\/\/[^\s]+/g;
+                            const htmlText = lineStr.replace(urlRegex, function(url) {
+                                  return '<a href="' + url + '" target="_blank">' + url + '</a>';
+                            })
+                            ansi_html += htmlText
                         }
                     }
                 } else {

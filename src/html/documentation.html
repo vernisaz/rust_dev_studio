@@ -30,7 +30,7 @@
         <h2>Purpose</h2>
         <p>To transform any browser to a powerful development environment. It doesn't matter where a browser does  run.
         It can be a desktop, a laptop, a tablet and even a phone. Everything can be done
-        in the browser from beginning of a project, establish a git repository, develop, debug, document,
+        in the browser from beginning of a project, establishing a git repository, develop, debug, document,
         test and finally publish your product.</p>
         <h2>Getting started</h2>
         <p>The RDS operates with projects. A project is some directory inside HOME directory, which is an essential
@@ -45,9 +45,11 @@
         <h3>Note about GIT</h3>
         <p>Selecting VCS&gt;Status will show modified/staged/unversioned files.
         You need to mark files to include them in the commit operation. Just click
-        any file of interest, and it will slightly change color indicating that
-        it is marked. Clicking it again will unmark it. The rest of operations
+        any file of interest, and it will slightly change a color indicating that
+        it is a part of an operation. Clicking it again will unmark it. The rest of operations
         looks obvious.</p>
+        <p>The terminal window is very powerful since will show clickable links and
+        source locations.</p>
 <h2>Architecture</h2>
 <p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is perfectly
  suitable for using Rust. The terminal
@@ -75,11 +77,12 @@ The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>
 </pre>
 
 <p>
-Make  sure also that the directory, where rustcgi accessed from, contains the file .home with one line containing the user HOME directory or other directory
-where rustcgi will look for settings in the sub directory .rustcgi of <b>HOME</b>.
+Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
+ with one line containing the user CONFIG directory or other directory
+where <code>rustcgi</code> will look for settings in the sub directory <i>.rustcgi</i> of <b>CONFIG</b>.
 </p>
 <pre>
-/home/john
+/home/.config
 </pre>
 
 <h2>Packaging</h2>
@@ -101,7 +104,7 @@ simhttp
     <h2>Command aliases</h2>
     <p>The <b>RDS</b> terminal <code>isatty</code> currently reports <i>false</i>, therefore most command needs to add argument
     as <code>--color=true</code> to see colorized output. The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
-    These aliases definitions have to be stored in file under <i>HOME/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
+    These aliases definitions have to be stored in file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
     <pre>alias ls='ls --color'</pre>
     <p>So every command found in the file, will be extended accordingly specified value. It can be useful not only for colorizing
     program output, but for other all time used options.</p>

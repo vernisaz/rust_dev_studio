@@ -89,7 +89,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.08.05.092'
+    return '1.10.00.095'
 }
 
 function populateProjectTree() {
@@ -739,11 +739,6 @@ function ws_connect() {
                             ansi_html += 'opacity: 0.0;'
                         ansi_html += '">' + htmlEncode(ans.substring(shift>0?shift + 1:0)) +'</span>'
                     } else {
-                        var fileNameReg
-                        if (WIN_SERVER)
-                            fileNameReg =  /(?<path>(\w:\\)?((\w+|\.\.)\\)*)(?<file>\w+\.(rs|swift)):(?<line>\d+):(?<col>\d+)/gm
-                        else
-                            fileNameReg = /(?<path>\/?((\w+|\.\.)\/)*)(?<file>\w+\.(rs|swift)):(?<line>\d+):(?<col>\d+)/gm // TODO introduce path
                         const lineStr = htmlEncode(ans.substring(shift>0?shift + 1:0))
                         const matches = Array.from(lineStr.matchAll(fileNameReg)); // [...matchAll]
                         if (matches.length > 0) {
@@ -774,8 +769,22 @@ function ws_connect() {
             }
             //console.log(ansi_html) // debug
             term_frag.innerHTML = ansi_html
-        } else
-            term_frag.innerHTML = htmlEncode(chunk)
+        } else {
+            let lineStr = htmlEncode(chunk)
+            const matches = Array.from(lineStr.matchAll(fileNameReg))
+            if (matches.length > 0) {
+                const file = matches[0].groups.file;
+                const line = matches[0].groups.line;
+                const col = matches[0].groups.col;
+                var path = matches[0].groups.path
+                if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
+                    path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
+                path = path.replaceAll('\\', '/')
+                const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
+                lineStr = `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
+            }
+            term_frag.innerHTML = lineStr
+        }
         //cons.appendChild(term_frag)
         appendContent(cons,term_frag)
         if (!noPrompt) {

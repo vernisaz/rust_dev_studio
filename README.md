@@ -63,7 +63,7 @@ can be obtained from [there](https://gitlab.com/tools6772135/rusthub/-/tree/mast
 The Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor.
 
 RDS is coming bundled with some version of the Ace editor. You can always bundle it with any other version of the editor. 
-Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download a desired version. A copy of it has to be placed in the directory
+Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download the desired version. A copy of it has to be placed in the directory
 **resource/ace**. It's reflected in the installation script.
 
 ## Building RDS components
@@ -139,8 +139,7 @@ Add more modes accordingly file extension of the code type of your interest.
 
 ## Known problems
 
-1. *datalist* seems isn't supported by the Silk browser, so an auto suggest won't work on Fire tablets
-2. files can stop to be opened from the left navigation panel (work around - select
+1. files can stop to be opened from the left navigation panel (work around - select
 _Refresh Proj_ from _Edit_ menu or reload the project page)
 
 ## Reading about

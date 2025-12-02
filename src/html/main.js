@@ -771,19 +771,19 @@ function ws_connect() {
             term_frag.innerHTML = ansi_html
         } else {
             let lineStr = htmlEncode(chunk)
-            const matches = Array.from(lineStr.matchAll(fileNameReg))
-            if (matches.length > 0) {
-                const file = matches[0].groups.file;
-                const line = matches[0].groups.line;
-                const col = matches[0].groups.col;
-                var path = matches[0].groups.path
+            term_frag.innerHTML = lineStr.replaceAll(fileNameReg, (match) => {
+                const matchGroup = [...match.matchAll(fileNameReg)]
+                const file = matchGroup[0].groups.file;
+                const line = matchGroup[0].groups.line;
+                const col = matchGroup[0].groups.col;
+                var path = matchGroup[0].groups.path
                 if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                     path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                 path = path.replaceAll('\\', '/')
                 const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
-                lineStr = `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
-            }
-            term_frag.innerHTML = lineStr
+                return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${match}</a>`
+            });
+            // TODO make URLs also clickable
         }
         //cons.appendChild(term_frag)
         appendContent(cons,term_frag)

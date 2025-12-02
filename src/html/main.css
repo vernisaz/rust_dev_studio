@@ -1,4 +1,4 @@
-.rds-version-1_07-02 { /* version 1.07.02 */
+.rds-version-1_10-00 { /* version 1.10.00 */
     display: block;
 }
 
@@ -446,7 +446,7 @@ dd {
     cursor:pointer;
 }
 
-span+a {
+span+a,pre a {
   color: inherit;
   text-decoration: inherit;
 }

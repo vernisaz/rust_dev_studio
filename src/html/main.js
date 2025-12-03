@@ -89,7 +89,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.00.095'
+    return '1.10.01.097'
 }
 
 function populateProjectTree() {
@@ -102,7 +102,7 @@ function render_tree(tree) {
     dw.innerHTML = ''
      // reset lock
     lockLoad = false
-    renderTree([tree], dw)
+    renderTree([tree], dw, true)
 }
 
 function loadSettings() {
@@ -198,10 +198,9 @@ function render_editor_js(json) {
 
 var lockLoad
 
-function renderTree(data, parentElement) {
+function renderTree(data, parentElement, rootEl) {
   const ul = document.createElement('ul');
   parentElement.appendChild(ul);
-
   data.forEach((item) => {
       if (item.type == 'dead')
         return
@@ -210,6 +209,20 @@ function renderTree(data, parentElement) {
     span.textContent = item.name;
     span.className = item.type;
     li.appendChild(span);
+    if (rootEl) {
+        const minSpan = document.createElement('span')
+        minSpan.textContent = '🗕'
+        minSpan.style = 'float:right;cursor:pointer;'
+        // add click toggleMinimize()
+        minSpan.addEventListener("click", () => {
+            const tree = document.querySelector('.left-tree')
+            if (tree.style.maxWidth != '')
+                tree.style.maxWidth = ''
+            else
+                tree.style.maxWidth = '4em'
+        })
+        li.appendChild(minSpan)
+    }
     
     ul.appendChild(li);
     

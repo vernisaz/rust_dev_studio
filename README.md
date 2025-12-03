@@ -130,12 +130,18 @@ More likely, other browsers will work too. If you encounter problems with your b
 then, please, report them to the author.
 
 ## Like the IDE but Rust
-You can add any other language in support. Open [main.html](https://github.com/vernisaz/rust_dev_studio/blob/229f4862dc61c7aeb480769df776109763f3d945/src/html/main.html#L264) and navigate to
-line 264 to see
+You can add any other language in the support. Open [main.html](https://github.com/vernisaz/rust_dev_studio/blob/229f4862dc61c7aeb480769df776109763f3d945/src/html/main.html#L264) and navigate to
+around line 278 to see
 ```javascript
 const EDITOR_MODE = {
 ```
 Add more modes accordingly file extension of the code type of your interest.
+
+If you need to navigate in source code from error messages in the terminal, look for 
+```javascript
+var fileNameReg
+```
+around line 379. Add the desired language file extension in the regular expression definition.
 
 ## Known problems
 

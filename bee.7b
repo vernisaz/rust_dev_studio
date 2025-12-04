@@ -7,7 +7,7 @@ crate_dir=..${~/~}crates
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.22.00:174"
+version="1.22.01:175"
 set_env(VERSION,version)
 
 mode=mode:prop

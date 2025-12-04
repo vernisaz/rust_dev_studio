@@ -13,7 +13,7 @@ use std::{collections::HashMap,
         path::{Path,PathBuf},
         process::Command,
         sync::{Arc, Mutex},
-        env, error::Error,
+        env, error::Error,time::UNIX_EPOCH,
         };
 
 mod crossref;
@@ -1215,9 +1215,14 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
             buf.push_str(r#"", "type": "dead"}"#);
             return Ok(buf)},
     };
-    
-    buf.push_str(r#"", "type": ""#);
-
+    if let Ok(time) = meta.modified() {
+        buf.push_str(&format!(r#"", "modified": {}, "type": ""#, time.duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs()));
+    } else {
+        eprintln!("File modified time not supported on this platform");
+        buf.push_str(r#"", "type": ""#);
+    }
     if meta.is_dir() && name != ".git" {
         buf.push_str("folder\", \"children\": [");
         let mut paths: Vec<_> = read_dir(path)?.filter_map(|r| r.ok()).collect();

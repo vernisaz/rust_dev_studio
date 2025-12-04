@@ -89,7 +89,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.01.097'
+    return '1.10.01.098'
 }
 
 function populateProjectTree() {
@@ -208,6 +208,9 @@ function renderTree(data, parentElement, rootEl) {
     const span = document.createElement('span');
     span.textContent = item.name;
     span.className = item.type;
+    if (item.modified) {
+        span.title = new Date(item.modified * 1000).toLocaleString()
+    }
     li.appendChild(span);
     if (rootEl) {
         const minSpan = document.createElement('span')

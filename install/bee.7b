@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.45.01
+version=1.50.00
 
 include(cfg.7b) # created by the install
 
@@ -31,8 +31,6 @@ ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
 target package:.. {
 	dependency{}
 
-#	PORT=8443
-
 	prompt(Where to write the package zip [.]?,.)
 	assign(distro dir,~~)
 	prompt(What is the RDS version [${version}]?,version)
@@ -51,10 +49,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- added support of Swift and Java compiler diagnostic 
-- added Clippy integration
-- added a posssibily to copy in clipboard with filtering embroidery
-- added a posssibily to define auto colapsed directories",
+- add a list of new features here",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -51,8 +51,10 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- added support of Swift compiler diagnostic    
-- a posssibily to define auto colapsed directories",
+- added support of Swift and Java compiler diagnostic 
+- added Clippy integration
+- added a posssibily to copy in clipboard with filtering embroidery
+- added a posssibily to define auto colapsed directories",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

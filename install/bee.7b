@@ -49,7 +49,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- add a list of new features here",
+- the terminal implementation pushed in a crate",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

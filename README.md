@@ -86,6 +86,9 @@ already exists. Run **rb** in the each crate repository.
 Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
+The terminal functionality is separated in [simterminal](https://github.com/vernisaz/simterminal), therefore build it first,
+and then the terminal.
+
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
 there is the predefined packaging.

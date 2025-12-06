@@ -57,6 +57,8 @@ function main() {
                 break
             }
             if (i > 0) {
+                if (line.charAt(i) == ' ')
+                    i++
                 modifiedText += line.slice(i)
             } else {
                 modifiedText += line

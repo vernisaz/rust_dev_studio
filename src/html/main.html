@@ -22,7 +22,7 @@
           </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.01.120">
+       <input type="hidden" name="version" id="version" value="1.10.02.121">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -457,11 +457,14 @@
       }
       
       function submitFile(name, path) {
+          // check if the file already exists
           if (!path)
              path = name
           else
              path = path + '/' + name
-          newFileTab(name, path)
+          moveToLineInFile(path, 1, 1, function() {
+              newFileTab(name, path)
+          })
           closeForm()
       }
       

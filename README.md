@@ -1,7 +1,7 @@
 # Rust Development Studio - CGI
 
 ## Purpose
-Web interfaced IDE for a development primarily in Rust. The IDE can run locally or some cloud machine. 
+Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on some cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
 BTW even Google were inspired by the application and implemented it too as : Code anywhere with Android Studio Cloud. So the RDS already
@@ -86,8 +86,8 @@ already exists. Run **rb** in the each crate repository.
 Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
-The terminal functionality is separated in [simterminal](https://github.com/vernisaz/simterminal), therefore build it first,
-and then the terminal.
+The terminal functionality is separated in the crate [simterminal](https://github.com/vernisaz/simterminal), therefore build it first,
+and then build the terminal.
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
@@ -107,7 +107,7 @@ Open the just created project from menu *File/Project/\<name\>* then. You can st
 navigate over the project tree, open and edit files, build its components and so on.
 
 If you do not have the project checked out yet, then you can check it out first, and then to set the project root 
-in the settings. You can execute underline OS commands as *mkdir*, *git clone*, and others in the terminal window. 
+in the settings. You can execute underline OS commands as *mkdir*, *git clone*, and others in the terminal panel. 
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:
@@ -116,14 +116,14 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 ## Cloud and multi users install
-If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front which provides:
+If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of which provides:
 - Decryption/Re-encryption (SSL Forward Proxy)
 - A user authentication
 - URL translation
+- Reject a brutal force and other cyber attacks
 
 For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://internalhost:3000/`,
-the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed
-`
+the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed.
 
 ## Browser compatibly
 
@@ -140,11 +140,15 @@ const EDITOR_MODE = {
 ```
 Add more modes accordingly file extension of the code type of your interest.
 
-If you need to navigate in source code from error messages in the terminal, look for 
+If you need to navigate in the source code from error messages in the terminal, look for 
 ```javascript
 var fileNameReg
 ```
-around line 379. Add the desired language file extension in the regular expression definition.
+around line 379. Add a desired language file extension in the regular expression definition.
+
+## Version
+The current version is [1.45.01](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.45.01). You can check out the current development code,
+however it may contain some bugs.
 
 ## Known problems
 

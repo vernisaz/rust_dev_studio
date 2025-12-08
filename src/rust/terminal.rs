@@ -28,7 +28,7 @@ impl Terminal for WebTerminal {
     fn init(&self) -> (PathBuf, PathBuf, HashMap<String,Vec<String>>,&str) {
         let aliases = read_aliases(HashMap::new(), &self.config, &None::<String>);
         
-        (self.cwd.clone(),PathBuf::from(&self.project_dir),aliases,&self.version)
+        (self.cwd.clone(),self.config.workspace_dir.join(&self.project_dir),aliases,&self.version)
     }
     
     fn save_state(&self) -> Result<(), Box<dyn Error>> {

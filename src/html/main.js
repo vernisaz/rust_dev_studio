@@ -57,7 +57,7 @@ function main() {
                 break
             }
             if (i > 0) {
-                if (line.charAt(i) == ' ')
+                if (len > i && line.charAt(i) == ' ')
                     i++
                 modifiedText += line.slice(i)
             } else {
@@ -253,7 +253,7 @@ function renderTree(data, parentElement, rootEl) {
                 lockLoad = true
                ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(decodeHtmlEntity(item.name))+"&path="+encodeURIComponent(decodeHtmlEntity(pathstr))+
                  "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)},
-                 fail: function(ecode,etext) {lockLoad = false;showErrorMessage(`File ${pathstr} can't be load currently`)}})
+                 fail: function(ecode,etext) {lockLoad = false;showErrorMessage(`File ${pathstr} can't be load /${etext}`)}})
             }
         } else if (item.type == 'folder') {
             for (var el of li.children) {

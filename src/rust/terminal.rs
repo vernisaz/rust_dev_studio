@@ -8,7 +8,7 @@ use std::{
     path::{PathBuf,Path},
     time::{UNIX_EPOCH,SystemTime},
    fs::{File,OpenOptions,self},
-    io::{self,BufRead,Write,stdout}, error::Error,
+    io::{self,BufRead,Write,stdout}, error::Error, env,
 };
 use simtime::{seconds_from_epoch, get_datetime};
 use simterm::{Terminal,unescape,send};
@@ -27,7 +27,7 @@ struct WebTerminal {
 impl Terminal for WebTerminal {
     fn init(&self) -> (PathBuf, PathBuf, HashMap<String,Vec<String>>,&str) {
         let aliases = read_aliases(HashMap::new(), &self.config, &None::<String>);
-        
+        unsafe{env::set_var("PWD", &self.cwd)}
         (self.cwd.clone(),self.config.workspace_dir.join(&self.project_dir),aliases,&self.version)
     }
     
@@ -38,9 +38,11 @@ impl Terminal for WebTerminal {
     }
     fn persist_cwd(&mut self, cwd: &Path) {
         let mut sessions = load_persistent(&self.config);
-        sessions.insert(self.session.to_string(),(cwd.display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
+        let cwd_str = cwd.display().to_string();
+        sessions.insert(self.session.to_string(),(cwd_str.clone(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
         self.cwd = cwd.into();
         let _ = save_persistent(&self.config, sessions);
+        unsafe{env::set_var("PWD", cwd_str)}
     }
 }
 

@@ -216,15 +216,18 @@ function renderTree(data, parentElement, rootEl) {
     li.appendChild(span);
     if (rootEl) {
         const minSpan = document.createElement('span')
-        minSpan.textContent = '🗕'
+        minSpan.textContent = '🗕' 
         minSpan.style = 'float:right;cursor:pointer;'
         // add click toggleMinimize()
         minSpan.addEventListener("click", () => {
             const tree = document.querySelector('.left-tree')
-            if (tree.style.maxWidth != '')
+            if (tree.style.maxWidth != '') {
                 tree.style.maxWidth = ''
-            else
+                minSpan.textContent = '🗕'
+            } else {
                 tree.style.maxWidth = '4em'
+                minSpan.textContent = '⛶'
+            }
         })
         li.appendChild(minSpan)
     }

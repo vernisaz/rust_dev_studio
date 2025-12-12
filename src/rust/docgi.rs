@@ -1039,6 +1039,7 @@ impl PageOps for PageFile {
         web::Menu::MenuBox{title:"Edit".to_string(), hint:None, icon:None}, 
            Menu::MenuItem{title:"Undo".to_string(), link:"javascript:undoEdit()".to_string(), short:Some("^Z"), hint:None, icon:None},
            Menu::MenuItem{title:"Redo".to_string(), link:"javascript:redoEdit()".to_string(), hint:None, icon:None,short:Some("^Y")},
+           Menu::MenuItem{title:"Copy spec ⏼".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
            Menu::Separator,
            web::Menu::MenuBox{title:"Change to".to_string(), hint:None, icon:None},
                 Menu::MenuItem{title:"Lower".to_string(), link:"javascript:lower()".to_string(),
@@ -1065,7 +1066,6 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Search...".to_string(), link:"javascript:searchStr()".to_string(), hint:Some("Search for a string in the project files"), icon:None,short:Some("^M")},
            Menu::MenuItem{title:"Scan".to_string(), link:"javascript:scanXRef()".to_string(), hint:Some("Scan for cross references"), icon:None,short:None},
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark current edited line after selected bookmark"), icon:None,short:Some("^B")},
-           Menu::MenuItem{title:"Copy spec ⏼".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
            Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Consider the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,
           

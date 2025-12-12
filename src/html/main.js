@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.01.098'
+    return '1.10.01.099'
 }
 
 function populateProjectTree() {
@@ -765,7 +765,7 @@ function ws_connect() {
                         if ( hide )
                             ansi_html += 'opacity: 0.0;'
                         if ( dim )
-                            ansi_html += 'filter: grayscale(0.5);' // opacity: 0.5;
+                            ansi_html += 'filter: grayscale(0.8);' // opacity: 0.5;
                         ansi_html += '">' + htmlEncode(ans.substring(shift>0?shift + 1:0)) +'</span>'
                     } else {
                         const lineStr = htmlEncode(ans.substring(shift>0?shift + 1:0))

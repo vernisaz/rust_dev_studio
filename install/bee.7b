@@ -74,6 +74,8 @@ HOME=${HOME}",
     +web files,
     -C ${rds}/cgi/resource/ace,
     ACE editor,
+    -B ${rds}/cgi/resource/terminal,
+    ../simterminal/src/js/terminal.js,
     -B ${rds}/doc,
     README.md)
     display(${~~} created)

@@ -91,12 +91,12 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.01.099'
+    return '1.10.02.101'
 }
 
 function populateProjectTree() {
      // populate file tree
-    ajax.get({url:"./rustcgi?mode=tree&session="+encodeURIComponent(SESSION), success: render_tree, respType:"json"})
+    ajax.get({url:"./rustcgi?mode=tree&session="+encodeURIComponent(SESSION), success: render_tree})
 }
 
 function render_tree(tree) {
@@ -514,6 +514,7 @@ function showErrorMessage(msg) {
     var notifRecon = 0
     var maxReconn = 16 * 1000
     var ws_url
+    var WS_TERM_URL
     const commandBuffer = []
     var cmdBufPos = -1
     
@@ -527,6 +528,7 @@ function ws_setup() {
         project = 'default'
     else
       project = SESSION
+    //WS_TERM_URL = 
     ws_url = 
        //'ws'+sec+'://'+location.hostname+portExt+
        '/terminal/'+ encodeURIComponent(project) + '/' + wsSession + '?version=' + getVersion() 

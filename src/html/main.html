@@ -14,7 +14,7 @@
         <script src="/cgires/resource/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
         <script src="/cgires/resource/common.js" language="Javascript"></script>
         <script src="/cgires/resource/main.js" language="Javascript"></script>
-        <script src="/cgires/resource/terminal/terminal.js" language="Javascript"></script>
+        <script src="/cmd/js/terminal/terminal.js" language="Javascript"></script>
         <script>
             function runapp() {
                 if (typeof main === 'function')
@@ -626,7 +626,7 @@
                             closeAll()
                             // reconnect console with new session path
                             ws_setup()
-                            wskt.close() // will automatically connect with the updated URL
+                            termWskt.close() // will automatically connect with the updated URL
                             populateProjectTree()
                             loadNotepad()
                             document.getElementById("xrefs").replaceChildren() //
@@ -639,7 +639,7 @@
                         if (PROJECT_HOME != document.getElementById("proj_dir").value) {
                             PROJECT_HOME = document.getElementById("proj_dir").value
                             ws_setup()
-                            wskt.close() // will automatically re-connect with an updated URL
+                            termWskt.close() // will automatically re-connect with an updated URL
                             populateProjectTree()
                             document.getElementById("xrefs").replaceChildren() 
                             vcsStatus()
@@ -1193,8 +1193,8 @@
             return
         //saveAllFiles() // autosave()
         document.getElementById('commandarea').focus() // focus saves
-        if (wskt && wskt.readyState===WebSocket.OPEN) {
-            wskt.send(cmd3+'\n')
+        if (termWskt && termWskt.readyState===WebSocket.OPEN) {
+            termWskt.send(cmd3+'\n')
         } else {
             alert(`The server ${ws_url} is currently unreachable`)
         }

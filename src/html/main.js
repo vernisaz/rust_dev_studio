@@ -193,7 +193,8 @@ function render_editor_js(json) {
     const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(json.path)}" checked="checked" data-modified="${json.modified}">
       <label for="${htmlAttrEncode(json.path)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
       <div class="tab">
-         <pre id="editor${htmlAttrEncode(json.path)}">${htmlEncode(json.content)}</pre>
+         <pre id="editor${htmlAttrEncode(json.path)}">
+${htmlEncode(json.content)}</pre>
       </div>`
     render_editor(tab, json.path)
 }

@@ -81,6 +81,11 @@ nav a:hover:before {
     content: '';
 }
 
+nav a.marked:hover:before {
+    content: " ✓ ";
+}
+
+
 nav > menu > menuitem > a + menu:after {
     position: absolute;
     left: 12px;

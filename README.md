@@ -31,6 +31,9 @@ of the [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
       {"path":"/rustcgi",
        "CGI": true,
        "translated": "./../rust_dev_studio"},
+      {"path":"/cgires/resource/terminal",
+       "CGI": false,
+       "translated": "./../simterminal/src/js"},
       {"path":"/terminal",
        "WS-CGI": true,
        "translated": "./../rust_dev_studio/terminal"}]

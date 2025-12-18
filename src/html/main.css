@@ -1,4 +1,4 @@
-.rds-version-1_10-01 { /* version 1.10.01 */
+.rds-version-1_10-02 { /* version 1.10.02 */
     display: block;
 }
 
@@ -81,7 +81,7 @@ nav a:hover:before {
     content: '';
 }
 
-nav a.marked:hover:before {
+nav a.marked:hover:after {
     content: " ✓ ";
 }
 
@@ -458,7 +458,7 @@ span+a,pre a {
 
 #projects_div li a:hover {background: #F1DF93}
 
-.marked:before {
+.marked:after {
     content: " ✓ ";
 }
 

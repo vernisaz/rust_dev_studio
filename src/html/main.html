@@ -637,6 +637,7 @@
                         }
                     else {
                         if (PROJECT_HOME != document.getElementById("proj_dir").value) {
+                            closeAllTab() // to prevent storing in wrong place
                             PROJECT_HOME = document.getElementById("proj_dir").value
                             ws_setup()
                             termWskt.close() // will automatically re-connect with an updated URL

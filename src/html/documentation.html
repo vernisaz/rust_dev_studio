@@ -53,8 +53,8 @@
 <h2>Architecture</h2>
 <p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is perfectly
  suitable for using Rust. The terminal
-functionality is implemented using Websocket and it utilizes WS-CGI. Everything is written in Rust
- including web server, and client is HTML/CSS, JavaScript.</p>
+functionality is implemented using Websocket and it utilizes WS-CGI. So server side is written in Rust
+ including web server.</p>
 
 <h2>Implementation</h2>
 <p>
@@ -79,7 +79,7 @@ The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>
 <p>
 Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
  with one line containing the user CONFIG directory or other directory
-where <code>rustcgi</code> will look for settings in the sub directory <i>.rustcgi</i> of <b>CONFIG</b>.
+where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
 </p>
 <pre>
 /home/.config

@@ -377,10 +377,6 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
   outline: none;
 }
 
-a:visited, a:active {
-  color: #edf3f7;
-}
-
 label,input{
   display:flex;
   flex-direction:column;

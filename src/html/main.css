@@ -359,7 +359,6 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
     width: 24rem;
 }
 
-
 .form-row label, .right-details label {
   font-weight: bold;
 }
@@ -425,7 +424,6 @@ label,input{
     font-family: monospace; 
     padding-top:2px;
     padding-bottom: 1em;
-    /*overflow: auto; */
     width: fit-content;
 }
 
@@ -454,6 +452,10 @@ dd {
 span+a,pre a {
   color: inherit;
   text-decoration: inherit;
+}
+
+span+a:hover,pre a:hover {
+  text-decoration: underline;
 }
 
 #projects_div li a:hover {background: #F1DF93}

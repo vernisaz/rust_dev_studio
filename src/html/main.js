@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.02.102'
+    return '1.10.02.103'
 }
 
 function populateProjectTree() {
@@ -513,24 +513,25 @@ function showErrorMessage(msg) {
 // terminal specific
     var WS_TERM_URL
 function extendURL(lineStr) {
-    const matches = Array.from(lineStr.matchAll(fileNameReg)); // [...matchAll]
-    if (matches.length > 0) {
-        const file = matches[0].groups.file;
-        const line = matches[0].groups.line;
-        const col = matches[0].groups.col;
-        var path = matches[0].groups.path
-        if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
-            path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
-        path = path.replaceAll('\\', '/')
-        const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
-        return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${lineStr}</a>`
-    } else {
-        const urlRegex = /https?:\/\/[^\s]+/g;
-        const htmlText = lineStr.replace(urlRegex, function(url) {
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    return lineStr.replace(fileNameReg, function(fileName) {
+        const matches = Array.from(fileName.matchAll(fileNameReg)); // [...matchAll]
+        if (matches.length > 0) {
+            const file = matches[0].groups.file;
+            const line = matches[0].groups.line;
+            const col = matches[0].groups.col;
+            var path = matches[0].groups.path
+            if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
+                path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
+            path = path.replaceAll('\\', '/')
+            const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
+            return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${fileName}</a>`
+        } else {
+            return fileName
+        }
+    }).replace(urlRegex, function(url) {
               return '<a href="' + url + '" target="_blank">' + url + '</a>';
         })
-        return htmlText
-    }
 }
     
 function ws_setup() {

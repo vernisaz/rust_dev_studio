@@ -514,7 +514,9 @@ function showErrorMessage(msg) {
     var WS_TERM_URL
 function extendURL(lineStr) {
     const urlRegex = /https?:\/\/[^\s]+/g;
-    return lineStr.replace(fileNameReg, (fileName) => {
+    return lineStr.replace(urlRegex, (url) => {
+              return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        }).replace(fileNameReg, (fileName) => {
         const matches = [...fileName.matchAll(fileNameReg)];
         if (matches.length > 0) {
             const file = matches[0].groups.file;
@@ -529,9 +531,7 @@ function extendURL(lineStr) {
         } else {
             return fileName // dead code
         }
-    }).replace(urlRegex, (url) => {
-              return '<a href="' + url + '" target="_blank">' + url + '</a>';
-        })
+    })
 }
     
 function ws_setup() {

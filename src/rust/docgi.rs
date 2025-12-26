@@ -810,8 +810,8 @@ impl PageOps for JsonDirs {
                        {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
         dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
-        Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_owned() +
-            &json_encode(&curr) + "\"").collect::<Vec<_>>().join(", ") + "]"
+        Ok("[".to_owned() + &dirs.into_iter().map(|ref curr| "\"".to_owned() +
+            &json_encode(curr) + "\"").collect::<Vec<_>>().join(", ") + "]"
         )
     }
 
@@ -1292,5 +1292,5 @@ fn refs_to_json(refs: &[Reference], exemp_len:usize) -> String {
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
-    refs.iter().map(ser_ref).collect::<Vec<_>>().join(", ")
+    refs.iter().map(ser_ref).collect::<Vec<_>>().join(",")
 }

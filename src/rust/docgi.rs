@@ -617,7 +617,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
                 let dir_len = (dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
-                let exts = ".java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php";
+                let exts = env!("SEARCH_EXTS");
             
                 let files = web::list_files(&dir, &exts); // faster to pass an array of exts
                 //eprintln! {"...in {} files", files.len()}
@@ -810,9 +810,8 @@ impl PageOps for JsonDirs {
                        {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
             .collect();
         dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
-        Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_string() +
-            &json_encode(&curr) + "\""). reduce(|acc,curr|
-            acc + "," + &curr).unwrap_or_else(String::new) + "]"
+        Ok("[".to_owned() + &dirs.into_iter().map(|curr| "\"".to_owned() +
+            &json_encode(&curr) + "\"").collect::<Vec<_>>().join(", ") + "]"
         )
     }
 
@@ -1293,5 +1292,5 @@ fn refs_to_json(refs: &[Reference], exemp_len:usize) -> String {
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
-    refs.iter().map(ser_ref).reduce(|prev,curr| prev.to_owned() + "," + &curr).unwrap_or("".to_string())
+    refs.iter().map(ser_ref).collect::<Vec<_>>().join(", ")
 }

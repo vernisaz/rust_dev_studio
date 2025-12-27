@@ -178,8 +178,12 @@ function render_editor(edittab, path) {
     editor.resize()
     const editorArea = document.querySelector('div.center-pane');
     const viewportHeight = editorArea.getBoundingClientRect().height
-    const lines = viewportHeight / editor.renderer.lineHeight
-
+    var lines = viewportHeight / editor.renderer.lineHeight
+    if (lines > 4) {
+        lines = lines - 2
+    } else if (lines == 0) {
+        lines = 3
+    }
     editor.setOption('maxLines', lines) // was Infinity)
 
     const data = editor.getValue()

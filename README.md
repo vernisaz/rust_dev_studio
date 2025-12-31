@@ -90,7 +90,7 @@ Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
 The terminal functionality is separated in the crate [simterminal](https://github.com/vernisaz/simterminal), therefore build it first,
-and then build the terminal.
+and then build the terminal. Note that the terminal has one extra dependency [simple Color](https://github.com/vernisaz/simcolor).
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,

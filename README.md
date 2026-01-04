@@ -50,7 +50,7 @@ File *.config* residing in the same directory, where **rustcgi** executable is s
 The file has to specify a fully qualified
 path to the common config directory where RDS will land the directory _.rds_.
 
-Directory _.rds_ may contain file _.workplace_ which contains a path to the directory where
+Directory _.rds_ may contain file _.workspace_ which contains a path to the directory where
 all projects will be landed. If there is no such file presented, then the workplace directory 
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
 can be provided in the _.config_ file.

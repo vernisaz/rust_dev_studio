@@ -20,16 +20,20 @@ impl Config {
         let mut config_dir = config.join(RDS_CFG_DIR);
         config_dir.push(".workspace");
         if let Ok(workspace_dir) = read_to_string(&config_dir) {
-            let workspace_dir = PathBuf::from(&workspace_dir);
-            if workspace_dir.exists() && workspace_dir.is_dir() {
+            let workspace_dir = PathBuf::from(&workspace_dir.trim());
+            if workspace_dir.is_dir() {
                 config_dir.pop();
+                //eprintln!("--> {workspace_dir:?}");
                 return Config {
                     config_dir,
                     workspace_dir,
                 }
+            } else {
+                eprintln!("no directory {workspace_dir:?}")
             }
         }
         config_dir.pop();
+        //eprintln!("++> directory {config:?}");
         Config {
             config_dir,
             workspace_dir: config,

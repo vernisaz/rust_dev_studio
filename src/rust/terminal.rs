@@ -10,7 +10,7 @@ use std::{
    fs::{File,OpenOptions,self},
     io::{self,BufRead,Write,stdout}, error::Error, env,
 };
-use simtime::{seconds_from_epoch, get_datetime};
+use simtime::{seconds_from_epoch,get_datetime};
 use simterm::{Terminal,unescape,send};
 use config::{Config};
 
@@ -86,35 +86,32 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
     let props_path = config.get_config_path(&None::<String>, "webdata", "properties");
     if let Ok(file) = File::open(&props_path) {
         let lines = io::BufReader::new(file).lines();
-        for line in lines {
-            if let Ok(prop_def) = line {
-                if prop_def.is_empty() || prop_def.starts_with("#") {
-                    // comment
-                    continue
-                }
-                // zKMfbJn35gFy=2025-04-26T17\:38\:36.2465801;C\:\\Users\\sunil\\projects\\simecho
-                if let Some((key,val)) = prop_def.split_once("=") {
-                    
-                    if let Some((date,cwd)) = val.split_once(';') {
-                        let last = 
-                        if let Some((date,_time)) = date.split_once('T') {
-                            let parts: Vec<&str> = date.splitn(3, '-').collect();
-                            seconds_from_epoch(1970, parts[0].parse::<u32>().unwrap_or(2025), parts[1].parse::<u32>().unwrap_or(1),
-                                parts[2].parse::<u32>().unwrap_or(2),0u32,0u32,0u32).unwrap()
-                        } else {
-                            SystemTime::now().duration_since(UNIX_EPOCH) .unwrap().as_secs()
-                        };
-                        let cwd = unescape(&cwd);
-                        if PathBuf::from(&cwd).exists() {
-                            props.insert(key.to_string(), (cwd.to_string(),last));
-                        }
+        for prop_def in lines.map_while(Result::ok) {
+             if prop_def.is_empty() || prop_def.starts_with("#") {
+                 // comment
+                  continue
+             }
+             // zKMfbJn35gFy=2025-04-26T17\:38\:36.2465801;C\:\\Users\\sunil\\projects\\simecho
+             if let Some((key,val)) = prop_def.split_once("=") {
+                 if let Some((date,cwd)) = val.split_once(';') {
+                    let last = 
+                    if let Some((date,_time)) = date.split_once('T') {
+                        let parts: Vec<&str> = date.splitn(3, '-').collect();
+                        seconds_from_epoch(1970, parts[0].parse::<u32>().unwrap_or(2025), parts[1].parse::<u32>().unwrap_or(1),
+                            parts[2].parse::<u32>().unwrap_or(2),0u32,0u32,0u32).unwrap()
                     } else {
-                        eprintln!("Invalid property value: {val}")
+                        SystemTime::now().duration_since(UNIX_EPOCH) .unwrap().as_secs()
                     };
-                    
+                    let cwd = unescape(&cwd);
+                    if PathBuf::from(&cwd).exists() {
+                        props.insert(key.to_string(), (cwd.to_string(),last));
+                    }
                 } else {
-                    eprintln!("Invalid property definition: {prop_def}")
-                }
+                    eprintln!("Invalid property value: {val}")
+                };
+                
+            } else {
+                eprintln!("Invalid property definition: {prop_def}")
             }
         }
     } else {
@@ -149,12 +146,8 @@ fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> 
     for (key, value) in sessions {
         if value.1 > now - 7*2*24*60*60 && PathBuf::from(&value.0).is_dir() {
             let (y,m,d,h,mm,s,_) = get_datetime(1970, value.1);
-            #[cfg(windows)]
-            write!{file,
-               "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}\r\n",esc_string(value.0) }?;
-            #[cfg(not(windows))]
-            write!{file,
-               "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}\n",esc_string(value.0) }?;
+            writeln!{file,
+               "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}",esc_string(value.0) }?;
         } else {
             //eprintln!{"path {} too old {}", value.0, value.1}
         }
@@ -173,18 +166,17 @@ fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: 
         // Consumes the iterator, returns an (Optional) String
         for line in lines.map_while(Result::ok) {
             let line = line.trim();
-            if line.is_empty() { continue }
-            if line.starts_with('#') { // ignore
+            if line.is_empty() ||
+              line.starts_with('#') { // ignore
                 continue
             }
-            if let Some((name,value)) = line.split_once('=') {
-                if name.starts_with("alias ") {
-                    let name = name.strip_prefix("alias ").unwrap();
-                    let name = name.trim();
-                    let q: &[_] = &['"', '\''];
-                    let value = value.trim_matches(q);
-                    res.insert(name.to_string(),value.split_ascii_whitespace().map(str::to_string).collect());
-                }
+            if let Some((name,value)) = line.split_once('=') &&
+                name.starts_with("alias ") {
+                let name = name.strip_prefix("alias ").unwrap();
+                let name = name.trim();
+                let q: &[_] = &['"', '\''];
+                let value = value.trim_matches(q);
+                res.insert(name.to_string(),value.split_ascii_whitespace().map(str::to_string).collect());
             }
             //println!("{}", line);
         }

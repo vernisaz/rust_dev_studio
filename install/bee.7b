@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.50.00
+version=1.50.03
 
 include(cfg.7b) # created by the install
 
@@ -49,7 +49,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
-- the terminal implementation pushed in a crate",
+- fixed problems related to the terminal functionality",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

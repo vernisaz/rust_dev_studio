@@ -382,7 +382,7 @@
         if (WIN_SERVER)
             fileNameReg =  /(?<path>(\w:\\)?((\w+|\.\.?)\\)*)(?<file>\w+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
         else
-            fileNameReg = /(?<path>\/?((\w+|\.\.?)\/)*)(?<file>\w+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm // TODO introduce path
+            fileNameReg = /(?<path>\/?(([\w|-]+|\.\.?)\/)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm // TODO introduce path
       
       function newFile() {
           const pane = document.getElementById("fileForm")

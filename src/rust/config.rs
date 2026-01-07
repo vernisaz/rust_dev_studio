@@ -45,8 +45,8 @@ impl Config {
     ) -> String {
         let project_path = project_path.as_ref();
         let mut res = self.workspace_dir.clone();
-        if project_path.starts_with('/') { // not allowed an absolute path yet, but it needs verify on Windows
-            res.push(project_path[1..].to_owned());
+        if let Some(stripped) = project_path.strip_prefix('/') { // not allowed an absolute path yet, but it needs verify on Windows
+            res.push(stripped);
         } else {
             res.push(project_path);
         }

@@ -21,9 +21,35 @@
                     main()
             }
         </script>
+        <style>
+            @media (prefers-color-scheme: dark) {
+                ace_search_form {
+                    /* Set a contrasting text color, e.g., white for a dark background */
+                    color: #fff; 
+                    /* Set a dark background color for the form area */
+                    background-color: #333; 
+                }
+                
+                /* Target the input field within the find box */
+                .ace_search_field {
+                    /* Set the input field's background and text color to match the form */
+                    background-color: #444; 
+                    color: #fff;
+                    border: 1px solid #555;
+                }
+                
+                /* Target the buttons within the find box */
+                .ace_searchbtn {
+                    /* Ensure buttons have the correct text color */
+                    color: #fff;
+                    /* Add a background if needed, or inherit from .ace_search_form */
+                    background-color: #555; 
+                }
+            }
+        </style>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.02.124">
+       <input type="hidden" name="version" id="version" value="1.10.02.126">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->

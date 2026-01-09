@@ -445,7 +445,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         state = Start
                     }
                     InFnBody | ExPNamSep | InCallName | InNum | ExpDirect => {
-                        if cbracket_cnt > 0 {cbracket_cnt -= 1} else {
+                        if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1} else {
                          state = StartInScope
                         }
                     }

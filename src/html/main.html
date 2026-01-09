@@ -929,6 +929,7 @@
                     ddEl.dataset.line = accPnt.line
                     ddEl.dataset.col = accPnt.pos
                     ddEl.className = 'hideit'
+                    ddEl.style='padding-left:1em;'
                     ddEl.onclick = function () {
                         //alert('-->'+this.getAttribute('line'))
                         moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)

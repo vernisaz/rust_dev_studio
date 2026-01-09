@@ -903,7 +903,7 @@
             })
             for (refEl of jsonres) {
                 const dtEl = document.createElement("dt")
-                dtEl.innerText = refEl.name
+                dtEl.innerText = `${refEl.name} (${refEl.use.length})`
                 if (refEl.trait) {
                     dtEl.title = refEl.trait + (refEl.data?'/' + refEl.data:'')
                 }

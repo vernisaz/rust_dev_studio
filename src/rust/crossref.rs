@@ -164,6 +164,7 @@ enum LexState {
     InComment,
     
     InGenType,
+    //VarOrFn,
 }
 
 pub fn scan(reader: &mut Reader) -> Vec< Reference> {
@@ -189,7 +190,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 match state {
                 Start | StartInScope  => {name.push(c); state = InKW} //| InFnBody
                 ExpInName  => {state = InName; name.push(c) }
-                ExPNamSep | InColSep | ExpInCallName => {state = InCallName; name.push(c) }
+                ExPNamSep | InColSep | ExpInCallName | InFnBody => {state = InCallName; name.push(c) }
                 ExpInEnum => {state = InEnum; name.push(c);
                     //eprintln!{"state in car {state:?} at {}:{}", reader.line, reader.line_offset}
                 }
@@ -199,6 +200,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 InExpFor => {state = InForKW; name.push(c)}
                 ExpInTraitName => {state = InTraitName; name.push(c)}
                 ExpInForName => {state = InForName; name.push(c)}
+                
                 _ => (),
                
                 }
@@ -218,7 +220,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                
                 }
             }
-            '(' => {
+            '(' => { //eprintln!{"state ( {state:?}, name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
@@ -360,7 +362,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                      _ => state = ExpInCallName
                 }
             }
-            '{' => {
+            '{' => { //eprintln!{"state {{ {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
@@ -405,6 +407,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     }
                     ExpFnBody => state = InFnBody,
                     InFnBody => cbracket_cnt += 1,
+                    ExpDirect => {state = InFnBody; cbracket_cnt += 1},
                     _ => state = {
                     // TODO activate brackets logic
                         //cbracket_cnt += 1;
@@ -451,15 +454,17 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 } 
             }
             '=' => {
-                //eprintln!{"state {state:?}"}
+                //eprintln!{"state = {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
                 match state {
                     ExpEndComment => state = InStarComment,
+                    //InCallName => state = ExpDirect,
                     Direct => (),
                     _ => state = InCallName,
                 }
+                name.clear();
             }
             '>' => {
                 if state == ExpComment {

@@ -1062,7 +1062,7 @@ impl PageOps for PageFile {
  
          web::Menu::MenuBox{title:"Source".to_string(), hint:Some("The source navigation, compose and refactoring"), icon:None}, 
            Menu::MenuItem{title:"Search...".to_string(), link:"javascript:searchStr()".to_string(), hint:Some("Search for a string in the project files"), icon:None,short:Some("^M")},
-           Menu::MenuItem{title:"Scan".to_string(), link:"javascript:scanXRef()".to_string(), hint:Some("Scan for cross references"), icon:None,short:None},
+           Menu::MenuItem{title:"Crossref".to_string(), link:"javascript:scanXRef()".to_string(), hint:Some("Scan for cross references"), icon:None,short:None},
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark current edited line after selected bookmark"), icon:None,short:Some("^B")},
            Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Consider the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,

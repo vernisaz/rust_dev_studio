@@ -49,6 +49,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New
     
+- improved cross references building    
 - fixed problems related to the terminal functionality",
 	-E ${rds}/rds${script ext},
 	script,

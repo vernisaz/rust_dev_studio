@@ -190,7 +190,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 match state {
                 Start | StartInScope  => {name.push(c); state = InKW} //| InFnBody
                 ExpInName  => {state = InName; name.push(c) }
-                ExPNamSep | InColSep | ExpInCallName | InFnBody => {state = InCallName; name.push(c) }
+                ExPNamSep | InColSep | ExpInCallName | InFnBody | ExpDirect => {state = InCallName; name.push(c) }
                 ExpInEnum => {state = InEnum; name.push(c);
                     //eprintln!{"state in car {state:?} at {}:{}", reader.line, reader.line_offset}
                 }
@@ -455,7 +455,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 } 
             }
             '=' => {
-                //eprintln!{"state = {state:?}"}
+                //eprintln!{"state = {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
@@ -476,7 +476,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     _ => ()
                 }
             }*/
-            '>' => {
+            '>' => { //eprintln!{"state > {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }

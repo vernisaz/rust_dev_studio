@@ -8,7 +8,7 @@ use crate::crossref::LexState::{InCallName, InParams, InCallParams, InKW, InName
      InColSep, ExPNamSep, InNum, ExpInCallName, ExpInStruct, ExpInEnum, InDataDef, InStruct, InEnum,
      ExpImplName, InImplName, InExpFor, InForName, InForKW, ExpInForName, InExpOpenImpl, StartInScope,
      InTraitName, ExpInTraitName, ExpFnBody, InFnBody, ExpDirect, Direct, InComment, ExpComment, InStarComment,
-     ExpEndComment, InGenType,
+     ExpEndComment, InGenTypeOrComp,
 };
 
 const BUF_SIZE: usize = 1024;
@@ -163,7 +163,7 @@ enum LexState {
     ExpEndComment,
     InComment,
     
-    InGenType,
+    InGenTypeOrComp,
     //VarOrFn,
 }
 
@@ -225,7 +225,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap()
                 }
                 match state {
-                   InName | InGenType=> {
+                   InName => {
                         let fn_def = Reference {
                         name: name.to_owned(),
                         src: reader.path.to_owned(),
@@ -264,7 +264,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 match state {
                     InName | InCallName => {
                         prev_state.push(state);
-                        state = InGenType
+                        state = InGenTypeOrComp
                     }
                     _ => ()
                 }
@@ -312,7 +312,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap()
                 }
                 match state {
-                    InCallName | InKW => {
+                    InCallName | InKW | InGenTypeOrComp => {
                     // just chain of struct names
                          name.clear();
                          state = InCallName;
@@ -482,7 +482,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
                 match state {
                     InCallName => {state = ExpDirect},
-                    InGenType => state = prev_state.pop().unwrap(),
+                    InGenTypeOrComp => state = prev_state.pop().unwrap(),
                      _ => ()
                 }
             }

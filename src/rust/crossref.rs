@@ -237,7 +237,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         res.push(fn_def);
                         state = InParams
                     }
-                    InCallName => {
+                    InCallName | InKW => {
                          let fn_cal = Reference {
                         name: name.to_owned(),
                         src: reader.path.to_owned(),
@@ -249,11 +249,11 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         res.push(fn_cal);
                         state = InCallParams
                     }
-                    InKW => {
+                   /* InKW => {
                         name.clear();
                         // check ??? KW
                         state = InCallParams
-                    }
+                    }*/
                     _ => ()
                 }
             }
@@ -300,7 +300,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         scope.name.replace_range(.., &name.to_string());
                         name.clear()
                     }
-                    InName | InCallName => (),
+                    InName | InCallName => name.clear(),
                     InColSep => state = Start,
                     InComment if c == '\n' => {state = prev_state.pop().unwrap();}
                     _ => (),

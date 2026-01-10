@@ -430,6 +430,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     }
                     _ => (),
                 }
+                name.clear()
             }
             '}' => {
                 if state == ExpComment {
@@ -461,11 +462,20 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 match state {
                     ExpEndComment => state = InStarComment,
                     //InCallName => state = ExpDirect,
-                    Direct => (),
+                    Direct | InComment => (),
                     _ => state = InCallName,
                 }
                 name.clear();
             }
+            /*'&' | '|' => {
+                if state == ExpComment {
+                    state = prev_state.pop().unwrap()
+                }
+                match state {
+                    ExPNamSep => state = InFnBody,
+                    _ => ()
+                }
+            }*/
             '>' => {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
@@ -486,7 +496,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
             }
             '[' => {
-                 if state == ExpComment {
+                if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
                 match state {

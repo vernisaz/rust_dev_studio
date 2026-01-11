@@ -893,7 +893,7 @@ impl PageOps for JsonVCS {
                             res.push(',');
                         }
                         res.push_str("{\"path\":\"");
-                        let status_curr = &entry[0..1];
+                        let status_curr = &entry[..1];
                         let status_prev = &entry[1..2];
                         let path = 
                         if entry.chars().nth(3).unwrap() == '"' && entry.char_indices().nth_back(0).unwrap().1 == '"' {
@@ -965,12 +965,12 @@ impl PageOps for PageFile {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         match std::env::current_exe() {
             Ok(cgi_exe) => { 
-                let main ;
+                let main =
                 if env::var("PATH_INFO").is_ok(){
-                     main = PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name);
+                     PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name)
                 } else {
-                    main = cgi_exe.parent().unwrap().join("resource").join(&self.file_name);
-                }
+                     cgi_exe.parent().unwrap().join("resource").join(&self.file_name)
+                };
                 read_to_string(&main)
                   .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main}.into())
             }
@@ -994,7 +994,7 @@ impl PageOps for PageFile {
                     if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
                         let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
                         if !session_name.is_empty() {
-                            if session_name[0..1] == *"-" {
+                            if session_name[..1] == *"-" {
                                 session_name = &session_name[1..]
                             } else {
                                 continue

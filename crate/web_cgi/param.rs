@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
 #[cfg(any(unix, target_os = "redox"))]
-use std::path::{MAIN_SEPARATOR,MAIN_SEPARATOR_STR};
+use std::path::{MAIN_SEPARATOR_STR};
 #[cfg(target_os = "windows")]
 use std::path::{MAIN_SEPARATOR};
 use simtime::get_datetime;
@@ -126,16 +126,6 @@ pub fn http_format_time(time: SystemTime) -> String {
     let (y, m, d, h, min, s, w) = get_datetime(1970, dur.as_secs());
     format!("{}, {d:0>2} {} {y:0>2} {h:0>2}:{min:0>2}:{s:0>2} GMT",
          HTTP_DAYS_OF_WEEK[w as usize], HTTP_MONTH[(m-1) as usize])
-}
-
-pub fn adjust_separator(mut path: String) -> String {
-    let foreign_slash = if MAIN_SEPARATOR == '\\' { '/' } else { '\\' };
-    let vec = unsafe {path.as_mut_vec()};
-    for c in 0..vec.len() {
-        if vec[c] == foreign_slash as u8 { vec[c] = MAIN_SEPARATOR as u8;}
-    }
-
-    path
 }
 
 pub fn to_web_separator(mut path: String ) -> String {

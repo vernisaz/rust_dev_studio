@@ -393,7 +393,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let props = read_props(&settings);
                             let user = props.get("user");
                             if let Some(user) = user {
-                                let author = format! {r#"--author="{user}"#};
+                                let author = format! {r#"--author={user}"#};
                                 command.arg(&author);
                             }
                             let output = command.output()?;
@@ -506,16 +506,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
                     let mut res = String::from("[");
-                    for tab in tab_paths {
-                        if !tab.is_empty() {
-                            if res.len() > 1 {
-                                res.push(',')
-                            }
-                            res.push('"');
-                            res.push_str(&json_encode(tab));
-                            res.push('"')
-                        }
-                    }
+                    res.push_str(&tab_paths.map(|t| format!(r#""{}""#, &json_encode(t))).collect::<Vec<_>>().join(","));
                     res.push(']');
                     Box::new(PageStuff { content: res })
                 }
@@ -562,7 +553,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     // pass entire codebase to build use points and then second pass to fill json data
                         RefType::Access => {
                            // eprintln!{"added access to {}",&entry.name}
-                            use_pnts.entry(entry.name.clone()).or_insert(Vec::new()).push(entry.clone());
+                            use_pnts.entry(entry.name.clone()).or_insert(vec![]).push(entry.clone());
                             continue
                         }
                         RefType::Function => total_refs.push(entry.clone()),

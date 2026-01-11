@@ -393,7 +393,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let props = read_props(&settings);
                             let user = props.get("user");
                             if let Some(user) = user {
-                                let author = format! {r#"--author={user}"#};
+                                let author = format! {r#"--author="{user}"#};
                                 command.arg(&author);
                             }
                             let output = command.output()?;

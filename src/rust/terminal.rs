@@ -5,7 +5,7 @@ extern crate simcfg;
 mod config;
 use std::{
     collections::HashMap,
-    path::{PathBuf,Path},
+    path::{PathBuf,Path,MAIN_SEPARATOR_STR},
     time::{UNIX_EPOCH,SystemTime},
    fs::{File,OpenOptions,self},
     io::{self,BufRead,Write,stdout}, error::Error, env,
@@ -66,7 +66,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !session.is_empty() {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
-            cwd = PathBuf::from(&entry.0);
+            let initial_dir = entry.0.strip_suffix(MAIN_SEPARATOR_STR).unwrap_or(&entry.0).to_string();
+            cwd = PathBuf::from(initial_dir);
         } else {
             send!("No {session} found\n");
             cwd = PathBuf::from(&config.workspace_dir.join(&project_path));

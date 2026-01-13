@@ -446,11 +446,12 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         name.clear();
                         state = Start
                     }
-                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect => {
+                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName => {
                         if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1} else {
                          state = StartInScope
                         }
                     }
+                    Start | InKW => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1},
                    // ExPNamSep => 
                     _ => (),// eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset},
                 } 

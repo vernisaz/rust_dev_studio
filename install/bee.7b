@@ -47,7 +47,7 @@ target package:.. {
 	#assign(ACE Res,~~)
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
-    "What's New
+    "What's New in ${version}
     
 - improved cross references building    
 - fixed problems related to the terminal functionality",

@@ -87,7 +87,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("save") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
-                eprintln!("name:{sub_path}");
+                //eprintln!("name:{sub_path}");
                 let file_path =
                     config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path));
                 sanitize_path(&file_path)?; 

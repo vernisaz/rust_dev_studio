@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.02.126">
+       <input type="hidden" name="version" id="version" value="1.10.03.127">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -1306,7 +1306,8 @@
          //open3() 
          ajax.get({url:"./rustcgi?mode=info-about", success: function (json) {
              const pane = document.getElementById("about")
-             pane.innerHTML = `<div class="form-container"><h2>Rust Development Studio</h2><p>Version: ${json.version}</p><p>Server: ${json.server}</p>
+             pane.innerHTML = `<div class="form-container"><h2>Rust Development Studio</h2><p>Version: <a target="_blank" href="https://github.com/vernisaz/rust_dev_studio">${json.version}</a></p>
+                <p>Server: ${json.server}</p>
                 <p>HTML: ${document.getElementById("version").value} JS: ${getVersion()} CSS: ${verStyle()}</p>
                 <p>&copy; ${new Date().getFullYear()} ${json.author}</p>
                 <div class="form-footer">

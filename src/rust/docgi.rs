@@ -506,7 +506,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
                     let mut res = String::from("[");
-                    res.push_str(&tab_paths.map(|t| format!(r#""{}""#, &json_encode(t))).collect::<Vec<_>>().join(","));
+                    res.push_str(&tab_paths.filter_map(|t| if t.is_empty() {None} else {Some(format!(r#""{}""#, &json_encode(t)))}).collect::<Vec<_>>().join(","));
                     res.push(']');
                     Box::new(PageStuff { content: res })
                 }

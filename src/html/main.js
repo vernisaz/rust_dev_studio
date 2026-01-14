@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.02.103'
+    return '1.10.03.104'
 }
 
 function populateProjectTree() {
@@ -315,6 +315,10 @@ function loadFileStack(stack) {
         return
     }
     var path = stack.pop()
+    if (path == '') {
+        lockLoad = false
+        return
+    }
     const colSep = path.lastIndexOf(':')
     var line = 1
     var col = 1
@@ -334,7 +338,7 @@ function loadFileStack(stack) {
              EDITORS[path].editor.gotoLine(line, col, true)
              loadFileStack(stack)
          },
-         fail: function(ecode, etext) { }})
+         fail: function(ecode, etext) { lockLoad = false }})
 }
 
 function saveData(path, newpath, onsave) {

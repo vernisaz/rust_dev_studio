@@ -4,8 +4,7 @@
 Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on some cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
-BTW even Google were inspired by the application and implemented it too as : Code anywhere with Android Studio Cloud. So the RDS already
-duplicated by Google.
+The approach of web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
@@ -83,14 +82,14 @@ The following crates are required for building the product:
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 
 Common scripts are containing scripts used for building crates. 
-The **crates** directory on the level of repository directories has to be created prior a building unless it's
+The **crates** directory on the level of repository directories has to be created prior building unless it's
 already exists. Run **rb** in the each crate repository. 
 
 Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
-The terminal functionality is separated in the crate [simterminal](https://github.com/vernisaz/simterminal), therefore build it first,
-and then build the terminal. Note that the terminal has one extra dependency [simple Color](https://github.com/vernisaz/simcolor).
+The terminal functionality is separated in the crate [SimTerminal](https://github.com/vernisaz/simterminal), therefore build it before
+building the terminal and then build the terminal. Note that the terminal has one extra dependency [simple Color](https://github.com/vernisaz/simcolor).
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
@@ -150,7 +149,7 @@ var fileNameReg
 around line 379. Add a desired language file extension in the regular expression definition.
 
 ## Version
-The current version is [1.45.01](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.45.01). You can check out the current development code,
+The current version is [1.50.04](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.45.01). You can check out the current development code,
 however it may contain some bugs.
 
 ## Known problems

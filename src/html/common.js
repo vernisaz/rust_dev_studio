@@ -2,7 +2,7 @@ var baseServURI;
 
 // this file copied from https://github.com/drogatkin/Webbee/blob/master/src/js/common.js
 // JavaScript tool and utilities
-// Copyright (c) 2024 Dmitriy Rogatkin
+// Copyright (c) 2026 Dmitriy Rogatkin
 // All rights reserved.
 
 
@@ -180,30 +180,6 @@ function makeid(length) {
       counter += 1;
     }
     return result;
-}
-
-var audioCtx
-function beep() {
-    if (!audioCtx)
-       audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-  var oscillator = audioCtx.createOscillator();
-  var gainNode = audioCtx.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  gainNode.gain.value = 0.3;
-  oscillator.frequency.value = 1200;
-  oscillator.type = 'sine';
-  duration = 155 // ms
-  oscillator.start();
-
-  setTimeout(
-    function() {
-      oscillator.stop();
-    },
-    duration
-  );
 }
 
 var ajax = {

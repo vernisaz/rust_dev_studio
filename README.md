@@ -149,8 +149,8 @@ var fileNameReg
 around line 379. Add a desired language file extension in the regular expression definition.
 
 ## Version
-The current version is [1.50.04](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.45.01). You can check out the current development code,
-however it may contain some bugs.
+The current version is [1.50.04](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.04). You can check out the current development code,
+however it can be not stable.
 
 ## Known problems
 
@@ -159,7 +159,7 @@ _Refresh Proj_ from _Edit_ menu or reload the project page)
 
 ## Reading about
 
-1. Some light on using [technologies](https://www.linkedin.com/pulse/new-life-old-technologies-dmitriy-rogatkin-nznpc/).
+1. Some light on used [technologies](https://www.linkedin.com/pulse/new-life-old-technologies-dmitriy-rogatkin-nznpc/).
 
 
 ## Help wanted

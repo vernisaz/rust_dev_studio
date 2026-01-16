@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.03.127">
+       <input type="hidden" name="version" id="version" value="1.10.04.129">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -949,6 +949,7 @@
                 refEl.style.display = ''
             } else {
                 refEl.style.display = 'none'
+                hideChildren(refEl, 'DD')
             }
         }
     }
@@ -996,10 +997,14 @@
     function toggleVisibl(el, siblTag) {
         while (el.nextSibling.tagName == siblTag) {
             el = el.nextSibling
-            if (el.classList.contains('hideit'))
-                el.classList.remove('hideit')
-            else
-                el.classList.add('hideit')
+            el.classList.toggle('hideit')
+        }
+    }
+    
+    function hideChildren(el, siblTag) {
+        while (el.nextSibling.tagName == siblTag) {
+            el = el.nextSibling
+            el.classList.add('hideit')
         }
     }
     

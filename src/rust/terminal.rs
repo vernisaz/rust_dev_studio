@@ -59,7 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = config::Config::new();
     let version = format!("{VERSION}-{}/{env_ver}", simterm::VERSION);
     let project_path = config.get_project_home(&project_name).
-        unwrap_or_else(|| {send!("No {project_name:?} config found, the project is misconfigured\n"); config.workspace_dir.display().to_string()}); 
+        unwrap_or_else(|| {send!("No {project_name:?} config found, the project is misconfigured\n"); String::new()}); 
     
     let sessions = load_persistent(&config);
     let cwd;

@@ -1,6 +1,6 @@
 use simcfg::read_config_root;
 
-use std::{path::{PathBuf}, collections::HashMap,
+use std::{path::{PathBuf,MAIN_SEPARATOR}, collections::HashMap,
     io::{BufReader, BufRead},
     fs::{read_to_string,File}};
 use simweb::sanitize_web_path;
@@ -78,7 +78,15 @@ impl Config {
         };
         let settings = read_props(&settings);
         if let Some(res) = settings.get("project_home") {
-            return Some(res.strip_prefix("~/").unwrap_or(res).to_string()) // TODO it needs to rethink the possibility
+            let mut chars = res.chars();
+            if let Some(c) = chars.next() && (c == MAIN_SEPARATOR || c == '~') {
+                return None
+            }
+            #[cfg(windows)]
+            if let Some(c) = chars.next() && c == ':' {
+                return None
+            }
+            return Some(res.into())
         }
         None
     }

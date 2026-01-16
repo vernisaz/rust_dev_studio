@@ -451,7 +451,8 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                          state = StartInScope
                         }
                     }
-                    Start | InKW => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1},
+                    Start => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1},
+                    InKW => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1} else {state = Start},
                    // ExPNamSep => 
                     _ => (),// eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset},
                 } 

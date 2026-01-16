@@ -45,11 +45,7 @@ impl Config {
     ) -> String {
         let project_path = project_path.as_ref();
         let mut res = self.workspace_dir.clone();
-        if let Some(stripped) = project_path.strip_prefix('/') { // not allowed an absolute path yet, but it needs verify on Windows
-            res.push(stripped);
-        } else {
-            res.push(project_path);
-        }
+        res.push(project_path.strip_prefix('/').unwrap_or(project_path)); // not allowed an absolute path yet, but it needs verify on Windows
         
         if let Some(in_project_path) = in_project_path {
             res.push(in_project_path);
@@ -82,11 +78,7 @@ impl Config {
         };
         let settings = read_props(&settings);
         if let Some(res) = settings.get("project_home") {
-            return if let Some(res) = res.strip_prefix("~") {
-                 Some(res.to_string())
-            } else {
-                Some(res.into())
-            }
+            return Some(res.strip_prefix("~/").unwrap_or(res).to_string()) // TODO it needs to rethink the possibility
         }
         None
     }

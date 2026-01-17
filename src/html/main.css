@@ -308,7 +308,7 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 .form-popup {
   display: none;
   position: absolute;
-  border: 1px solid #f1f1f1;
+  border: 3px solid #f1f1f1;
   border-radius: 12px;
   z-index: 9;
 }
@@ -552,6 +552,7 @@ span+a:hover,pre a:hover {
     .form-row, .form-header, .form-footer, .form-container, .form-popup {
          background-color: #31404d;
          color: #99ccff;
+         border-color: #141010;
     }
     
     .form-container .btn, .form-footer .btn {

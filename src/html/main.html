@@ -160,7 +160,7 @@
             </div>
             <div class="form-footer">
                 <button type="button" class="btn" onclick="saveSettings()">Apply</button>
-                <a class="btn" href="#">Cancel</a>
+                <button type="button" class="btn cancel" onclick="window.location.href='#'">Cancel</button>
              </div>
         </div>
     </div>
@@ -203,7 +203,7 @@
             </form>
             <div class="form-footer">
             <button type="button" class="btn" onclick="saveProjConf()">Apply</button>&nbsp;
-            <a class="btn" href="javascript:hideProjConf()">Close</a>
+            <button type="button" class="btn cancel" onclick="hideProjConf()">Close</button>
             </div>
         </div>
     </div>
@@ -228,7 +228,7 @@
             </form>
             <div class="form-footer">
             <button type="button" class="btn" onclick="createProj()">Apply</button>&nbsp;
-            <a class="btn" href="javascript:hideCreateProj()">Close</a>
+            <button type="button" class="btn cancel" onclick="hideCreateProj()">Close</button>
             </div>
         </div>
     </div>
@@ -1308,14 +1308,13 @@
     }
       
       function about() {
-         //open3() 
          ajax.get({url:"./rustcgi?mode=info-about", success: function (json) {
              const pane = document.getElementById("about")
              pane.innerHTML = `<div class="form-container"><h2>Rust Development Studio</h2><p>Version: <a target="_blank" href="https://github.com/vernisaz/rust_dev_studio">${json.version}</a></p>
                 <p>Server: ${json.server}</p>
                 <p>HTML: ${document.getElementById("version").value} JS: ${getVersion()} CSS: ${verStyle()}</p>
                 <p>&copy; ${new Date().getFullYear()} ${json.author}</p>
-                <div class="form-footer">
+                <div style="display: flex;justify-content: center;">
                 <button type="button" class="btn cancel" onclick="closeAbout()">Close</button>
                 </div></div>`
              pane.style.display = "block"

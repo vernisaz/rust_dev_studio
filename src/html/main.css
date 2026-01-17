@@ -308,7 +308,8 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 .form-popup {
   display: none;
   position: absolute;
-  border: 3px solid #f1f1f1;
+  border: 1px solid #f1f1f1;
+  border-radius: 12px;
   z-index: 9;
 }
 
@@ -319,17 +320,20 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
   padding: 10px;
 }
 
-.form-header {
+.form-header, .form-footer {
     background-color: rgba(177, 177, 177, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
   font-weight: bold;
-  padding: 20px;
   font-size: 16pt;
   text-align: center;
   border-radius: 8px;
 }
 
-.form-row, .form-footer {
+.form-header {
+    padding: 16px;
+}
+
+.form-row {
     background-color: rgba(254, 254, 254, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
   padding: 12px;

@@ -332,6 +332,9 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 .form-header {
     padding: 16px;
 }
+.form-footer {
+    padding: 8px;
+}
 
 .form-row {
     background-color: rgba(254, 254, 254, 0.8);

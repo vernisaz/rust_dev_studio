@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.50.04
+version=1.50.05
 
 include(cfg.7b) # created by the install
 
@@ -49,9 +49,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
     
-- corrected a behavior when a single apostrophe used in a file name
-- fixed locking opening new tabs when initially tabs 
-  were restored from 'saved tabs'",
+- added initial terminal session settings",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

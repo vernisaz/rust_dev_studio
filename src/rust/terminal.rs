@@ -172,8 +172,7 @@ fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: 
                 continue
             }
             if let Some((name,value)) = line.split_once('=') &&
-                name.starts_with("alias ") {
-                let name = name.strip_prefix("alias ").unwrap();
+                let Some(name) = name.strip_prefix("alias ") {
                 let name = name.trim();
                 let q: &[_] = &['"', '\''];
                 let value = value.trim_matches(q);

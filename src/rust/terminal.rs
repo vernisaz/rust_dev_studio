@@ -8,7 +8,7 @@ use std::{
     path::{PathBuf,Path,MAIN_SEPARATOR_STR},
     time::{UNIX_EPOCH,SystemTime},
    fs::{File,OpenOptions,self},
-    io::{self,BufRead,Write,stdout}, error::Error, env,
+    io::{self,BufRead,BufReader,Write,stdout}, error::Error, env,
 };
 use simtime::{seconds_from_epoch,get_datetime};
 use simterm::{Terminal,unescape,send};
@@ -35,16 +35,16 @@ impl Terminal for WebTerminal {
     
     fn save_state(&self) -> Result<(), Box<dyn Error>> {
         let mut sessions = load_persistent(&self.config);
-        sessions.insert(self.session.to_string(),(self.cwd.clone().display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
+        sessions.insert(self.session.to_string(),(self.cwd.display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
         save_persistent(&self.config, sessions)
     }
     fn persist_cwd(&mut self, cwd: &Path) {
         let mut sessions = load_persistent(&self.config);
         let cwd_str = cwd.display().to_string();
-        sessions.insert(self.session.to_string(),(cwd_str.clone(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()));
+        //unsafe{env::set_var("PWD", &cwd_str)}
+        sessions.insert(self.session.to_string(),(cwd_str,SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
         self.cwd = cwd.into();
         let _ = save_persistent(&self.config, sessions);
-        unsafe{env::set_var("PWD", cwd_str)}
     }
 }
 
@@ -86,12 +86,8 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
      let mut props = HashMap::new();
     let props_path = config.get_config_path(&None::<String>, "webdata", "properties");
     if let Ok(file) = File::open(&props_path) {
-        let lines = io::BufReader::new(file).lines();
-        for prop_def in lines.map_while(Result::ok) {
-             if prop_def.is_empty() || prop_def.starts_with("#") {
-                 // comment
-                  continue
-             }
+        let lines = BufReader::new(file).lines();
+        for prop_def in lines.map_while(Result::ok).filter_map(|line| if line.starts_with('#') || line.trim().is_empty() {None} else {Some(line)}) {
              // zKMfbJn35gFy=2025-04-26T17\:38\:36.2465801;C\:\\Users\\sunil\\projects\\simecho
              if let Some((key,val)) = prop_def.split_once("=") {
                  if let Some((date,cwd)) = val.split_once(';') {
@@ -101,7 +97,7 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
                         seconds_from_epoch(1970, parts[0].parse::<u32>().unwrap_or(2025), parts[1].parse::<u32>().unwrap_or(1),
                             parts[2].parse::<u32>().unwrap_or(2),0u32,0u32,0u32).unwrap()
                     } else {
-                        SystemTime::now().duration_since(UNIX_EPOCH) .unwrap().as_secs()
+                        SystemTime::now().duration_since(UNIX_EPOCH) .unwrap_or_default().as_secs()
                     };
                     let cwd = unescape(&cwd);
                     if PathBuf::from(&cwd).exists() {
@@ -109,8 +105,7 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
                     }
                 } else {
                     eprintln!("Invalid property value: {val}")
-                };
-                
+                }
             } else {
                 eprintln!("Invalid property definition: {prop_def}")
             }
@@ -154,7 +149,7 @@ fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> 
         }
     }
     //file.unlock()?;
-    { // remove  LOCK file if is here
+    { // remove  LOCK file if it is here
         props_path.set_extension("LOCK");
         fs::remove_file(&props_path)?;
     }
@@ -165,20 +160,14 @@ fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: 
     let aliases = config.get_config_path(project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
-        for line in lines.map_while(Result::ok) {
-            let line = line.trim();
-            if line.is_empty() ||
-              line.starts_with('#') { // ignore
-                continue
-            }
-            if let Some((name,value)) = line.split_once('=') &&
-                let Some(name) = name.strip_prefix("alias ") {
+        for line in lines.map_while(Result::ok)
+           .filter_map(|line| if line.starts_with('#') || line.trim().is_empty() {None} else {Some(line)}) {
+            if let Some((name,value)) = line.split_once('=') && 
+               let Some(name) = name.strip_prefix("alias ") {
                 let name = name.trim();
-                let q: &[_] = &['"', '\''];
-                let value = value.trim_matches(q);
+                let value = value.trim_matches(['"', '\'', ' ']);
                 res.insert(name.to_string(),value.split_ascii_whitespace().map(str::to_string).collect());
             }
-            //println!("{}", line);
         }
     }
     
@@ -198,6 +187,5 @@ fn esc_string(string:String) -> String {
 }
 
 fn read_lines(filename: &PathBuf) -> io::Result<io::Lines<io::BufReader<File>>> {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+    Ok(BufReader::new(File::open(filename)?).lines())
 }

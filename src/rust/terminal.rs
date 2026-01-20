@@ -154,7 +154,7 @@ fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> 
         }
     }
     //file.unlock()?;
-    { // remove  LOCK file if is here
+    { // remove  LOCK file if it is here
         props_path.set_extension("LOCK");
         fs::remove_file(&props_path)?;
     }
@@ -165,20 +165,14 @@ fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: 
     let aliases = config.get_config_path(project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
-        for line in lines.map_while(Result::ok) {
-            let line = line.trim();
-            if line.is_empty() ||
-              line.starts_with('#') { // ignore
-                continue
-            }
-            if let Some((name,value)) = line.split_once('=') &&
-                let Some(name) = name.strip_prefix("alias ") {
+        for line in lines.map_while(Result::ok)
+           .filter_map(|line| if line.starts_with('#') || line.trim().is_empty() {None} else {Some(line)}) {
+            if let Some((name,value)) = line.split_once('=') && 
+               let Some(name) = name.strip_prefix("alias ") {
                 let name = name.trim();
-                let q: &[_] = &['"', '\''];
-                let value = value.trim_matches(q);
+                let value = value.trim_matches(&['"', '\'', ' ']);
                 res.insert(name.to_string(),value.split_ascii_whitespace().map(str::to_string).collect());
             }
-            //println!("{}", line);
         }
     }
     

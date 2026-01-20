@@ -41,9 +41,7 @@ impl Terminal for WebTerminal {
     }
     fn persist_cwd(&mut self, cwd: &Path) {
         let mut sessions = load_persistent(&self.config);
-        let cwd_str = cwd.display().to_string();
-        //unsafe{env::set_var("PWD", &cwd_str)}
-        sessions.insert(self.session.to_string(),(cwd_str,SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
+        sessions.insert(self.session.to_string(),(cwd.display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
         self.cwd = cwd.into();
         let _ = save_persistent(&self.config, sessions);
     }
@@ -78,9 +76,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cwd = PathBuf::from(&config.workspace_dir);
     }
 
-    let _ = WebTerminal{config, project_dir:project_path,
-         session: session.to_string(), cwd, version }.main_loop();
-    Ok(())
+    WebTerminal{config, project_dir:project_path,
+         session: session.to_string(), cwd, version }.main_loop()
 }
 
 fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {

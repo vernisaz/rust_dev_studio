@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let sessions = load_persistent(&config);
     let cwd;
-    if !session.is_empty() {
+    if session.is_empty() == false {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
             let initial_dir = entry.0.strip_suffix(MAIN_SEPARATOR_STR).unwrap_or(&entry.0).to_string();

@@ -1,3 +1,4 @@
+#![allow(clippy::bool_comparison)]
 extern crate simterm;
 extern crate simweb;
 extern crate simtime;

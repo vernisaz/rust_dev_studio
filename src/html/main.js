@@ -216,7 +216,10 @@ function renderTree(data, parentElement, rootEl) {
     span.textContent = item.name;
     span.className = item.type;
     if (item.modified) {
-        span.title = new Date(item.modified * 1000).toLocaleString()
+        if (item.size) { // TODO introduce global locale
+            span.title = item.size.toLocaleString() + ' ' + new Date(item.modified * 1000).toLocaleString()
+        } else
+            span.title = new Date(item.modified * 1000).toLocaleString()
     }
     li.appendChild(span);
     if (rootEl) {

@@ -7,7 +7,6 @@ extern crate simran;
 extern crate simcfg;
 
 use std::{collections::HashMap,
-        ffi::OsStr,
         fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write},
         io::{self},
         path::{Path,PathBuf},
@@ -62,8 +61,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             Some(path) => Box::new(JsonData {
                 file: PageFile {
                     file_name: config
-                        .to_real_path(&path, None)
-                        .to_string(),
+                        .to_real_path(&path, None),
                     ..Default::default()
                 },
             }),
@@ -1185,10 +1183,8 @@ impl PageOps for Redirect {
 
 fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
     let name = path
-        .file_name()
-        .unwrap_or(OsStr::new("."))
-        .to_str()
-        .unwrap();
+        .file_name().ok_or("no file name")?
+        .to_str().ok_or("no string file name")?;
 
     let mut buf = JsonStr::from("{\"name\": \"");
     buf.push_str(&json_encode(name));
@@ -1226,7 +1222,7 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
         }
         buf.push_str("]}")
     } else if meta.is_file() {
-        buf.push_str("file\"}")
+        buf.push_str(&format!(r#"file", "size": {}}}"#, meta.len()))
     } else {
         buf.push_str("dead\"}")
     }

@@ -12,7 +12,7 @@ use std::{collections::HashMap,
         path::{Path,PathBuf},
         process::Command,
         sync::{Arc, Mutex},
-        env, error::Error,time::UNIX_EPOCH,
+        env, error::Error,time::UNIX_EPOCH, ops::Not,
         };
 
 mod crossref;
@@ -153,7 +153,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     sanitize_path(&proj_dir)?;
                     let real_dir = config.to_real_path(&proj_dir, None);
                     let real_dir = Path::new(&real_dir);
-                    if !real_dir.exists() {
+                    if real_dir.exists().not() {
                         // create dir if non existent (too many directories attack possible)
                         fs::create_dir_all(real_dir)?;
                     } else if real_dir.is_file() {
@@ -336,7 +336,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     let reset_list = params.param("cache").unwrap_or_default();
                     let mut files = reset_list
                         .split('\t')
-                        .filter(|s| !s.is_empty())
+                        .filter(|s| s.is_empty().not())
                         .peekable();
                     if files.peek().is_some() {
                         let output = Command::new("git")
@@ -344,7 +344,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             .args(files)
                             .current_dir(&dir)
                             .output()?;
-                        if !output.status.success() {
+                        if output.status.success().not() {
                             #[allow(unused)]
                             let stderr = String::from_utf8(output.stderr)?;
                             eprintln! {"git reset executed err for {:?}: {stderr}", output.status}
@@ -359,7 +359,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         eprintln! {"to commit: {commit_list} for {comment}"};
                         let mut files = commit_list
                             .split('\t')
-                            .filter(|s| !s.is_empty())
+                            .filter(|s| s.is_empty().not())
                             .peekable();
                         
                         if files.peek().is_some() {

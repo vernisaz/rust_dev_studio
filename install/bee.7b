@@ -48,7 +48,8 @@ target package:.. {
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
-    
+ 
+- project files size is visible in the project tree   
 - aliases can be assigned for terminal processed commands,
   for example - alias ..='cd ..'",
 	-E ${rds}/rds${script ext},

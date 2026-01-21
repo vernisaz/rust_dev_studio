@@ -54,6 +54,11 @@ all projects will be landed. If there is no such file presented, then the workpl
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
 can be provided in the _.config_ file.
 
+Also, directory _.rds_ can include file _aliases.prop_. The file consists of entries as :
+
+> alias alias_name='name arguments...'
+
+It is a standard alias command of Unix shell allowing to setup an alias for the RDS terminal. 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with the **SimHTTP**,
 because the server provides the WS CGI support.
@@ -74,14 +79,13 @@ The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for b
 
 The following crates are required for building the product:
 
-- The [Common building scripts](https://github.com/vernisaz/simscript) (it isn't a crate, but building scripts)
+- The [Common building scripts](https://github.com/vernisaz/simscript) (it includes common building scripts only)
 - The [SimWeb](https://github.com/vernisaz/simweb)
 - The [Simple Time](https://github.com/vernisaz/simtime)
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 
-Common scripts are containing scripts used for building crates. 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
 already exists. Run **rb** in the each crate repository. 
 
@@ -156,6 +160,7 @@ however it can be not stable.
 
 1. files can stop to be opened from the left navigation panel (work around - select
 _Refresh Proj_ from _Edit_ menu or reload the project page)
+2. A file tab can appear empty after auto restore tabs in Safari. Just select 'Edit/Reload' to get its content.
 
 ## Reading about
 

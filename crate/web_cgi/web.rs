@@ -1,5 +1,5 @@
 use std::{collections::HashMap, io, fs::{self, metadata},
-    path::Path, time::SystemTime, error::Error};
+    path::{Path,Component}, time::SystemTime, error::Error};
 use crate::template;
 use crate::param;
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
@@ -176,16 +176,17 @@ pub fn url_encode(orig: &impl AsRef<str>) -> String {
     res
 }
 
-pub fn sanitize_path<'l>(path: &'l impl AsRef<str>) -> Result<&'l str, &'static str> { // perhaps String is better
-    if let Some(_) = path.as_ref().find("..") {
-        Err(".. isn't allowed in a path")
-    } else
-    {
-       Ok(path.as_ref())
+pub fn sanitize_path<'l>(path: &'l impl AsRef<Path>) -> Result<&'l Path, Box<dyn Error>> { // perhaps String is better
+    let path = path.as_ref();
+    for component in path.components() {
+        if component == Component::ParentDir {
+            return Err(".. isn't allowed in a path".into())
+        }
     }
+    Ok(path)
 }
 
-pub fn save_props(path: &String, props: &HashMap<String, String>) -> io::Result<()> {
+pub fn save_props(path: &Path, props: &HashMap<String, String>) -> io::Result<()> {
     let mut data =
         format! {"# property file on {}\n", &format_system_time(SystemTime::now())}.to_string();
     for (key, value) in props {

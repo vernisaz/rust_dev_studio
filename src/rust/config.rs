@@ -1,6 +1,6 @@
 use simcfg::read_config_root;
 
-use std::{path::{PathBuf,MAIN_SEPARATOR}, collections::HashMap,
+use std::{path::{PathBuf,MAIN_SEPARATOR,Path}, collections::HashMap,
     io::{BufReader, BufRead},
     fs::{read_to_string,File}};
 use simweb::sanitize_web_path;
@@ -92,7 +92,7 @@ impl Config {
     }
 }
 
-pub fn read_props(path: &PathBuf) -> HashMap<String, String> {
+pub fn read_props(path: &Path) -> HashMap<String, String> {
     let mut props = HashMap::new();
     if let Ok(file) = File::open(path) {
         let lines = BufReader::new(file).lines();

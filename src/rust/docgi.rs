@@ -1,4 +1,3 @@
-//#![feature(let_chains)]
 extern crate simtime;
 extern crate web_cgi as web;
 extern crate simweb;
@@ -94,7 +93,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .param("modified")
                     .unwrap_or_else(||"0".to_string())
                     .parse::<u64>()
-                    .unwrap_or_else(|_| u64::default());
+                    .unwrap_or_default();
                 if modified <= *remote_modifiled {
                     if let Some(data) = params.param("data") {
                         if modified == 0 {
@@ -128,11 +127,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("settings-project") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-            let settings_file = settings.display().to_string();
-            sanitize_path(&settings_file)?;
+            let settings_file = sanitize_path(&settings)?;
             Box::new(JsonSettings {
                 file: PageFile {
-                    file_name: settings_file,
+                    file_name: settings_file.display().to_string(),
                     ..Default::default()
                 },
                 home_len: (config.workspace_dir.display().to_string().len()+1) as _,
@@ -141,9 +139,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("save-settings-project") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-                let settings_path = settings.display().to_string();
-                sanitize_path(&settings_path)?;
-                let mut props = read_props(&settings);
+                let settings_path = sanitize_path(&settings)?;
+                let mut props = read_props(&settings_path);
                 let mut set_value = |key| match params.param(&key) {
                     Some(val) => props.insert(key, val),
                     None => None
@@ -517,8 +514,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("persist-tab") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
-                let tabs_file = tabs.display().to_string();
-                sanitize_path(&tabs_file)?;
+                let tabs_file = sanitize_path(&tabs)?;
                 params.param("tabs").and_then(|v| fs::write(&tabs_file, v).ok());
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {

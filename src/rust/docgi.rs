@@ -87,7 +87,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 //eprintln!("name:{sub_path}");
                 let file_path =
                     config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path));
-                sanitize_path(&file_path)?; 
+                let file_path = sanitize_path(&file_path)?; 
                 let modified = get_file_modified(&file_path);
                 let remote_modifiled = &params
                     .param("modified")
@@ -203,20 +203,16 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(())
             };
             let settings = config.get_config_path(&proj, SETTINGS_PREF, "prop");
-            let settings_path = settings.display().to_string();
-            sanitize_path(&settings_path)?; 
+            let settings_path = sanitize_path(&settings)?;
             let mut all_fine = true;
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
-            let np_path = np.display().to_string();
-            sanitize_path(&np_path)?; // further sanitizing is not required
-            let _ = del_fil(np_path).is_ok();
+            let np_path = sanitize_path(&np)?; // further sanitizing is not required
+            let _ = del_fil(&np_path).is_ok();
             let tabs = config.get_config_path(&proj, "tabs", "sto");
-            let tabs_path = tabs.display().to_string();
-            let _ = del_fil(tabs_path).is_ok();
+            let _ = del_fil(&tabs).is_ok();
             let bm = config.get_config_path(&proj, "bookmark", "json");
-            let bm_path = bm.display().to_string();
-            let _ = del_fil(bm_path).is_ok();
+            let _ = del_fil(&bm).is_ok();
             match all_fine {
                 true => Box::new(PageStuff {
                         content: "Ok".to_string(),
@@ -247,17 +243,15 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("savenp") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-                let settings_path = settings.display().to_string();
-                sanitize_path(&settings_path)?;
-                let props = read_props(&settings);
+                let settings_path = sanitize_path(&settings)?;
+                let props = read_props(&settings_path);
                 let spec_name =
                 match props.get("projectnp") {
                     Some(spec) if spec == "yes" => params.param("session"), // maybe better 'true'?
                     _ => None,
                 } ;
                 let np = config.get_config_path(&spec_name, "notepad", "txt");
-                let np_path = np.display().to_string();
-                sanitize_path(&np_path)?;
+                let np_path = sanitize_path(&np)?;
                 
                 if let Some(data) = &params.param("name") {
                     write(&np_path, data)?;
@@ -281,7 +275,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 );
-                sanitize_path(&file)?;
+                let file = sanitize_path(&file)?;
                 eprintln! {"Project file to del: {:?}", &file};
                 remove_file(&file)?;
                 Box::new(PageStuff {
@@ -295,17 +289,14 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("loadnp") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-            let settings_path = settings.display().to_string();
-            sanitize_path(&settings_path)?;
-            let props = read_props(&settings);
+            let props = read_props(&sanitize_path(&settings)?);
             let spec_name =
                 match props.get("projectnp") {
                     Some(spec) if spec == "yes" => params.param("session"), // same question - true?
                     _ => None,
                 } ;
             let np = config.get_config_path(&spec_name, "notepad", "txt");
-            let np_path = np.display().to_string();
-            sanitize_path(&np_path)?;
+            let np_path = sanitize_path(&np)?;
             Box::new(PageStuff {
                 content: read_to_string(&np_path).unwrap_or_else(|_| "".to_string()),
             })
@@ -382,10 +373,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .env("HOME", config.to_real_path("", None))
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-                            let settings_file = settings.display().to_string();
-                            sanitize_path(&settings_file)?;
-                            
-                            let props = read_props(&settings);
+                            let settings_file = sanitize_path(&settings)?;
+                            let props = read_props(&settings_file);
                             let user = props.get("user");
                             if let Some(user) = user {
                                 let author = format! {r#"--author={user}"#};
@@ -495,8 +484,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("load-persist-tab") => {
             let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
-            let tabs_file = tabs.display().to_string();
-            sanitize_path(&tabs_file)?;
+            let tabs_file = sanitize_path(&tabs)?;
             match read_to_string(&tabs_file) {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
@@ -641,8 +629,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("save-bookmark") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
-                let bm_file = bm.display().to_string();
-                sanitize_path(&bm_file)?;
+                let bm_file = sanitize_path(&bm)?;
                 fs::write(bm_file, params.param("bookmarks").unwrap_or_default())?;
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
@@ -651,8 +638,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("load-bookmark") => {
             let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
-            let bm_file = bm.display().to_string();
-            sanitize_path(&bm_file)?;
+            let bm_file = sanitize_path(&bm)?;
             if let Ok(bookmarks) = fs::read_to_string(&bm_file) {
                 Box::new(JsonStuff {
                     json: bookmarks,

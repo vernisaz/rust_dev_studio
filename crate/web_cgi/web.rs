@@ -239,7 +239,7 @@ fn get_hint(hint: &Option<&str>) -> String {
     if let Some(hint) = hint {
         format! {r#" alt="{0}" title="{0}""#, html_encode(&hint)}
     } else {
-        "".to_string()
+        String::new()
     }
 }
 
@@ -247,7 +247,7 @@ fn get_img(icon: &Option<&str>) -> String {
     if let Some(icon) = icon {
         format! {"<img src=\"{}\">", icon}
     } else {
-        "".to_string()
+        String::new()
     }
 }
 

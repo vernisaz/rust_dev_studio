@@ -88,7 +88,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file_path =
                     config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path));
                 let file_path = sanitize_path(&file_path)?; 
-                let modified = get_file_modified(&file_path);
+                let modified = get_file_modified(file_path);
                 let remote_modifiled = &params
                     .param("modified")
                     .unwrap_or_else(||"0".to_string())
@@ -99,10 +99,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         if modified == 0 {
                             let _ = Path::new(&file_path).parent().and_then(|parent| create_dir_all(parent).ok());
                         }
-                        match write(&file_path, &data) {
+                        match write(file_path, &data) {
                             Ok(()) => {
                                 Box::new(PageStuff {
-                                    content: format! {"Ok {}", get_file_modified(&file_path)}
+                                    content: format! {"Ok {}", get_file_modified(file_path)}
                                 })
                             }
                             Err(err)=> Box::new(PageStuff {
@@ -140,7 +140,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = sanitize_path(&settings)?;
-                let mut props = read_props(&settings_path);
+                let mut props = read_props(settings_path);
                 let mut set_value = |key| match params.param(&key) {
                     Some(val) => props.insert(key, val),
                     None => None
@@ -161,7 +161,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     set_value(key.to_string());
                 }
                 // TOOO there is a race condition which is currently ignored
-                let _ = save_props(&settings_path, &props);
+                let _ = save_props(settings_path, &props);
                 Box::new(PageStuff {
                     content: "Ok".to_string(),
                 })
@@ -208,7 +208,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
             let np_path = sanitize_path(&np)?; // further sanitizing is not required
-            let _ = del_fil(&np_path).is_ok();
+            let _ = del_fil(np_path).is_ok();
             let tabs = config.get_config_path(&proj, "tabs", "sto");
             let _ = del_fil(&tabs).is_ok();
             let bm = config.get_config_path(&proj, "bookmark", "json");
@@ -244,7 +244,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                 let settings_path = sanitize_path(&settings)?;
-                let props = read_props(&settings_path);
+                let props = read_props(settings_path);
                 let spec_name =
                 match props.get("projectnp") {
                     Some(spec) if spec == "yes" => params.param("session"), // maybe better 'true'?
@@ -254,7 +254,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let np_path = sanitize_path(&np)?;
                 
                 if let Some(data) = &params.param("name") {
-                    write(&np_path, data)?;
+                    write(np_path, data)?;
                     Box::new(PageStuff {
                         content: "Ok".to_string(),
                     })
@@ -277,7 +277,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 );
                 let file = sanitize_path(&file)?;
                 eprintln! {"Project file to del: {:?}", &file};
-                remove_file(&file)?;
+                remove_file(file)?;
                 Box::new(PageStuff {
                     content: "Ok".to_string(),
                 })
@@ -289,7 +289,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("loadnp") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-            let props = read_props(&sanitize_path(&settings)?);
+            let props = read_props(sanitize_path(&settings)?);
             let spec_name =
                 match props.get("projectnp") {
                     Some(spec) if spec == "yes" => params.param("session"), // same question - true?
@@ -298,7 +298,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let np = config.get_config_path(&spec_name, "notepad", "txt");
             let np_path = sanitize_path(&np)?;
             Box::new(PageStuff {
-                content: read_to_string(&np_path).unwrap_or_else(|_| "".to_string()),
+                content: read_to_string(np_path).unwrap_or_else(|_| "".to_string()),
             })
         }
         Some("vcs-list") => {
@@ -374,7 +374,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                             let settings_file = sanitize_path(&settings)?;
-                            let props = read_props(&settings_file);
+                            let props = read_props(settings_file);
                             let user = props.get("user");
                             if let Some(user) = user {
                                 let author = format! {r#"--author={user}"#};
@@ -485,7 +485,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-persist-tab") => {
             let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
             let tabs_file = sanitize_path(&tabs)?;
-            match read_to_string(&tabs_file) {
+            match read_to_string(tabs_file) {
                 Ok(tabs) => {
                     let tab_paths = tabs.split("\t");
                     let mut res = String::from("[");
@@ -503,7 +503,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let tabs = config.get_config_path(&params.param("session"), "tabs", "sto");
                 let tabs_file = sanitize_path(&tabs)?;
-                params.param("tabs").and_then(|v| fs::write(&tabs_file, v).ok());
+                params.param("tabs").and_then(|v| fs::write(tabs_file, v).ok());
                 Box::new(PageStuff { content: "Ok".to_string() })
             } else {
                 Box::new(PageStuff { content: "Err: not a POST".to_string() })
@@ -639,7 +639,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("load-bookmark") => {
             let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
             let bm_file = sanitize_path(&bm)?;
-            if let Ok(bookmarks) = fs::read_to_string(&bm_file) {
+            if let Ok(bookmarks) = fs::read_to_string(bm_file) {
                 Box::new(JsonStuff {
                     json: bookmarks,
                     name: "bookmarks".to_string()

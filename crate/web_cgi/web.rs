@@ -220,13 +220,9 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
     let mut res: Vec<String> = Vec::new();
     let str_ext = ext.as_ref();
     if path.as_ref().is_dir() {
-        let paths = fs::read_dir(&path);
-        if let Ok(paths) = paths {
-            for path_result in paths {
-                let full_path = path_result.unwrap().path();
-                // no reason to dive for non dir path
-                res.append(&mut list_files(full_path, ext))
-            }
+        for path in fs::read_dir(&path).into_iter().flatten().filter_map(|e| if let Ok(path) = e { Some(path.path()) } else {None}) {
+            // no reason to dive for non dir path
+            res.append(&mut list_files(path, ext))
         }
     } else {
         if let Some(curr_ext) = path.as_ref().extension() {

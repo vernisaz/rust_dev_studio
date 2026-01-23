@@ -922,24 +922,12 @@ impl PageOps for JsonVCS {
 
 impl PageOps for PageFile {
     fn apply_specific(&self, page_map: &mut HashMap<&str, String>) {
-        page_map.insert("session", 
-            if let Some(session) = &self.session {
-                session.to_owned()
-            } else {
-                String::from("")
-            }
-        );
+        page_map.insert("session", self.session.clone().unwrap_or_default());
         #[cfg(target_os = "windows")]
         page_map.insert("windows", String::from("true"));
         #[cfg(any(unix, target_os = "redox"))]
         page_map.insert("windows", String::from("false"));
-        page_map.insert("id", 
-            if let Some(id) = &self.id {
-                id.to_owned()
-            } else {
-                String::from("")
-            }
-        );
+        page_map.insert("id", self.id.clone().unwrap_or_default());
     }
 
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
@@ -1192,7 +1180,7 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
     }
     if meta.is_dir() && name != ".git" {
         buf.push_str("folder\", \"children\": [");
-        let mut paths: Vec<_> = read_dir(path)?.filter_map(|r| r.ok()).collect();
+        let mut paths: Vec<_> = read_dir(path)?.flatten().collect();
         paths.sort_by_key(|dir| dir.path());
         let mut entries = paths.iter();
         if let Some(entry) = entries.next() {

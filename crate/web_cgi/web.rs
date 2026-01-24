@@ -152,30 +152,6 @@ pub fn html_encode(orig: &impl AsRef<str>) -> String {
     res
 }
 
-/// it's a URL component encode
-pub fn url_encode(orig: &impl AsRef<str>) -> String {
-    let chars = orig.as_ref().chars();
-    let mut res = String::from("");
-    let mut b = [0; 4];
-    for c in chars {
-        if (c as u32) < 256 && matches!(c as u8, b'0'..=b'9' | b'A'..=b'Z' | b'a'..=b'z' |  b'-' | b'.' | b'_' | b'~') {
-            res.push(c)
-        } else {
-            b.fill(0);
-            c.encode_utf8(&mut b);
-            res.push_str(&format!{"%{:02x}", b[0]});
-            #[allow(clippy::needless_range_loop)]
-            for i in 1..b.len() {
-                if b[i]==0 {
-                    break 
-                }
-                res.push_str(&format!{"%{:02x}", b[i]})
-            }
-        }
-    }
-    res
-}
-
 pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>> { // perhaps String is better
     let path = path.as_ref();
     for component in path.components() {

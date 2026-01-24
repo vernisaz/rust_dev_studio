@@ -1140,7 +1140,7 @@ impl PageOps for Redirect {
         let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
         // TODO use ".?session={}&id={id}"
         Some(vec![("Location".to_string(), 
-            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", web::url_encode(&self.session.clone().unwrap_or_default())))])
+            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", simweb::url_encode(&self.session.clone().unwrap_or_default())))])
         
     }
     

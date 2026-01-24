@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io, fs::{self, metadata},
+use std::{collections::HashMap, io, fs::{self},
     path::{Path,Component}, time::SystemTime, error::Error};
 use crate::template;
 use crate::param;
@@ -260,13 +260,9 @@ fn get_short(short: &Option<&str>) -> String {
 }
 
 pub fn is_git_covered(dir: &impl AsRef<Path>, home: &impl AsRef<Path> ) -> Option<String> {
-    let git_dir = format! {"{}/.git", dir.as_ref().display()};
-    if let Ok(md) = metadata(git_dir) {
-       if md.is_dir() {
-            Some(dir.as_ref().display().to_string())
-       } else {
-          None
-       }
+    let git_dir = dir.as_ref().join(".git");
+    if git_dir.is_dir() {
+        Some(dir.as_ref().display().to_string())
     } else {
         if dir.as_ref() == home.as_ref() {
             None

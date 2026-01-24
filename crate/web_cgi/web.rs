@@ -152,7 +152,7 @@ pub fn html_encode(orig: &impl AsRef<str>) -> String {
     res
 }
 
-/// it's an analog of URL component encode
+/// it's a URL component encode
 pub fn url_encode(orig: &impl AsRef<str>) -> String {
     let chars = orig.as_ref().chars();
     let mut res = String::from("");
@@ -164,9 +164,9 @@ pub fn url_encode(orig: &impl AsRef<str>) -> String {
             b.fill(0);
             c.encode_utf8(&mut b);
             res.push_str(&format!{"%{:02x}", b[0]});
+            #[allow(clippy::needless_range_loop)]
             for i in 1..b.len() {
                 if b[i]==0 {
-                    //continue
                     break 
                 }
                 res.push_str(&format!{"%{:02x}", b[i]})

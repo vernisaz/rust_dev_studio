@@ -18,10 +18,10 @@ mod crossref;
 mod search;
 mod config;
 
-use simweb::{WebError,json_encode};
+use simweb::{WebError,url_encode, json_encode};
 use crossref::{RefType,Reference};
 use web::{get_file_modified, sanitize_path, Menu,
-    save_props, PageOps, url_encode, param};
+    save_props, PageOps, param};
 use simtpool::ThreadPool;
 use config::{SETTINGS_PREF,read_props};
 

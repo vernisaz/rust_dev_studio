@@ -20,6 +20,12 @@ pub const HTTP_MONTH: &[&str] = &[
 "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 
 ];
 
+impl Default for Param {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Param {
     pub fn new() -> Self {
         let mut res = Param {

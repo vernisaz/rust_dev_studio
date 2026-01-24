@@ -31,8 +31,8 @@ impl Param {
             for part in parts {
                 if let Some(keyval) = part.split_once("=") {
                     res.params.insert(
-                        res.url_comp_decode(&keyval.0.to_string()),
-                        res.url_comp_decode(&keyval.1.to_string())
+                        res.url_comp_decode(keyval.0),
+                        res.url_comp_decode(keyval.1)
                     );
                 }
             }
@@ -49,8 +49,8 @@ impl Param {
             }
         }
         //
-        if let std::result::Result::Ok(method) = std::env::var(String::from("REQUEST_METHOD")) {
-            if method == "POST" 
+        if let std::result::Result::Ok(method) = std::env::var(String::from("REQUEST_METHOD"))
+            && method == "POST" 
         {
             let mut user_input = String::new();
             let stdin = io::stdin();
@@ -62,8 +62,8 @@ impl Param {
                             for part in parts {
                                 if let Some(keyval) = part.split_once('=') {
                                     res.params.insert(
-                                        res.url_comp_decode(&keyval.0.to_string()),
-                                        res.url_comp_decode(&keyval.1.to_string()),
+                                        res.url_comp_decode(keyval.0),
+                                        res.url_comp_decode(keyval.1),
                                     );
                                 }
                             }
@@ -77,7 +77,7 @@ impl Param {
                 }
             }
         }
-}
+
         res
     }
 
@@ -98,7 +98,7 @@ impl Param {
         }
     }
 
-    pub fn url_comp_decode(&self, comp: &String) -> String {
+    pub fn url_comp_decode(&self, comp: &str) -> String {
         let mut res = Vec::with_capacity(256);
 
         let mut chars = comp.chars();
@@ -132,8 +132,8 @@ pub fn to_web_separator(mut path: String ) -> String {
     unsafe {
         let path_vec: &mut [u8]= path.as_bytes_mut();
     
-        for c in 0..path_vec.len() {
-            if path_vec[c] == b'\\' { path_vec[c] = b'/';}
+        for c in path_vec {
+            if *c == b'\\' { *c = b'/';}
         }
     }
     path

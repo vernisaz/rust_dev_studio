@@ -58,7 +58,7 @@ pub trait PageOps {
                 if let Some(status) = self.status() {
                     print!{ "Status: {} {}\r\n", status.0, status.1 }
                 }
-                if let Some(extra_headers) = Self::get_extra(&self) {
+                if let Some(extra_headers) = Self::get_extra(self) {
                     for header in extra_headers {
                         print!{ "{}: {}\r\n", header.0, header.1 }
                     }
@@ -74,7 +74,7 @@ pub trait PageOps {
                 //eprintln! {"{page_items:?}"};
                 print! {"{}", if page_items.is_empty() {page} else {template::interpolate(&page, &page_items)}}
             }
-            Err(error) => Self::err_out(&self, error.to_string())
+            Err(error) => Self::err_out(self, error.to_string())
         }
     }
 }
@@ -113,10 +113,10 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                 }
                 MenuEnd => {
                     _ident -= 4;
-                    res.push_str(&format! {r#"
+                    res.push_str(r#"
             </menu>
         </menuitem>
-"#})
+"#)
                     }
                 Separator => {
                 }
@@ -176,7 +176,7 @@ pub fn url_encode(orig: &impl AsRef<str>) -> String {
     res
 }
 
-pub fn sanitize_path<'l>(path: &'l impl AsRef<Path>) -> Result<&'l Path, Box<dyn Error>> { // perhaps String is better
+pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>> { // perhaps String is better
     let path = path.as_ref();
     for component in path.components() {
         if component == Component::ParentDir {
@@ -224,12 +224,10 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
             // no reason to dive for non dir path
             res.append(&mut list_files(path, ext))
         }
-    } else {
-        if let Some(curr_ext) = path.as_ref().extension() {
-            let curr_ext = curr_ext.to_str().unwrap().to_string();
-            if str_ext.contains(&curr_ext) {
-                res.push(path.as_ref().to_str().unwrap().to_string())
-            }
+    } else if let Some(curr_ext) = path.as_ref().extension() {
+        let curr_ext = curr_ext.to_str().unwrap().to_string();
+        if str_ext.contains(&curr_ext) {
+            res.push(path.as_ref().to_str().unwrap().to_string())
         }
     }
     res
@@ -263,15 +261,11 @@ pub fn is_git_covered(dir: &impl AsRef<Path>, home: &impl AsRef<Path> ) -> Optio
     let git_dir = dir.as_ref().join(".git");
     if git_dir.is_dir() {
         Some(dir.as_ref().display().to_string())
-    } else {
-        if dir.as_ref() == home.as_ref() {
+    } else if dir.as_ref() == home.as_ref() {
             None
-        } else {
-            if let Some(parent) = dir.as_ref().parent() {
-                is_git_covered(&parent, home)
-            } else {
-                None
-            }
-        }
-    } 
+    } else if let Some(parent) = dir.as_ref().parent() {
+            is_git_covered(&parent, home)
+    } else {
+        None
+    }
 }

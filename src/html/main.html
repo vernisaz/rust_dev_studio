@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.04.129">
+       <input type="hidden" name="version" id="version" value="1.10.05.131">
     <div style="display: flex;justify-content:flex-end;align-items: baseline;background: #414141;">
         <h2 style="margin:0;padding:0;flex: 1;min-width: 0;text-align: center;color: #f9f9f9;">${session} - RDS</h2>
    <!-- Navigation bar -->
@@ -53,6 +53,22 @@
                 <div class="tab_content">
                   <ul id="bookmarks"></ul>
                 </div>
+                
+                <input type="radio" id="refersx" name="notpad_tabs">
+                <label for="refersx" title="Scan for cross references">X-Refers</label>
+                <div class="tab_content">
+                    <input type="search" placeholder="Filter" onkeyup="filterRefs(this)" style="display: inline-block !important;"/>
+                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="scanXRef()">⟳</span>
+                    <dl id="xrefs"></dl>
+                </div>
+                
+                <input type="radio" id="searchx" name="notpad_tabs">
+                <label for="searchx" title="Search for a string in the project files">Search</label>
+                <div class="tab_content">
+                    <input type="search" name="search_for" placeholder="Search for" onkeyup="performSearch(this)" style="display: inline-block !important;"/>
+                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="performSearch()">▷</span>
+                  <dl id="searches"></dl>
+                </div>
             </div>
             <label for="terminal-container" style="display: inline-block;">Terminal</label><span style="float:right;cursor:pointer;margin-right:1em;" onclick="clearScreen()">⎚</span>
             <section id="terminal-container">
@@ -67,12 +83,6 @@
                     <dt id="vcs_sta">Staged</dt>
                     <dt id="vcs_unv">Unversioned</dt>
                 </dl>
-            </div>
-            <label for="xrefs-container" style="display: inline-block !important;">References
-            <input type="search" placeholder="Filter" onkeyup="filterRefs(this)" style="display: inline-block !important;"/>
-            </label>
-            <div id="xrefs-container">
-                <dl id="xrefs"></dl>
             </div>
         </div>
     </main>
@@ -232,23 +242,6 @@
         </div>
     </div>
             
-    <div class="form-popup" id="searchForm">
-        <div class="form-container">
-            <div class="form-header">
-               <label>Search in files</label>
-            </div>
-            <form onsubmit="performSearch();return false;">
-            <div class="form-row">
-                <label for="search_for">String</label>
-                <input type="text" placeholder="Enter searched text" name="search_for" required>
-            </div>
-            </form>
-            <div class="form-footer">
-                <button type="button" class="btn" onclick="performSearch()">Search</button>
-                <button type="button" class="btn cancel" onclick="document.getElementById('searchForm').style.display = 'none'">Cancel</button>
-            </div>
-        </div>
-    </div>
     <div class="form-popup" id="commitForm">
         <div class="form-container">
             <div class="form-header">
@@ -896,7 +889,6 @@
               if (nameA > nameB) {
                 return 1;
               }
-            
               // names must be equal
               return 0;
             })
@@ -953,17 +945,18 @@
         }
     }
     
-    function searchStr() {
-        const searchF = document.getElementById("searchForm")
-        searchF.style.display = "block"
-        centerElement(searchF)
-        document.querySelector('input[name="search_for"]').focus()
-    }
-    
-    function performSearch() {
+    function performSearch(el) {
+        if (el) {
+            if(event.key === 'Enter') {
+                event.preventDefault();
+                //alert(ele.value);        
+            } else {
+                return
+            }
+        }
         ajax.get({url:"./rustcgi?mode=search-list&session="+encodeURIComponent(SESSION)+
            '&name=' + encodeURIComponent(document.querySelector('input[name="search_for"]').value), success: function(jsonres) {
-            const refs = document.getElementById("xrefs")
+            const refs = document.getElementById("searches")
             refs.replaceChildren()
             for (elem of jsonres) {
                 const dtEl = document.createElement("DT")

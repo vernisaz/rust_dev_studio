@@ -442,12 +442,12 @@ dd {
     color: #5c2e0a;
 }
 
-#vcs-container, #xrefs-container {
+#vcs-container {
     max-height: 20em;
     overflow-y: auto;
 }
 
-#xrefs {
+#xrefs, #searches {
     color: #806f04;
     cursor:pointer;
 }

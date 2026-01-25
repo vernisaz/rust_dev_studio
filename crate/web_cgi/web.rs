@@ -1,7 +1,6 @@
 use std::{collections::HashMap, io, fs::{self},
     path::{Path,Component}, time::SystemTime, error::Error};
 use crate::template;
-use crate::param;
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
 
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
@@ -128,14 +127,6 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
     res
 }
 
-pub fn new_cookie_header(name: &String, value: &String, exparation: Option<SystemTime>) -> (String, String) {
-    if let Some(time) = exparation {
-        ("Set-Cookie".to_string(), format!{"{name}={value}; Expires={}", param::http_format_time(time)})
-    } else {
-        ("Set-Cookie".to_string(), format!{"{name}={value}"})
-    }
-}
-
 pub fn html_encode(orig: &impl AsRef<str>) -> String {
     let chars = orig.as_ref(). chars();
     let mut res = String::from("");
@@ -201,8 +192,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
             res.append(&mut list_files(path, ext))
         }
     } else if let Some(curr_ext) = path.as_ref().extension() {
-        let curr_ext = curr_ext.to_str().unwrap().to_string();
-        if str_ext.contains(&curr_ext) {
+        if str_ext.contains(&*curr_ext.to_string_lossy()) {
             res.push(path.as_ref().to_str().unwrap().to_string())
         }
     }
@@ -229,7 +219,7 @@ fn get_short(short: &Option<&str>) -> String {
     if let Some(short) = short {
         format! {"<span style=\"float:right\">{0}</span>", html_encode(&short)}
     } else {
-        "".to_string()
+        String::new()
     }
 }
 

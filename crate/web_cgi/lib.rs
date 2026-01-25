@@ -5,7 +5,6 @@ pub use web::Menu;
 pub use web::{get_file_modified, sanitize_path, save_props,
   is_git_covered, list_files};
 
-pub use web::new_cookie_header;
 pub use param::{http_format_time, has_root};
 
 pub mod web;

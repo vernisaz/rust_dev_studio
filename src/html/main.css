@@ -255,7 +255,7 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
 .small_tabs {
     display: flex;
     flex-wrap: wrap;
-    max-width: 600px;
+    max-width: 800px;
     margin: 2px auto;
     padding: 0;
 }
@@ -269,6 +269,7 @@ menuitem > menu > menuitem:hover > menu > menuitem, menuitem > menu > menuitem.h
     cursor: pointer;
     transition: background ease 0.3s;
     border-radius: 8px 8px 0 0;
+    margin-right: 0.2rem;
 }
 
 .small_tabs .tab_content {
@@ -450,7 +451,7 @@ dd {
 #xrefs, #searches {
     color: #806f04;
     cursor:pointer;
-    margin-left: 4px;
+    margin-left: 1em;
 }
 
 span+a,pre a,p>a {

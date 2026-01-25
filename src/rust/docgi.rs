@@ -970,7 +970,7 @@ impl PageOps for PageFile {
                         }
                         let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
                         projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
-                             session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(&session_name)),hint:None, icon:None,short:None})
+                             session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(session_name)),hint:None, icon:None,short:None})
                     }
                 }
             }
@@ -1138,7 +1138,7 @@ impl PageOps for Redirect {
         let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
         // TODO use ".?session={}&id={id}"
         Some(vec![("Location".to_string(), 
-            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", simweb::url_encode(&self.session.clone().unwrap_or_default())))])
+            format!("/rustcgi/rustcgi{path_info}?session={}&id={id}", simweb::url_encode(self.session.clone().unwrap_or_default())))])
         
     }
     

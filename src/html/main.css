@@ -463,6 +463,10 @@ span+a:hover,pre a:hover {
   text-decoration: underline;
 }
 
+input[type="search"] {
+    width: 22em;
+}
+
 #projects_div li a:hover {background: #F1DF93}
 
 .marked:after {
@@ -545,7 +549,7 @@ span+a:hover,pre a:hover {
          color: #CF2829;
     }
     
-    #xrefs {
+    #xrefs, #searches {
         color: #79b1ed;
     }
     

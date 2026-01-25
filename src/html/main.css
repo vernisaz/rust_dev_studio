@@ -450,6 +450,7 @@ dd {
 #xrefs, #searches {
     color: #806f04;
     cursor:pointer;
+    margin-left: 4px;
 }
 
 span+a,pre a,p>a {

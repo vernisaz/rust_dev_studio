@@ -454,6 +454,10 @@ dd {
     margin-left: 1em;
 }
 
+dl > dt > dd {
+    margin-left: 0.4em;
+}
+
 span+a,pre a,p>a {
   color: inherit;
   text-decoration: inherit;

@@ -115,7 +115,7 @@ nav > menu > menuitem > menu > menuitem {
     opacity: 0;
 }
 
-nav > menu > menuitem > menu > menuitem > menu {
+nav > menu > menuitem > menu > menuitem:hover > menu {
     max-height: 86vh;
     overflow-y: auto;
 }

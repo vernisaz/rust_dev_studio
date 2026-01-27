@@ -100,24 +100,24 @@ nav > menu > menuitem menuitem menu {
     right: 0;
 }
 
-nav menuitem > menu > menuitem > a + menu:after {
+nav menuitem > menu > menuitem > menu {
+    max-height: 76vh;
+    overflow-y: auto;
+}
+
+/*nav menuitem > menu > menuitem > a + menu:after {
     position: absolute;
     top: 10px;
     left: -30px;
     border: 10px solid transparent;
-    border-left: 10px solid #eee;
+    border-left: 10px solid #e00;
     content: '';
-}
+}*/
 
 nav > menu > menuitem > menu > menuitem {
     transition: transform 0.6s, opacity 0.6s;
     transform: translateY(100%);
     opacity: 0;
-}
-
-nav > menu > menuitem > menu > menuitem:hover > menu {
-    max-height: 76vh;
-    overflow-y: auto;
 }
 
 nav > menu > menuitem:hover > menu > menuitem, nav > menu > menuitem.hover > menu > menuitem {

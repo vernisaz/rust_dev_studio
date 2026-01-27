@@ -81,7 +81,7 @@ pub trait PageOps {
 fn form_nav(items: Option<Vec<Menu>>) -> String {
     let mut res = String::from(r#"    <menu>"#);
     if let Some(items) = items {
-        let mut _ident = 0;
+        let mut ident = 0;
         for item in items {
             match item {
                 MenuBox {
@@ -89,12 +89,12 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     hint,
                     icon,
                 } => {
-                    _ident += 4;
+                    ident += 4;
                     res.push_str(&format! {r#"
         <menuitem>
-            <a {1}>{2}{0}</a>
+            <a {1}>{2}{0}{3}</a>
             <menu>
-                "#, html_encode(&item), get_hint(&hint), get_img(&icon)})
+                "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident==8 {r#"<span style="float:right">⮕</span>"#}else{""}})
                 }
                 MenuItem {
                     title: item,
@@ -111,7 +111,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                           get_img(&icon), get_short(&short)})
                 }
                 MenuEnd => {
-                    _ident -= 4;
+                    ident -= 4;
                     res.push_str(r#"
             </menu>
         </menuitem>

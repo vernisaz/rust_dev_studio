@@ -56,9 +56,9 @@ can be provided in the _.config_ file.
 
 Also, directory _.rds_ can include file _aliases.prop_. The file consists of entries as :
 
-> alias alias_name='name arguments...'
+> alias alias_name='command arguments...'
 
-It is a standard alias command of Unix shell allowing to setup an alias for the RDS terminal. 
+It is a standard alias syntax of Unix shell allowing to setup an alias for the RDS terminal. 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with the **SimHTTP**,
 because the server provides the WS CGI support.
@@ -93,7 +93,7 @@ Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
 The terminal functionality is separated in the crate [SimTerminal](https://github.com/vernisaz/simterminal), therefore build it before
-building the terminal and then build the terminal. Note that the terminal has one extra dependency [simple Color](https://github.com/vernisaz/simcolor).
+building the terminal and then build the terminal. Note that the crate has one extra dependency the [Simple Color](https://github.com/vernisaz/simcolor).
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,

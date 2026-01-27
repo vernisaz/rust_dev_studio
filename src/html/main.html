@@ -491,6 +491,10 @@
                   }
               }
               closeEditor(currentTab.id)
+              const tabs = document.querySelector('.tabs')
+              if (tabs.children.length > 0) {
+                  tabs.children[0].checked = true
+              }
           }
       }
       

@@ -94,7 +94,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
         <menuitem>
             <a {1}>{2}{0}{3}</a>
             <menu>
-                "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident==8 {r#"<span style="float:right">⮕</span>"#}else{""}})
+                "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident==8 {get_short(&Some("➤"))}else{String::new()}})
                 }
                 MenuItem {
                     title: item,

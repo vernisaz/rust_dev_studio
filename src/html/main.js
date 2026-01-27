@@ -344,6 +344,17 @@ function loadFileStack(stack) {
          fail: function(ecode, etext) { lockLoad = false }})
 }
 
+function isDataChanged(path) {
+    const data = EDITORS[path]['editor'].getValue()
+    const dataSize = data.length
+    const crc = crc32(data)
+    if (dataSize == EDITORS[path]['size'] && EDITORS[path]['crc'] == crc) {
+        return false
+    } else {
+        return true
+    }
+}
+
 function saveData(path, newpath, onsave) {
     const data = EDITORS[path]['editor'].getValue()
     const dataSize = data.length

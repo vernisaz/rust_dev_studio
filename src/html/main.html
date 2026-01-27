@@ -484,8 +484,14 @@
       function closeCurrent() {
           //openFileMenu()
           const currentTab = document.querySelector('input[name="tabs"]:checked')
-          if (currentTab)
-            closeEditor(currentTab.id)
+          if (currentTab) {
+              if (isDataChanged(currentTab.id)) {
+                  if (confirm(`Data of ${currentTab.id} have been changed, save them?`)) {
+                      saveData(currentTab.id)
+                  }
+              }
+              closeEditor(currentTab.id)
+          }
       }
       
       function closeAllTab() {

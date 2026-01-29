@@ -38,6 +38,10 @@ nav li:hover {
     background-color: #6b6b47;
 }
 
+nav li {
+    min-width: 112px;
+}
+
 .navbar-links {
     display: flex;
     gap: 2rem;
@@ -69,6 +73,11 @@ nav ul > li:hover > ul {
     max-height: 82vh;
     overflow-y: auto;
 }
+
+ hr.responsive {
+    width: 100%; /* Sets the width to 50% of the container */
+    margin: auto; /* Centers the line automatically */
+ }
 
 @keyframes blink {
 	0% { opacity:1 } 75% { opacity:1 } 76% { opacity:0 } 100% { opacity:0 }

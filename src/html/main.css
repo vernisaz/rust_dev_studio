@@ -41,7 +41,10 @@ li > a {
     width: 100%;
     display: inline-block;
 }
-
+/*
+flex-grow: 1; 
+  text-align: center;
+*/
 nav li {
     min-width: 112px;
 }

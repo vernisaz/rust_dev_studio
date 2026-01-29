@@ -56,6 +56,10 @@ nav li {
     z-index: 626;
 }
 
+nav > ul {
+        margin: 0.2rem;
+}
+
 nav ul > li:hover > ul {
     display: flex;
 }

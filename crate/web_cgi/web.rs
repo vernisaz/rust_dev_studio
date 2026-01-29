@@ -190,10 +190,8 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
             // no reason to dive for non dir path
             res.append(&mut list_files(path, ext))
         }
-    } else if let Some(curr_ext) = path.as_ref().extension() {
-        if str_ext.contains(&*curr_ext.to_string_lossy()) {
+    } else if let Some(curr_ext) = path.as_ref().extension() && str_ext.contains(&*curr_ext.to_string_lossy()) {
             res.push(path.as_ref().to_str().unwrap().to_string())
-        }
     }
     res
 }

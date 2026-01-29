@@ -79,7 +79,7 @@ pub trait PageOps {
 }
 
 fn form_nav(items: Option<Vec<Menu>>) -> String {
-    let mut res = String::from(r#"    <menu>"#);
+    let mut res = String::from(r#"<ul class="navbar-links">"#);
     if let Some(items) = items {
         let mut ident = 0;
         for item in items {
@@ -89,13 +89,11 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     hint,
                     icon,
                 } => {
-                    ident += 4;
-                    res.push_str(&format! {r#"
-        <menuitem>
-            <a {1}>{2}{0}{3}</a>
-            <menu>
-                "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident==8 {get_short(&Some("➤"))}else{String::new()}})
-                }
+                    res.push_str(&format! {r#"{4}<li>
+{4}   <a href="javascript:void(0)" {1}>{2}{0}{3}</a>
+{4}   <ul class="html-sub-menu-{ident}">
+"#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
+                ident += 4}
                 MenuItem {
                     title: item,
                     link,
@@ -103,27 +101,28 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     icon,
                     short
                 } => {
-                    res.push_str(&format! {r#"
-                <menuitem>
-                    <a href="{0}" {2}>{3}{1}{4}</a>
-                </menuitem>
-                "#, link, html_encode(&item), get_hint(&hint),
-                          get_img(&icon), get_short(&short)})
+                    res.push_str(&format! {r#"{5}<li>
+{5}   <a href="{0}" {2}>{3}{1}{4}</a>
+{5}<li>
+"#, link, html_encode(&item), get_hint(&hint),
+                          get_img(&icon), get_short(&short), " ".repeat(ident)})
                 }
                 MenuEnd => {
                     ident -= 4;
-                    res.push_str(r#"
-            </menu>
-        </menuitem>
-"#)
+                    res.push_str(&format!(r#"   {0}</ul>
+{0}</li>
+"#, " ".repeat(ident)))
                     }
                 Separator => {
+                    res.push_str(&format!(r#"{0}<hr/>
+"#, " ".repeat(ident)))
                 }
             }
         }
     }
         // add js code ?
-    res.push_str(r#"   </menu>"#);
+    res.push_str(r#"</ul>
+"#);
     res
 }
 

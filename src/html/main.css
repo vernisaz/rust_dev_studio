@@ -60,19 +60,16 @@ nav li {
     position: absolute;
     background-color: hsl(60, 20%, 20%);
     gap: 0.5rem;
+    padding: 0.75rem;
     z-index: 626;
 }
 
 nav > ul {
-        margin: 0.2rem;
+    margin: 0.2rem;
 }
 
 nav ul > li:hover > ul {
     display: flex;
-}
-
-.html-sub-menu-4,.html-sub-menu-0 {
-    padding: 0.75rem;
 }
 
 .html-sub-menu-0 {

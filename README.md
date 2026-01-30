@@ -47,10 +47,10 @@ Make sure that *translated* paths are valid in the underline OS and they can be 
 
 File *.config* residing in the same directory, where **rustcgi** executable is stored, is required.
 The file has to specify a fully qualified
-path to the common config directory where RDS will land the directory _.rds_.
+path to the common config directory where RDS lands the directory _.rds_.
 
 Directory _.rds_ may contain file _.workspace_ which contains a path to the directory where
-all projects will be landed. If there is no such file presented, then the workplace directory 
+all projects are landed. If there is no such file presented, then the workspace directory 
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
 can be provided in the _.config_ file.
 
@@ -87,7 +87,7 @@ The following crates are required for building the product:
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
-already exists. Run **rb** in the each crate repository. 
+already there. Run **rb** in each crate repository. 
 
 Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
@@ -123,7 +123,7 @@ color=always
 ```
 ## Cloud and multi users install
 If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of which provides:
-- Decryption/Re-encryption (SSL Forward Proxy)
+- Decryption/Re-encryption (SSL Proxy)
 - A user authentication
 - URL translation
 - Reject a brutal force and other cyber attacks
@@ -153,7 +153,7 @@ var fileNameReg
 around line 379. Add a desired language file extension in the regular expression definition.
 
 ## Version
-The current version is [1.50.04](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.04). You can check out the current development code,
+The current version is [1.50.05](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.05). You can check out the current development code,
 however it can be not stable.
 
 ## Known problems

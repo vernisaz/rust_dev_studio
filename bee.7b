@@ -1,4 +1,4 @@
-# Rust Development Sudio - the project script
+# Rust Development Studio - the project script
 
 project  =rustcgi
 main=src${~/~}rust${~/~}docgi
@@ -7,7 +7,7 @@ crate_dir=..${~/~}crates
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.22.04:184"
+version="1.22.05:185"
 set_env(VERSION,version)
 
 extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php

@@ -31,7 +31,8 @@ ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
 target package:.. {
 	dependency{}
 
-	prompt(Where to write the package zip [${~cwd~}]?,${~cwd~})
+	prompt("Where to write the package
+zip [${~cwd~}]?",${~cwd~})
 	assign(distro dir,~~)
 	prompt(What is the RDS version [${version}]?,version)
 	assign(version,~~)
@@ -49,7 +50,7 @@ target package:.. {
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- the projects list menu is scrollable
+- the projects list menu is scrollable now
 - cross references and search results are separated in
   individual tabs
 - project files size is visible in the project tree   

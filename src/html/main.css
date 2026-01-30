@@ -25,9 +25,9 @@ html, body {
     color: #ddd;
 }
 
-ul,
-li,
-a {
+nav ul,
+nav li,
+nav a {
     text-decoration: none;
     list-style-type: none;
     color: #ddd;
@@ -37,7 +37,7 @@ nav li:hover {
     background-color: #6b6b47;
 }
 
-li > a {
+nav li > a {
     width: 100%;
     display: inline-block;
 }
@@ -142,6 +142,8 @@ nav ul > li:hover > ul {
 
       .file {
         color: #4a4946;
+        flex-grow: 1;
+        display: flex;
       }
 
 .left-tree {

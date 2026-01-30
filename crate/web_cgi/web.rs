@@ -82,6 +82,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
     let mut res = String::from(r#"<ul class="navbar-links">"#);
     if let Some(items) = items {
         let mut ident = 0;
+        let mut separator = "";
         for item in items {
             match item {
                 MenuBox {
@@ -89,10 +90,11 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     hint,
                     icon,
                 } => {
-                    res.push_str(&format! {r#"{4}<li>
+                    res.push_str(&format! {r#"{4}<li {separator}>
 {4}   <a href="javascript:void(0)" {1}>{2}{0}{3}</a>
 {4}   <ul class="html-sub-menu-{ident}">
 "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
+                separator = "";
                 ident += 4}
                 MenuItem {
                     title: item,
@@ -101,11 +103,12 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     icon,
                     short
                 } => {
-                    res.push_str(&format! {r#"{5}<li>
+                    res.push_str(&format! {r#"{5}<li {separator}>
 {5}   <a href="{0}" {2}>{3}{1}{4}</a>
-{5}<li>
+{5}</li>
 "#, link, html_encode(&item), get_hint(&hint),
-                          get_img(&icon), get_short(&short), " ".repeat(ident)})
+                          get_img(&icon), get_short(&short), " ".repeat(ident)});
+                    separator = ""
                 }
                 MenuEnd => {
                     ident -= 4;
@@ -114,13 +117,11 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
 "#, " ".repeat(ident)))
                     }
                 Separator => {
-                    res.push_str(&format!(r#"{0}<hr class="responsive">
-"#, " ".repeat(ident)))
+                    separator = r#" style="border-top: 1px solid""#
                 }
             }
         }
     }
-        // add js code ?
     res.push_str(r#"</ul>
 "#);
     res

@@ -85,11 +85,6 @@ nav ul > li:hover > ul {
     overflow-y: auto;
 }
 
- hr.responsive {
-    width: 100%; /* Sets the width to 50% of the container */
-    margin: auto; /* Centers the line automatically */
- }
-
 @keyframes blink {
 	0% { opacity:1 } 75% { opacity:1 } 76% { opacity:0 } 100% { opacity:0 }
 }

@@ -46,7 +46,7 @@ flex-grow: 1;
   text-align: center;
 */
 nav li {
-    min-width: 112px;
+    min-width: 122px;
 }
 
 .navbar-links {
@@ -59,9 +59,11 @@ nav li {
     flex-direction: column;
     position: absolute;
     background-color: hsl(60, 20%, 20%);
-    gap: 0.5rem;
-    padding: 0.75rem;
     z-index: 626;
+}
+
+.html-sub-menu-4 li,.html-sub-menu-0 li {
+    padding: 0.25rem 1.25rem;
 }
 
 nav > ul {

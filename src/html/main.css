@@ -279,6 +279,8 @@ nav ul > li:hover > ul {
   grid-template-columns: auto;
   background-color: rgba(208, 208, 217, 0.8);
   padding: 10px;
+  border-radius: 16px;
+  border: 1px solid #333;
 }
 
 .form-header, .form-footer {

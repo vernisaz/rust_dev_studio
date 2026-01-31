@@ -94,8 +94,8 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
 {4}   <a href="javascript:void(0)" {1}>{2}{0}{3}</a>
 {4}   <ul class="html-sub-menu-{ident}">
 "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
-                separator = "";
-                ident += 4}
+                    separator = "";
+                    ident += 4}
                 MenuItem {
                     title: item,
                     link,

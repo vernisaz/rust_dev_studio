@@ -175,7 +175,7 @@ nav ul > li:hover > ul {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.6rem 1rem;
+  padding: 0.25rem 1rem;
   margin-right: 0.2rem;
   cursor: pointer;
   background-color: #999fa8;
@@ -190,7 +190,6 @@ nav ul > li:hover > ul {
   width: 100%;
   height: 100%;
   display: none;
-  padding: 0.3rem;
   background: #f0f6ff;
 }
  

@@ -90,7 +90,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     hint,
                     icon,
                 } => {
-                    res.push_str(&format! {r#"{4}<li {separator}>
+                    res.push_str(&format! {r#"{4}<li{separator}>
 {4}   <a href="javascript:void(0)" {1}>{2}{0}{3}</a>
 {4}   <ul class="html-sub-menu-{ident}">
 "#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
@@ -103,7 +103,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     icon,
                     short
                 } => {
-                    res.push_str(&format! {r#"{5}<li {separator}>
+                    res.push_str(&format! {r#"{5}<li{separator}>
 {5}   <a href="{0}" {2}>{3}{1}{4}</a>
 {5}</li>
 "#, link, html_encode(&item), get_hint(&hint),

@@ -131,7 +131,7 @@ If you plan to use the IDE on a Cloud in the multi users environment, then you n
 For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://internalhost:3000/`,
 the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed.
 
-## Browser compatibly
+## Browser Compatibility
 
 **RDS** uses HTML 5 features presented in popular browsers today. 
 Compatibility was tested using the latest **Firefox**, **Edge**, **Safari**, and **Amazon Silk** browsers.
@@ -146,7 +146,7 @@ const EDITOR_MODE = {
 ```
 Add more modes accordingly file extension of the code type of your interest.
 
-If you need to navigate in the source code from error messages in the terminal, look for 
+If you need to navigate in a source code from error messages in the terminal, look for 
 ```javascript
 var fileNameReg
 ```

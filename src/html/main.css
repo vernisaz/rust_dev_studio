@@ -534,4 +534,6 @@ input[type="search"] {
     .form-container input[type=text]:focus, .form-container input[type=password]:focus {
          background-color: #30403F;
     }
+    
+    .left-tree span:hover {background: #1E455E}
 }

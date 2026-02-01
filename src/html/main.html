@@ -782,7 +782,7 @@
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
              const path = editor_tab.id
-             if (confirm('Are you sure to replace the current edited version ' + path + ' with the last commited?')) {
+             if (confirm('Are you sure to replace the current edited version ' + path + ' with the last committed?')) {
                  ajax.post({url:"./rustcgi", query: "mode=vcs-restore&name="+encodeURIComponent(path)
                      + "&session="+encodeURIComponent(SESSION), success: function (data) { 
                     if (data.startsWith('Ok')) {

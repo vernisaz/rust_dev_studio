@@ -169,7 +169,7 @@ _Refresh Proj_ from _Edit_ menu or reload the project page)
 
 ## Help wanted
 
-If you like the IDE and want to contribute to their development, please contact me using the standard
+If you like the IDE and want to contribute to its development, please contact me using the standard
 github communication way. Entry level people are welcome.
 
 Current tasks:

@@ -428,7 +428,7 @@ input[type="search"] {
     width: 20em;
 }
 
-#projects_div li a:hover {background: #F1DF93}
+.left-tree span:hover {background: #F1DF93}
 
 .marked:before {
     content: " ✓ ";

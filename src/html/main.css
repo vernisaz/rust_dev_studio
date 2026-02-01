@@ -111,7 +111,7 @@ nav ul > li:hover > ul {
 
 .container {
   display: grid;
-  grid-template-columns: auto 3fr 1fr;
+  grid-template-columns: fit-content(16%) 3fr 1fr;
   column-gap: 2px;
 }
 
@@ -142,7 +142,7 @@ nav ul > li:hover > ul {
       }
 
 .left-tree {
-    overflow-y: auto;
+    overflow: auto;
     height: 92vh;    
 }
 

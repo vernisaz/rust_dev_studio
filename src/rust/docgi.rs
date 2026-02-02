@@ -662,8 +662,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 
                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
                 if let Some(file) = params.param("name") && let Some(prog_name) = prog_name {
-                    let path = env::var("PATH");
-                    eprintln!("{path:?} {prog_name} {file} in {dir}");
                     let output = Command::new(&prog_name)
                         .arg(&file)
                         .current_dir(&dir)

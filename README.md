@@ -85,6 +85,7 @@ The following crates are required for building the product:
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
+- The [Simple JSON](https://github.com/vernisaz/simjson)
 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
 already there. Run **rb** in each crate repository. 

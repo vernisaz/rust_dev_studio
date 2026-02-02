@@ -50,6 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
+- added a possibily to use an external source formatter
 - the projects list menu is scrollable now
 - cross references and search results are separated in
   individual tabs

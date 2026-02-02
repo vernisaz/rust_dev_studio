@@ -662,8 +662,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 
                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
                 if let Some(file) = params.param("name") && let Some(prog_name) = prog_name {
+                    let mut parameters = prog_name.split_whitespace();
+                    let prog_name = parameters.next().unwrap();
+                    let mut args : Vec<_> = parameters.collect();
+                    args . push(&file);
                     let output = Command::new(&prog_name)
-                        .arg(&file)
+                        .args(args)
                         .current_dir(&dir)
                         .output()?;
                     if output.status.success() {

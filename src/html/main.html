@@ -1281,6 +1281,8 @@
                         if (resp.startsWith('Ok')) {
                             // reload
                             reloadCurrent(currentTab)
+                        } else {
+                            showErrorMessage(resp)
                         }
                     }, respType: 'html'})
             })

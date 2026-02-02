@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.06.134">
+       <input type="hidden" name="version" id="version" value="1.10.06.135">
         <nav class="nav">
             <div class="logo">
                 RDS - ${session}
@@ -204,6 +204,10 @@
             <div class="form-row">
             <label for="test_app">Test App:</label>
             <input type="text" name="test_app" value="rb test" size="50">
+            </div>
+            <div class="form-row">
+            <label for="format_src">Source formatter:</label>
+            <input type="text" name="format_src" value="rustfmt" size="50">
             </div>
             <div class="form-row">
             <label for="package_app">Package App:</label>
@@ -1177,6 +1181,7 @@
         tarFrm.run_app.value = PROJ_CONF['run_app']  || '' 
         tarFrm.test_app.value = PROJ_CONF['test_app']  || '' 
         tarFrm.package_app.value = PROJ_CONF['package_app']  || 'rb package'
+        tarFrm.format_src.value = PROJ_CONF['format_src']  || 'rustfmt'
     }
     
     function saveProjConf() {
@@ -1189,6 +1194,7 @@
         PROJ_CONF['run_app'] = tarFrm.run_app.value
         PROJ_CONF['test_app'] = tarFrm.test_app.value
         PROJ_CONF['package_app'] = tarFrm.package_app.value
+        PROJ_CONF['format_src'] = tarFrm.format_src.value
         saveSettings(true)
         // close
         hideProjConf()
@@ -1261,6 +1267,23 @@
         } else {
             showErrorMessage('Select some content in the edit window to ask AI')
         }
+    }
+    
+    function formatSrc() {
+        const currentTab = document.querySelector('input[name="tabs"]:checked')
+          if (currentTab)
+             saveData(currentTab.id, null, () => {
+                // run command
+                const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
+                    +"&session="+encodeURIComponent(SESSION)
+                ajax.post({url:"./rustcgi", query: payload,
+                    success: function (resp) { 
+                        if (resp.startsWith('Ok')) {
+                            // reload
+                            reloadCurrent(currentTab)
+                        }
+                    }, respType: 'html'})
+            })
     }
     
     function vcsPull() {

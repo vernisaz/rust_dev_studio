@@ -4,6 +4,7 @@ extern crate simweb;
 extern crate simtpool;
 extern crate simran;
 extern crate simcfg;
+extern crate simjson;
 
 use std::{collections::HashMap,
         fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write},
@@ -651,6 +652,45 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             }
         }
+        Some("format") => {
+            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
+                let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                let props = read_props(sanitize_path(&settings)?);
+                
+                let json = simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
+                let prog_name = simjson::get_path_as_text(&json,&"format_src");
+                
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                if let Some(file) = params.param("name") && let Some(prog_name) = prog_name {
+                    eprintln!("{prog_name} {file} in {dir}");
+                    let output = Command::new(&prog_name)
+                        .arg(&file)
+                        .current_dir(&dir)
+                        .output()?;
+                    eprintln!("success: {prog_name} {file} in {dir}");  
+                    if output.status.success() {
+                        Box::new(PageStuff {
+                            content: "Ok".to_string(),
+                        })
+                    } else {
+                        #[allow(unused)]
+                        let stderr = String::from_utf8(output.stderr)?;
+                        eprintln! {"format executed err for {:?}: {stderr}", output.status};
+                        Box::new(PageStuff {
+                            content: format! {"Err : format {stderr}"}.to_string(),
+                        })
+                    }
+                } else {
+                    Box::new(PageStuff {
+                        content: "Err : no file".to_string(),
+                    })
+                }
+            } else {
+                Box::new(PageStuff {
+                    content: "Err : not a POST".to_string(),
+                })
+            }
+        }
         Some(mode) => Box::new(PageStuffE {
             content: format! {r#"Err: The mode &quot;{mode}&quot; is not implemented in ver {VERSION}."#},
         }),
@@ -1023,6 +1063,8 @@ impl PageOps for PageFile {
  
          web::Menu::MenuBox{title:"Source".to_string(), hint:Some("The source navigation, compose and refactoring"), icon:None}, 
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark currently editing line"), icon:None,short:Some("^B")},
+           Menu::Separator,
+           Menu::MenuItem{title:"Format".to_string(), link:"javascript:formatSrc()".to_string(), hint:Some("Format source of the current file using configured formatter"), icon:None,short:None},
            Menu::Separator,
            Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,

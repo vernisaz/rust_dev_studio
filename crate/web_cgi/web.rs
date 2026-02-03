@@ -117,7 +117,12 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
 "#, " ".repeat(ident)))
                     }
                 Separator => {
-                    separator = r#" style="border-top: 1px solid""#
+                    res.push_str(&format!(
+                        r#"{0}<hr class="menudiv">
+                    "#,
+                        " ".repeat(ident)
+                    ))
+                    //separator = r#" style="border-top: 1px solid""#
                 }
             }
         }

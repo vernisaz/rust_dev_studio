@@ -41,10 +41,10 @@ nav li > a {
     width: 100%;
     display: inline-block;
 }
-/*
-flex-grow: 1; 
-  text-align: center;
-*/
+hr.menudiv {
+    width: 100%; 
+    margin: auto;
+}
 nav li {
     min-width: 122px;
 }

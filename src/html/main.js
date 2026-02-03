@@ -132,6 +132,8 @@ function loadSettings() {
                   COLAPSED_DIRS = load.colapsed_dirs
               if (load && load.src_dir)
                   SRC_DIR= load.src_dir
+              if (load && load.format_on_save)
+                  FORMAT_ON_SAVE= load.format_on_save
               // TODO other inits
               populateProjectTree()
               if (STORE_TABS)

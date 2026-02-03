@@ -7,12 +7,12 @@ extern crate simcfg;
 extern crate simjson;
 
 use std::{collections::HashMap,
-        fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write},
-        io::{self},
+        fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write,File},
+        io::{self,Write},
         path::{Path,PathBuf},
-        process::Command,
-        sync::{Arc, Mutex},
-        env, error::Error,time::UNIX_EPOCH, ops::Not,
+        process::{Command,Stdio},
+        sync::{Arc, Mutex},thread,
+        env, error::Error,time::UNIX_EPOCH, ops::Not, ffi::OsStr,
         };
 
 mod crossref;
@@ -100,15 +100,48 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         if modified == 0 {
                             let _ = Path::new(&file_path).parent().and_then(|parent| create_dir_all(parent).ok());
                         }
-                        match write(file_path, &data) {
-                            Ok(()) => {
-                                Box::new(PageStuff {
-                                    content: format! {"Ok {}", get_file_modified(file_path)}
+                        let mut write_done = false;
+                        if file_path.extension() == Some(OsStr::new("rs")) {
+                        let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                        let props = read_props(&settings);
+                        if let Some(value) = props.get("format_on_save") && value == "yes" &&
+                            let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
+                            let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") {
+                            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                            let mut parameters = format_src.split_whitespace();
+                            let prog_name = parameters.next().unwrap();
+                            let args : Vec<_> = parameters.collect();
+                            if let Ok(mut p) = Command::new(prog_name).args(args).current_dir(&dir)
+                                .stdout(Stdio::piped())
+                                .stdin(Stdio::piped()).spawn() {
+                                let value = data.clone();
+                                let mut p_stdin = p.stdin.take().unwrap();
+                                thread::spawn(move || {
+                                    let _ = p_stdin.write_all(value.as_bytes());
+                                });
+                                if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
+                                    let Ok(_len) = io::copy(stdout, &mut file_to_write) {
+                                        write_done = true;
+                                }
+                                let _ = p.wait();
+                            }
+                        }
+                        }
+                        if !write_done {
+                            match write(file_path, &data) {
+                                Ok(()) => {
+                                    Box::new(PageStuff {
+                                        content: format! {"Ok {}", get_file_modified(file_path)}
+                                    })
+                                }
+                                Err(err)=> Box::new(PageStuff {
+                                    content: format!("Err: {err} for {file_path:?}"),
                                 })
                             }
-                            Err(err)=> Box::new(PageStuff {
-                                content: format!("Err: {err} for {file_path:?}"),
-                            })
+                        } else {
+                            Box::new(PageStuff {
+                                    content: format! {"Ok {}", get_file_modified(file_path)}
+                                })
                         }
                     } else {
                         Box::new(PageStuff {
@@ -158,7 +191,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         return Err("a file specified instead of a directory".into())
                     }
                 }
-                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs", "src_dir"] {
+                for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs", "src_dir", "format_on_save"] {
                     set_value(key.to_string());
                 }
                 // TOOO there is a race condition which is currently ignored
@@ -666,7 +699,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     let prog_name = parameters.next().unwrap();
                     let mut args : Vec<_> = parameters.collect();
                     args . push(&file);
-                    let output = Command::new(&prog_name)
+                    let output = Command::new(prog_name)
                         .args(args)
                         .current_dir(&dir)
                         .output()?;
@@ -793,6 +826,7 @@ impl PageOps for JsonSettings {
         let f_binding = || &binding;
         let autosave = props.get("autosave").unwrap_or(&no); // == "yes";
         let projectnp = props.get("projectnp").unwrap_or_else(f_no);
+        let format_on_save = props.get("format_on_save").unwrap_or_else(f_no) == "yes";
         let user = props.get("user").unwrap_or(&binding);
         let persist_tabs = props.get("persist_tabs").unwrap_or(&no);
         let home_len = self.home_len;
@@ -805,8 +839,8 @@ impl PageOps for JsonSettings {
         Ok(format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
             "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
-            "colapsed_dirs":"{}", "src_dir":"{3}"
-        }}"#, &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user), json_encode(src_dir)})
+            "colapsed_dirs":"{}", "src_dir":"{3}", "format_on_save":{format_on_save}}}"#,
+            &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user), json_encode(src_dir)})
     }
 
     json_ret!{}

@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.06.135">
+       <input type="hidden" name="version" id="version" value="1.10.06.136">
         <nav class="nav">
             <div class="logo">
                 RDS - ${session}
@@ -145,16 +145,22 @@
             <div class="form-row" style="display:flex; gap: 2em;">
                 <div class="form-col">
                     <label for="autosave">Auto save</label>
-                    <input type="checkbox" placeholder="Check off for auto-save" id="autosave">
+                    <input type="checkbox" title="Check off for auto-save" id="autosave">
                 </div>
                 <div class="form-col">
                     <label for="persisttabs">Save opened tabs</label>
-                    <input type="checkbox" placeholder="Save opened tabs" id="persisttabs">
+                    <input type="checkbox" title="Save opened tabs" id="persisttabs">
                 </div>
             </div>
-            <div class="form-row">
-                <label for="projectnp">Project specific notepad</label>
-                <input type="checkbox" placeholder="Check off for project specific" id="projectnp">
+            <div class="form-row" style="display:flex; gap: 2em;">
+                <div class="form-col">
+                    <label for="projectnp">Project specific notepad</label>
+                    <input type="checkbox" title="Check off for project specific" id="projectnp">
+                </div>
+                <div class="form-col">
+                    <label for="format-on-save">Format on save</label>
+                    <input type="checkbox" title="Trying to format on save .rs files" id="format-on-save">
+                </div>
             </div>
             <div class="form-row">
                 <label for="user">User for VCS</label>
@@ -358,6 +364,8 @@
       
       var STORE_TABS 
       
+      var FORMAT_ON_SAVE = false
+      
       var AUTOSAVE = false
       
       let PROJ_CONF = {}
@@ -481,8 +489,9 @@
       function saveCurrent() {
           //openFileMenu()
           const currentTab = document.querySelector('input[name="tabs"]:checked')
-          if (currentTab)
-             saveData(currentTab.id)
+          if (currentTab) {
+             saveData(currentTab.id, null, FORMAT_ON_SAVE?() => {reloadCurrent(currentTab)}: null)
+          }
       }
       
       function closeCurrent() {
@@ -544,6 +553,7 @@
               document.getElementById("user").value = load.user
               document.getElementById("ai-access").value = load.ai_server_url?load.ai_server_url:''
               document.getElementById("persisttabs").checked = 'yes' == load.persist_tabs
+              document.getElementById("format-on-save").checked = load.format_on_save
               document.getElementById('colaps-dir').value = load.colapsed_dirs
               document.getElementById('src-dir').value = load.src_dir
               var projectDir = load.project_home
@@ -595,7 +605,8 @@
             '&user='+encodeURIComponent(document.getElementById("user").value) +
             '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value) +
             '&src_dir='+encodeURIComponent(document.getElementById("src-dir").value) +
-            '&colapsed_dirs='+encodeURIComponent(document.getElementById('colaps-dir').value)
+            '&colapsed_dirs='+encodeURIComponent(document.getElementById('colaps-dir').value) +
+            '&format_on_save='+(document.getElementById('format-on-save').checked?'yes':'no')
         }
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
         if (document.getElementById("session").value) 

@@ -101,6 +101,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let _ = Path::new(&file_path).parent().and_then(|parent| create_dir_all(parent).ok());
                         }
                         let mut write_done = false;
+                        let adata = Arc::new(data);
+                        let data_for_1 = Arc::clone(&adata);
+                        let data_for_2 = Arc::clone(&adata);
                         if file_path.extension() == Some(OsStr::new("rs")) {
                         let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                         let props = read_props(&settings);
@@ -114,10 +117,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             if let Ok(mut p) = Command::new(prog_name).args(args).current_dir(&dir)
                                 .stdout(Stdio::piped())
                                 .stdin(Stdio::piped()).spawn() {
-                                let value = data.clone();
+                                //let value = data.clone();
                                 let mut p_stdin = p.stdin.take().unwrap();
                                 thread::spawn(move || {
-                                    let _ = p_stdin.write_all(value.as_bytes());
+                                    let _ = p_stdin.write_all(data_for_1.as_bytes());
                                 });
                                 if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
                                     let Ok(_len) = io::copy(stdout, &mut file_to_write) {
@@ -128,7 +131,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                         }
                         if !write_done {
-                            match write(file_path, &data) {
+                            match write(file_path, &*data_for_2) {
                                 Ok(()) => {
                                     Box::new(PageStuff {
                                         content: format! {"Ok {}", get_file_modified(file_path)}

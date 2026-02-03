@@ -1282,21 +1282,21 @@
     
     function formatSrc() {
         const currentTab = document.querySelector('input[name="tabs"]:checked')
-          if (currentTab)
-             saveData(currentTab.id, null, () => {
-                // run command
-                const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
-                    +"&session="+encodeURIComponent(SESSION)
-                ajax.post({url:"./rustcgi", query: payload,
-                    success: function (resp) { 
-                        if (resp.startsWith('Ok')) {
-                            // reload
-                            reloadCurrent(currentTab)
-                        } else {
-                            showErrorMessage(resp)
-                        }
-                    }, respType: 'html'})
-            })
+        if (currentTab && !FORMAT_ON_SAVE)
+          saveData(currentTab.id, null, () => {
+            // run command
+            const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
+                +"&session="+encodeURIComponent(SESSION)
+            ajax.post({url:"./rustcgi", query: payload,
+                success: function (resp) { 
+                    if (resp.startsWith('Ok')) {
+                        // reload
+                        reloadCurrent(currentTab)
+                    } else {
+                        showErrorMessage(resp)
+                    }
+                }, respType: 'html'})
+        })
     }
     
     function vcsPull() {

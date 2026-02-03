@@ -3,7 +3,7 @@ function main() {
     document.addEventListener('keydown', e => {
       if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault()
-        saveData(document.querySelector('input[name="tabs"]:checked').id)
+        saveCurrent()
       }
       if (e.ctrlKey && e.code == 'KeyB') {
         e.preventDefault()
@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.03.104'
+    return '1.10.04.107'
 }
 
 function populateProjectTree() {

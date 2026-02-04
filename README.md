@@ -122,6 +122,19 @@ is controlled also by `term.color` of Cargo settings. For example:
 [term]
 color=always
 ```
+
+### Running Rustfmt from RDS
+Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
+RDS allows to run Rustfmt explicitly selecting it from menu _Source/Format_, or implicitly checking off _Format on save_ in **Settings**.
+In both cases, Rustfmt has to be configured in _Project/Config..._. You can specify a formatting program, e.g. rustfmt, and
+its options, for example:
+
+> rustfmt --edition 2024
+
+If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
+saved and auto formatted, some files can not updated after save in RDS, so do it manually using menu _Edit/Reload_.
+
+
 ## Cloud and multi users install
 If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of which provides:
 - Decryption/Re-encryption (SSL Proxy)

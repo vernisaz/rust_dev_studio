@@ -105,30 +105,30 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let data_for_1 = Arc::clone(&adata);
                         let data_for_2 = Arc::clone(&adata);
                         if file_path.extension() == Some(OsStr::new("rs")) {
-                        let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
-                        let props = read_props(&settings);
-                        if let Some(value) = props.get("format_on_save") && value == "yes" &&
-                            let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
-                            let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") {
-                            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
-                            let mut parameters = format_src.split_whitespace();
-                            let prog_name = parameters.next().unwrap();
-                            let args : Vec<_> = parameters.collect();
-                            if let Ok(mut p) = Command::new(prog_name).args(args).current_dir(&dir)
-                                .stdout(Stdio::piped())
-                                .stdin(Stdio::piped()).spawn() {
-                                //let value = data.clone();
-                                let mut p_stdin = p.stdin.take().unwrap();
-                                thread::spawn(move || {
-                                    let _ = p_stdin.write_all(data_for_1.as_bytes());
-                                });
-                                if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
-                                    let Ok(_len) = io::copy(stdout, &mut file_to_write) {
-                                        write_done = true;
+                            let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                            let props = read_props(&settings);
+                            if let Some(value) = props.get("format_on_save") && value == "yes" &&
+                                let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
+                                let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") {
+                                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                                let mut parameters = format_src.split_whitespace();
+                                let prog_name = parameters.next().unwrap();
+                                let args : Vec<_> = parameters.collect();
+                                if let Ok(mut p) = Command::new(prog_name).args(args).current_dir(&dir)
+                                    .stdout(Stdio::piped())
+                                    .stdin(Stdio::piped()).spawn() {
+                                    //let value = data.clone();
+                                    let mut p_stdin = p.stdin.take().unwrap();
+                                    thread::spawn(move || {
+                                        let _ = p_stdin.write_all(data_for_1.as_bytes());
+                                    });
+                                    if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
+                                        let Ok(_len) = io::copy(stdout, &mut file_to_write) {
+                                            write_done = true;
+                                    }
+                                    let _ = p.wait();
                                 }
-                                let _ = p.wait();
                             }
-                        }
                         }
                         if !write_done {
                             match write(file_path, &*data_for_2) {

@@ -132,7 +132,7 @@ its options, for example:
 > rustfmt --edition 2024
 
 If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
-saved and auto formatted, some files can not updated after save in RDS, so do it manually using menu _Edit/Reload_.
+saved and auto formatted, some files can be not updated after save in RDS, so do it manually using menu _Edit/Reload_.
 
 
 ## Cloud and multi users install

@@ -109,7 +109,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             let props = read_props(&settings);
                             if let Some(value) = props.get("format_on_save") && value == "yes" &&
                                 let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
-                                let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") {
+                                let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") && !format_src.is_empty() {
                                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
                                 let mut parameters = format_src.split_whitespace();
                                 let prog_name = parameters.next().unwrap();
@@ -697,7 +697,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let prog_name = simjson::get_path_as_text(&json,&"format_src");
                 
                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
-                if let Some(file) = params.param("name") && let Some(prog_name) = prog_name {
+                if let Some(file) = params.param("name") && let Some(prog_name) = prog_name && !prog_name.is_empty() {
                     let mut parameters = prog_name.split_whitespace();
                     let prog_name = parameters.next().unwrap();
                     let mut args : Vec<_> = parameters.collect();
@@ -720,7 +720,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : no file".to_string(),
+                        content: "Err : no file or a formatter wasn't configured".to_string(),
                     })
                 }
             } else {

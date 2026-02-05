@@ -382,13 +382,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
     
                         let comment = params.param("comment").unwrap_or_default();
                         eprintln! {"to commit: {commit_list} for {comment}"};
-                        let mut files = commit_list
+                        let files: Vec<_> = commit_list
                             .split('\t')
-                            .filter(|s| s.is_empty().not())
-                            .peekable();
+                            .filter(|s| s.is_empty().not()).collect();
                         
-                        if files.peek().is_some() {
-                        //eprintln! {"git base add dir: {dir} files: {files:?}"}
+                        if !files.is_empty() {
                             let output = Command::new("git")
                                 .arg("add")
                                 .args(files)
@@ -602,13 +600,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         None => "".to_string(),
                         Some(name) => name.to_string()
                     };
-                    fn_ref.push_str(&format!{",\"trait\":\"{}\", \"data\":\"{}\"", scope.name, data_name})
+                    fn_ref.push_str(&format!{r#","trait":"{}", "data":"{}""#, scope.name, data_name})
                 }
                 let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
                     None => String::new(),
                     Some(vec_val) => refs_to_json(vec_val, dir_len)
                 };
-                fn_ref.push_str(&format!{",\"line\":{}, \"col\":{}, \"use\":[{}]}}",
+                fn_ref.push_str(&format!{r#","line":{}, "col":{}, "use":[{}]}}"#,
                 entry.line, entry.column,refs_to}); // probably format an entire entry
                 json_res.push_str(&fn_ref)
             }
@@ -648,7 +646,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                let path = file [dir_len+1..].to_owned();
                                #[cfg(target_os = "windows")]
                                let path = param::to_web_separator(file [dir_len+1..].to_owned());
-                               json_res.push_str(&format!{"{{\"path\":\"{}\",\"line\":{line},\"col\":{col},\"name\":\"{}\"}}",
+                               json_res.push_str(&format!{r#"{{"path":"{}","line":{line},"col":{col},"name":"{}"}}"#,
                                   &json_encode(&path), &json_encode(&name)})
                         }
                     );
@@ -694,10 +692,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let props = read_props(sanitize_path(&settings)?);
                 
                 let json = simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
-                let prog_name = simjson::get_path_as_text(&json,&"format_src");
                 
                 let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
-                if let Some(file) = params.param("name") && let Some(prog_name) = prog_name && !prog_name.is_empty() {
+                if let Some(file) = params.param("name") && let Some(prog_name) = simjson::get_path_as_text(&json,&"format_src")
+                    && !prog_name.is_empty() {
                     let mut parameters = prog_name.split_whitespace();
                     let prog_name = parameters.next().unwrap();
                     let mut args : Vec<_> = parameters.collect();
@@ -713,7 +711,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     } else {
                         #[allow(unused)]
                         let stderr = String::from_utf8(output.stderr)?;
-                        eprintln! {"format executed err for {:?}: {stderr}", output.status};
+                        eprintln! {"error code {:?} in formatting: {stderr}", output.status};
                         Box::new(PageStuff {
                             content: format! {"Err : format {stderr}"}.to_string(),
                         })

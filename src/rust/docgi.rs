@@ -127,7 +127,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                             write_done = true
                                     }
                                     if let Ok(status) = p.wait() {
-                                        write_done = write_done && status.success()
+                                        write_done &= status.success()
                                     } else {
                                         write_done = false
                                     }

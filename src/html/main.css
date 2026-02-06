@@ -356,7 +356,7 @@ label,input{
     visibility: hidden;
     display: none;
     background-color: rgba(22,22,22,0.5); /* complimenting your modal colors */
-    z-index: 99999;
+    z-index: 1000;
 }
 
 #popup-container:target {

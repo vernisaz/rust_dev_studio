@@ -707,7 +707,7 @@
                     EDITORS[path].size = json.content.length
                     EDITORS[path].crc = crc32(json.content)
                     EDITORS[path]['editor'].setReadOnly(false)
-                    EDITORS[path].editor.gotoLine(currCur.row, currCur.column, true)}})
+                    EDITORS[path].editor.gotoLine(currCur.row+1, currCur.column, true)}})
          }
       }
       

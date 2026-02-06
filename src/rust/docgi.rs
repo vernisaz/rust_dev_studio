@@ -124,9 +124,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                     });
                                     if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
                                         let Ok(_len) = io::copy(stdout, &mut file_to_write) {
-                                            write_done = true;
+                                            write_done = true
                                     }
-                                    let _ = p.wait();
+                                    if let Ok(status) = p.wait() {
+                                        write_done = write_done && status.success()
+                                    } else {
+                                        write_done = false
+                                    }
                                 }
                             }
                         }

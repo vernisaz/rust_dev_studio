@@ -162,7 +162,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             } 
         }
@@ -208,7 +208,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             } 
         }
@@ -259,12 +259,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         content: "Ok".to_string(),
                     }),
                 _ => Box::new(PageStuff {
-                    content: "Err : Some project files weren't deleted".to_string(),
+                    content: "Err: Some project files weren't deleted".to_string(),
                 })
             }
         } else {
             Box::new(PageStuff {
-                content: "Err : not a POST".to_string(),
+                content: "Err: not a POST".to_string(),
             })
         }
         Some("info-about") => Box::new(PageFrag { fragment: PageStuff {
@@ -301,12 +301,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     })
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : no notepad".to_string(),
+                        content: "Err: no notepad".to_string(),
                     })
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }
@@ -324,7 +324,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }
@@ -439,17 +439,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     Box::new(PageStuff {
                         content: match result_oper {
                             Ok(()) => String::from("Ok"),
-                            Err(msg) => format!{"Err : {msg}"}
+                            Err(msg) => format!{"Err: {msg}"}
                         },
                     })
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : not under git".to_string(),
+                        content: "Err: not under git".to_string(),
                     })
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }
@@ -474,17 +474,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let stderr = String::from_utf8(output.stderr)?;
                         eprintln! {"git restore executed err for {:?}: {stderr}", output.status};
                         Box::new(PageStuff {
-                            content: format! {"Err : restore {stderr}"}.to_string(),
+                            content: format! {"Err: restore {stderr}"}.to_string(),
                         })
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : no file".to_string(),
+                        content: "Err: no file".to_string(),
                     })
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }
@@ -507,17 +507,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let stderr = String::from_utf8(output.stderr)?;
                         eprintln! {"git add executed err for {:?}: {stderr}", output.status};
                         Box::new(PageStuff {
-                            content: format! {"Err : add {stderr}"}.to_string(),
+                            content: format! {"Err: add {stderr}"}.to_string(),
                         })
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : no file".to_string(),
+                        content: "Err: no file".to_string(),
                     })
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }
@@ -717,17 +717,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let stderr = String::from_utf8(output.stderr)?;
                         eprintln! {"error code {:?} in formatting: {stderr}", output.status};
                         Box::new(PageStuff {
-                            content: format! {"Err : format {stderr}"}.to_string(),
+                            content: format! {"Err: format {stderr}"}.to_string(),
                         })
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: "Err : no file or a formatter wasn't configured".to_string(),
+                        content: "Err: no file or a formatter wasn't configured".to_string(),
                     })
                 }
             } else {
                 Box::new(PageStuff {
-                    content: "Err : not a POST".to_string(),
+                    content: "Err: not a POST".to_string(),
                 })
             }
         }

@@ -1299,11 +1299,9 @@
             const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
                 +"&session="+encodeURIComponent(SESSION)
             ajax.post({url:"./rustcgi", query: payload,
-                success: function (resp) { 
-                    if (resp.startsWith('Ok')) {
-                        // reload
-                        reloadCurrent(currentTab)
-                    } else {
+                success: function (resp) {
+                    reloadCurrent(currentTab)
+                    if (!resp.startsWith('Ok')) {
                         showErrorMessage(resp)
                     }
                 }, respType: 'html'})

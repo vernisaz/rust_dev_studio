@@ -473,7 +473,12 @@ function saveAllFiles() {
 function autosave() {
     if (AUTOSAVE)
     // scan all opened editors
-         Object.keys(EDITORS).forEach(key => saveData(key))
+         Object.keys(EDITORS).forEach(key => saveData(key,null, () => {
+             if (FORMAT_ON_SAVE) {
+                 // potentionally document name can match some other element id 
+                 reloadCurrent(document.getElementById(key))
+             }
+         }))
 }
 
 function loadTabs() {

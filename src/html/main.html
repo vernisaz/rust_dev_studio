@@ -693,7 +693,7 @@
             }, respType: 'html'})
       }
       
-      function reloadCurrent(tab) {
+      function reloadCurrent(tab,onload) {
          const editor_tab = tab?tab:document.querySelector('input[name="tabs"]:checked')
          if (editor_tab) {
              const path = editor_tab.id
@@ -707,7 +707,11 @@
                     EDITORS[path].size = json.content.length
                     EDITORS[path].crc = crc32(json.content)
                     EDITORS[path]['editor'].setReadOnly(false)
-                    EDITORS[path].editor.gotoLine(currCur.row+1, currCur.column, true)}})
+                    EDITORS[path].editor.gotoLine(currCur.row+1, currCur.column, true)
+                    if (onload && typeof onload === 'function') {
+                        onload()
+                    }
+                }})
          }
       }
       
@@ -778,6 +782,11 @@
              ajax.post({url:"./rustcgi", query: "mode=delete&name="+encodeURIComponent(path)+"&session="+encodeURIComponent(SESSION), success: function (data) { 
                  if (data.startsWith('Ok')) {
                      populateProjectTree()
+                     vcsStatus()
+                     const tabs = document.querySelector('.tabs')
+                     if (tabs.children.length > 0) {
+                          tabs.children[0].checked = true
+                     }
                  }
              }, respType:"html"})
          }
@@ -803,7 +812,7 @@
                  ajax.post({url:"./rustcgi", query: "mode=vcs-restore&name="+encodeURIComponent(path)
                      + "&session="+encodeURIComponent(SESSION), success: function (data) { 
                     if (data.startsWith('Ok')) {
-                        reloadCurrent(editor_tab)
+                        reloadCurrent(editor_tab,vcsStatus)
                     } else
                         showErrorMessage('A problem in the restoring')
                 }, respType:"html"})

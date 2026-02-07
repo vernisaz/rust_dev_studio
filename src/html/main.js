@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.04.107'
+    return '1.10.04.108'
 }
 
 function populateProjectTree() {

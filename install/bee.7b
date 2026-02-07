@@ -51,7 +51,7 @@ zip [${~cwd~}]?",${~cwd~})
     "What's New in ${version}
 
 - improved robustness of format on save
-",
+- added auto status update on delete",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

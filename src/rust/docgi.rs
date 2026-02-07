@@ -123,8 +123,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                         let _ = p_stdin.write_all(data_for_1.as_bytes());
                                     });
                                     if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
-                                        let Ok(_len) = io::copy(stdout, &mut file_to_write) {
-                                            write_done = true
+                                        let Ok(len) = io::copy(stdout, &mut file_to_write) {
+                                            write_done = len > 0
                                     }
                                     if let Ok(status) = p.wait() {
                                         write_done &= status.success()

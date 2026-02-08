@@ -1,4 +1,5 @@
 use std::{collections::HashMap, io, fs::{self},
+    borrow::Cow,
     path::{Path,Component}, time::SystemTime, error::Error};
 use crate::template;
 use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
@@ -132,21 +133,29 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
 }
 
 // TODO change to return Cow when string is unchanged
-pub fn html_encode(orig: &impl AsRef<str>) -> String {
-    let string = orig.as_ref();
-    let chars = string. chars();
-    let mut res = String::with_capacity(string.len());
+pub fn html_encode(orig: &str) -> Cow<'_, str> {
+    let chars = orig.chars();
     for c in chars {
         match c {
-            '<' => res.push_str("&lt;"),
-            '>' => res.push_str("&gt;"),
-            '"' => res.push_str("&quot;"),
-            '\'' => res.push_str("&#39;"),
-            '&' => res.push_str("&amp;"),
-            _ => res.push(c),
+            '<' | '>' | '"' | '\'' | '&' => {
+                let chars = orig.chars();
+                let mut res = String::with_capacity(orig.len());
+                for c in chars {
+                    match c {
+                        '<' => res.push_str("&lt;"),
+                        '>' => res.push_str("&gt;"),
+                        '"' => res.push_str("&quot;"),
+                        '\'' => res.push_str("&#39;"),
+                        '&' => res.push_str("&amp;"),
+                        _ => res.push(c),
+                    }
+                }
+                return Cow::Owned(res)
+            }
+            _ => ()
         }
     }
-    res
+    Cow::Borrowed(orig)
 }
 
 pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>> { // perhaps String is better

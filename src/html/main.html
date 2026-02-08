@@ -1310,7 +1310,7 @@
                         showErrorMessage(resp)
                     }
                 }, respType: 'html'})
-        }); else showErrorMessage('Format on save is on, the file will be formatted at saving')
+        }); else if (FORMAT_ON_SAVE) showErrorMessage('Format on save is on, the file will be formatted at saving')
     }
     
     function vcsPull() {

@@ -91,7 +91,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.04.108'
+    return '1.10.04.109'
 }
 
 function populateProjectTree() {
@@ -536,9 +536,9 @@ function closeAll() {
 function showErrorMessage(msg) {
     // show animated fixed position message line
     const bar = document.querySelector('.message-bar')
-    bar.innerHTML = '<p>'+htmlEncode(msg)+'</p>'
-    bar.style.display = 'block'
-    //alert('Error:' + msg)
+    const content = document.querySelector('#message-content')
+    content.innerHTML = '<pre>'+htmlEncode(msg)+'</pre>'
+    bar.show()
 }
 
 // terminal specific

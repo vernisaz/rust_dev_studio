@@ -90,8 +90,6 @@ nav ul > li:hover > ul {
 }
 
 .message-bar {
-    display: none;
-    cursor: pointer;
     background-color: #eddcd8;
     color: #991236;
     border-color: #8a1e41;
@@ -99,7 +97,8 @@ nav ul > li:hover > ul {
     top: 32px;
     left: 8px;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 8px;
+    margin: 1rem;
     z-index: 999;
      animation-timing-function: linear;
      animation-duration: 4s;

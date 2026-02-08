@@ -1298,7 +1298,8 @@
     
     function formatSrc() {
         const currentTab = document.querySelector('input[name="tabs"]:checked')
-        if (currentTab && !FORMAT_ON_SAVE)
+        if (currentTab)
+            if (!FORMAT_ON_SAVE)
           saveData(currentTab.id, null, () => {
             // run command
             const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
@@ -1310,7 +1311,7 @@
                         showErrorMessage(resp)
                     }
                 }, respType: 'html'})
-        }); else if (FORMAT_ON_SAVE) showErrorMessage('Format on save is on, the file will be formatted at saving')
+        }); else showErrorMessage('Format on save is on, the file will be formatted at saving')
     }
     
     function vcsPull() {

@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.50.06
+version=1.50.07
 
 include(cfg.7b) # created by the install
 
@@ -50,8 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- improved robustness of format on save
-- added auto status update on delete",
+- IDE message box made friendly for copy its content in clipboard
+- ",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

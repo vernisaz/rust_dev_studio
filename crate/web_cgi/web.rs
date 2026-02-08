@@ -133,8 +133,9 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
 
 // TODO change to return Cow when string is unchanged
 pub fn html_encode(orig: &impl AsRef<str>) -> String {
-    let chars = orig.as_ref(). chars();
-    let mut res = String::new();
+    let string = orig.as_ref();
+    let chars = string. chars();
+    let mut res = String::with_capacity(string.len());
     for c in chars {
         match c {
             '<' => res.push_str("&lt;"),

@@ -132,7 +132,6 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
     res
 }
 
-// TODO change to return Cow when string is unchanged
 pub fn html_encode(orig: &str) -> Cow<'_, str> {
     let chars = orig.chars();
     for c in chars {

@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.06.140">
+       <input type="hidden" name="version" id="version" value="1.10.06.141">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -635,7 +635,7 @@
                             
                             PROJECT_HOME = document.getElementById("proj_dir").value
                             AI_SERVER_URL = document.getElementById("ai-access").value
-                            FORMAT_ON_SAVE = document.querySelector('#format-on-save').value
+                            FORMAT_ON_SAVE = document.querySelector('#format-on-save').checked
                             if (SESSION) {
                                 document.title = SESSION + ' - RDS'
                                 // TODO uncomment when the tag returns
@@ -674,7 +674,7 @@
                         AUTOSAVE = document.getElementById("autosave").checked
                         COLAPSED_DIRS = document.getElementById('colaps-dir').value
                         SRC_DIR = document.getElementById('src-dir').value
-                        FORMAT_ON_SAVE = document.querySelector('#format-on-save').value
+                        FORMAT_ON_SAVE = document.querySelector('#format-on-save').checked
                         jump('')
                     }
                  }
@@ -1298,7 +1298,7 @@
     
     function formatSrc() {
         const currentTab = document.querySelector('input[name="tabs"]:checked')
-        if (currentTab && !FORMAT_ON_SAVE)
+        if (currentTab && !FORMAT_ON_SAVE) {
           saveData(currentTab.id, null, () => {
             // run command
             const payload = 'mode=format&name='+encodeURIComponent(currentTab.id)
@@ -1310,7 +1310,7 @@
                         showErrorMessage(resp)
                     }
                 }, respType: 'html'})
-        })
+        }) } else showErrorMessage('Format on save is on, the file will be formatted at saving')
     }
     
     function vcsPull() {

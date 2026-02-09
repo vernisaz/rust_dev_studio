@@ -521,7 +521,7 @@ function closeEditor(path) {
        next.remove()
        next = removing_elements.pop()
     }
-    // select some existing tab if any
+    // select some existing tab if any done in the caller
 }
 
 function closeAll() {

@@ -279,10 +279,6 @@
     </div>
    <!-- SCRIPT  -->
     <script>
-      const navbarLinks = document.querySelector(".navbar .links");
-      const toggleMenuBtn = document.querySelector(".navbar .toggle-menu");
-      const toggleMenuIcon = document.querySelector(".navbar .toggle-menu i");
-      
       const EDITOR_MODE = {
           'rs' : 'rust',
           'html' : 'html',
@@ -1363,7 +1359,7 @@
       function about() {
          ajax.get({url:"./rustcgi?mode=info-about", success: function (json) {
              const pane = document.getElementById("about")
-             pane.innerHTML = `<div class="form-container"><h2>Rust Development Studio</h2><p>Version: <a target="_blank" href="https://github.com/vernisaz/rust_dev_studio">${json.version}</a></p>
+             pane.innerHTML = `<div class="form-container" style="padding:1rem;border-radius: 12px;"><h2>Rust Development Studio</h2><p>Version: <a target="_blank" href="https://github.com/vernisaz/rust_dev_studio">${json.version}</a></p>
                 <p>Server: ${json.server}</p>
                 <p>HTML: ${document.getElementById("version").value} JS: ${getVersion()} CSS: ${verStyle()}</p>
                 <p>&copy; ${new Date().getFullYear()} ${json.author}</p>

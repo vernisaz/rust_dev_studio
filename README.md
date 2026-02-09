@@ -106,7 +106,7 @@ and you can start using the **RDS**. The access URL's stored in `rds.url`.
 There is a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
 create the standard packaging.
 
-## Working tips
+## Usage tips
 
 You will see an empty page when first time pointed a browser to the **RDS** URL. Select menu *File/Project/New...*.
 Navigate to a project directory and then *Apply* for the new project.
@@ -114,7 +114,7 @@ Open the just created project from menu *File/Project/\<name\>* then. You can st
 navigate over the project tree, open and edit files, build its components and so on.
 
 If you do not have the project checked out yet, then you can check it out first, and then to set the project root 
-in the settings. You can execute underline OS commands as *mkdir*, *git clone*, and others in the terminal panel. 
+in the *Settings*. You can execute underline OS commands as *mkdir*, *git clone*, and others in the terminal panel. 
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:
@@ -132,7 +132,7 @@ its options, for example:
 > rustfmt --edition 2024
 
 If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
-saved and auto formatted, some files can be not updated after save in RDS, so do it manually using menu _Edit/Reload_.
+saved and auto formatted, some files can be not updated in web UI  after saving in RDS, so do it manually using menu _Edit/Reload_.
 
 
 ## Cloud and multi users install

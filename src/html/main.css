@@ -263,8 +263,6 @@ nav ul > li:hover > ul {
 .form-popup {
   display: none;
   position: absolute;
-  border: 3px solid #f1f1f1;
-  border-radius: 12px;
   z-index: 9;
 }
 
@@ -272,9 +270,6 @@ nav ul > li:hover > ul {
   display: grid;
   grid-template-columns: auto;
   background-color: rgba(208, 208, 217, 0.8);
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid #333;
 }
 
 .form-header, .form-footer {

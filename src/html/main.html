@@ -160,11 +160,11 @@
             <div class="form-row" style="display:flex; gap: 2em;">
                 <div class="form-col">
                     <label for="projectnp">Project specific notepad</label>
-                    <input type="checkbox" title="Check off for project specific" id="projectnp">
+                    <input type="checkbox" title="Check off for project specific notepad" id="projectnp">
                 </div>
                 <div class="form-col">
                     <label for="format-on-save">Format on save</label>
-                    <input type="checkbox" title="Trying to format on save .rs files" id="format-on-save">
+                    <input type="checkbox" title="Trying to format .rs files on save" id="format-on-save">
                 </div>
             </div>
             <div class="form-row">
@@ -1073,7 +1073,7 @@
                    '" target="_blank">'+(el==''?'default':htmlEncode(el))+'</a></li>';
             }
             var repEl = Array.from(document.querySelector('nav').querySelectorAll('a'))
-                .find(el => el.textContent === 'Project➤');
+                .find(el => el.textContent === 'Project➤'); // not very relaible, so better can be mark it with a specific id
             repEl = repEl.nextSibling.nextSibling
             if (repEl.tagName == 'UL') {
                 repEl.innerHTML = menuHtml;

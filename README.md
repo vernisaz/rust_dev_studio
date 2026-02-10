@@ -1,7 +1,7 @@
 # Rust Development Studio - CGI
 
 ## Purpose
-Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on some cloud machine. 
+Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on a cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
 The approach of web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
@@ -9,7 +9,7 @@ The approach of web based IDE becomes popular nowadays, for example - Code anywh
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
 perfectly suitable for using Rust. The terminal functionality is implemented using a websocket endpoint. So the RDS has
-written in Rust, HTML, CSS, and JavaScript and runs on Rust web server - [SimHttp](https://github.com/vernisaz/simhttp/tree/master).
+written in Rust, HTML, CSS, and JavaScript and runs on the [Rust web server](https://github.com/vernisaz/simhttp/tree/master).
 
 ## Implementation
 It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust CGI executable. The terminal is
@@ -40,7 +40,7 @@ of the [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
 The mapping is used to run the RDS from the dev environment, therefore an access URL
 looks like `http://orangepi5:3000/rustcgi/rustcgi/src/html?session=rds&`,
 however a simpler form is used in the standard packaging as
-`http://orangepi5:3000/rustcgi/rustcgi`. A port and a host name will depend
+`http://orangepi5:3000/rustcgi/rustcgi?session=rds&`. A port and a host name will depend
 on your environment. Even CGI mapping can be changed.
 
 Make sure that *translated* paths are valid in the underline OS and they can be related to the directory the server started from.
@@ -50,11 +50,11 @@ The file has to specify a fully qualified
 path to the common config directory where RDS lands the directory _.rds_.
 
 Directory _.rds_ may contain file _.workspace_ which contains a path to the directory where
-all projects are landed. If there is no such file presented, then the workspace directory 
+all projects used by RDS are landed. If there is no such file presented, then the workspace directory 
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
 can be provided in the _.config_ file.
 
-Also, directory _.rds_ can include file _aliases.prop_. The file consists of entries as :
+Also, directory _.rds_ can include file _aliases.prop_. The file contains entries in a form like :
 
 > alias alias_name='command arguments...'
 
@@ -63,7 +63,7 @@ It is a standard alias syntax of Unix shell allowing to setup an alias for the R
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with the **SimHTTP**,
 because the server provides the WS CGI support.
 
-There is Java terminal websocket endpoint built on JSR 356 technology. It's out of support, but still
+There is a Java terminal websocket endpoint built on JSR 356 technology. It's out of support, but still
 can be obtained from [there](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
 
 ## Ace Cloud editor
@@ -132,11 +132,11 @@ its options, for example:
 > rustfmt --edition 2024
 
 If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
-saved and auto formatted, some files can be not updated in web UI  after saving in RDS, so do it manually using menu _Edit/Reload_.
+saved and auto formatted, some files can be not updated in web UI, so do it manually using menu _Edit/Reload_.
 
 
 ## Cloud and multi users install
-If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of which provides:
+If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of RDS which provides:
 - Decryption/Re-encryption (SSL Proxy)
 - A user authentication
 - URL translation

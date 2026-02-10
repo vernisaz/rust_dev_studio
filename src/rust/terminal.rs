@@ -3,6 +3,7 @@ extern crate simcfg;
 extern crate simterm;
 extern crate simtime;
 extern crate simweb;
+#[rustfmt::skip]
 mod config;
 use config::Config;
 use simterm::{Terminal, send, unescape};

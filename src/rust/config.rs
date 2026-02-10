@@ -1,16 +1,19 @@
 use simcfg::read_config_root;
 
-use std::{path::{PathBuf,MAIN_SEPARATOR,Path}, collections::HashMap,
-    io::{BufReader, BufRead},
-    fs::{read_to_string,File}};
 use simweb::sanitize_web_path;
+use std::{
+    collections::HashMap,
+    fs::{File, read_to_string},
+    io::{BufRead, BufReader},
+    path::{MAIN_SEPARATOR, Path, PathBuf},
+};
 
 pub const SETTINGS_PREF: &str = "settings";
-const RDS_CFG_DIR : &str = ".rds";
+const RDS_CFG_DIR: &str = ".rds";
 
 pub struct Config {
     pub config_dir: PathBuf,
-    pub workspace_dir: PathBuf, 
+    pub workspace_dir: PathBuf,
 }
 
 impl Config {
@@ -25,7 +28,7 @@ impl Config {
                 return Config {
                     config_dir,
                     workspace_dir,
-                }
+                };
             } else {
                 eprintln!("no directory {workspace_dir:?}")
             }
@@ -36,7 +39,7 @@ impl Config {
             workspace_dir: config,
         }
     }
-    
+
     #[allow(dead_code)]
     pub fn to_real_path(
         &self,
@@ -46,47 +49,53 @@ impl Config {
         let project_path = project_path.as_ref();
         let mut res = self.workspace_dir.clone();
         res.push(project_path.strip_prefix('/').unwrap_or(project_path)); // not allowed an absolute path yet, but it needs verify on Windows
-        
+
         if let Some(in_project_path) = in_project_path {
             res.push(in_project_path);
         }
         //eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
         res.display().to_string()
     }
-    
+
     #[allow(dead_code)]
     pub fn name_to_path(&self, name: Option<String>) -> Option<String> {
         let name = name?;
         let name = sanitize_web_path(name).ok()?;
         Some(self.to_real_path(&name, None))
     }
-    
+
     pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {
         let mut res = self.config_dir.clone();
         match proj {
-            Some(proj) if !proj.is_empty() && proj != "default" => res.push(file.to_string() + "-" + proj),
+            Some(proj) if !proj.is_empty() && proj != "default" => {
+                res.push(file.to_string() + "-" + proj)
+            }
             _ => res.push(file),
         }
         res.set_extension(ext);
         res
     }
-    
+
     pub fn get_project_home(&self, project: &Option<String>) -> Option<String> {
         let settings = self.get_config_path(project, SETTINGS_PREF, "prop");
         if sanitize_web_path(settings.display().to_string()).is_err() {
-            return None
+            return None;
         };
         let settings = read_props(&settings);
         if let Some(res) = settings.get("project_home") {
             let mut chars = res.chars();
-            if let Some(c) = chars.next() && (c == MAIN_SEPARATOR || c == '~') {
-                return None
+            if let Some(c) = chars.next()
+                && (c == MAIN_SEPARATOR || c == '~')
+            {
+                return None;
             }
             #[cfg(windows)]
-            if let Some(c) = chars.next() && c == ':' {
-                return None
+            if let Some(c) = chars.next()
+                && c == ':'
+            {
+                return None;
             }
-            return Some(res.into())
+            return Some(res.into());
         }
         None
     }
@@ -98,14 +107,14 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
         let lines = BufReader::new(file).lines();
         for prop_def in lines.map_while(Result::ok) {
             if prop_def.starts_with("#") {
-                 continue // comment
+                continue; // comment
             }
             if let Some(pos) = prop_def.find('=') {
-                 let name = &prop_def[0..pos];
-                 let val = &prop_def[pos + 1..];
-                 props.insert(name.to_string(), val.to_string());
+                let name = &prop_def[0..pos];
+                let val = &prop_def[pos + 1..];
+                props.insert(name.to_string(), val.to_string());
             } else {
-                 eprintln!("Invalid property definition: {}", &prop_def)
+                eprintln!("Invalid property definition: {}", &prop_def)
             }
         }
     } else {

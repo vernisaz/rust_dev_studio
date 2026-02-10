@@ -1,19 +1,21 @@
 #![allow(clippy::bool_comparison)]
-extern crate simterm;
-extern crate simweb;
-extern crate simtime;
 extern crate simcfg;
+extern crate simterm;
+extern crate simtime;
+extern crate simweb;
 mod config;
+use config::Config;
+use simterm::{Terminal, send, unescape};
+use simtime::{get_datetime, seconds_from_epoch};
 use std::{
     collections::HashMap,
-    path::{PathBuf,Path,MAIN_SEPARATOR_STR},
-    time::{UNIX_EPOCH,SystemTime},
-   fs::{File,OpenOptions,self},
-    io::{self,BufRead,BufReader,Write,stdout}, error::Error, env,
+    env,
+    error::Error,
+    fs::{self, File, OpenOptions},
+    io::{self, BufRead, BufReader, Write, stdout},
+    path::{MAIN_SEPARATOR_STR, Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
-use simtime::{seconds_from_epoch,get_datetime};
-use simterm::{Terminal,unescape,send};
-use config::{Config};
 
 const VERSION: &str = env!("VERSION");
 
@@ -22,26 +24,51 @@ struct WebTerminal {
     project_dir: String,
     session: String,
     cwd: PathBuf,
-    version: String
+    version: String,
 }
 
 impl Terminal for WebTerminal {
-    fn init(&self) -> (PathBuf, PathBuf, HashMap<String,Vec<String>>,&str) {
+    fn init(&self) -> (PathBuf, PathBuf, HashMap<String, Vec<String>>, &str) {
         let aliases = read_aliases(HashMap::new(), &self.config, &None::<String>);
-        unsafe{env::set_var("PWD", &self.cwd)}
+        unsafe { env::set_var("PWD", &self.cwd) }
         #[cfg(windows)]
-        unsafe { env::set_var("TERM", "xterm-256color") }
-        (self.cwd.clone(),self.config.workspace_dir.join(&self.project_dir),aliases,&self.version)
+        unsafe {
+            env::set_var("TERM", "xterm-256color")
+        }
+        (
+            self.cwd.clone(),
+            self.config.workspace_dir.join(&self.project_dir),
+            aliases,
+            &self.version,
+        )
     }
-    
+
     fn save_state(&self) -> Result<(), Box<dyn Error>> {
         let mut sessions = load_persistent(&self.config);
-        sessions.insert(self.session.to_string(),(self.cwd.display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
+        sessions.insert(
+            self.session.to_string(),
+            (
+                self.cwd.display().to_string(),
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs(),
+            ),
+        );
         save_persistent(&self.config, sessions)
     }
     fn persist_cwd(&mut self, cwd: &Path) {
         let mut sessions = load_persistent(&self.config);
-        sessions.insert(self.session.to_string(),(cwd.display().to_string(),SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()));
+        sessions.insert(
+            self.session.to_string(),
+            (
+                cwd.display().to_string(),
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs(),
+            ),
+        );
         self.cwd = cwd.into();
         let _ = save_persistent(&self.config, sessions);
     }
@@ -49,23 +76,36 @@ impl Terminal for WebTerminal {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
-    let binding = if web.path_info().starts_with("/") {web.path_info()[1..].to_string()} else {web.path_info()};
-    let (project_name,session) = match binding.split_once('/') {
-        Some((project,session)) => (Some(project.to_owned()),session.strip_prefix("webId-").unwrap_or(session)),
-        _ => (None,"")
+    let binding = if web.path_info().starts_with("/") {
+        web.path_info()[1..].to_string()
+    } else {
+        web.path_info()
+    };
+    let (project_name, session) = match binding.split_once('/') {
+        Some((project, session)) => (
+            Some(project.to_owned()),
+            session.strip_prefix("webId-").unwrap_or(session),
+        ),
+        _ => (None, ""),
     };
     let env_ver = web.param("version").unwrap_or_else(|| "".to_owned());
     let config = config::Config::new();
     let version = format!("{VERSION}-{}/{env_ver}", simterm::VERSION);
-    let project_path = config.get_project_home(&project_name).
-        unwrap_or_else(|| {send!("No {project_name:?} config found, the project is misconfigured\n"); String::new()}); 
-    
+    let project_path = config.get_project_home(&project_name).unwrap_or_else(|| {
+        send!("No {project_name:?} config found, the project is misconfigured\n");
+        String::new()
+    });
+
     let sessions = load_persistent(&config);
     let cwd;
     if session.is_empty() == false {
         let entry = sessions.get(session);
         if let Some(entry) = entry {
-            let initial_dir = entry.0.strip_suffix(MAIN_SEPARATOR_STR).unwrap_or(&entry.0).to_string();
+            let initial_dir = entry
+                .0
+                .strip_suffix(MAIN_SEPARATOR_STR)
+                .unwrap_or(&entry.0)
+                .to_string();
             cwd = PathBuf::from(initial_dir);
         } else {
             send!("No {session} found\n");
@@ -76,30 +116,51 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cwd = PathBuf::from(&config.workspace_dir);
     }
 
-    WebTerminal{config, project_dir:project_path,
-         session: session.to_string(), cwd, version }.main_loop()
+    WebTerminal {
+        config,
+        project_dir: project_path,
+        session: session.to_string(),
+        cwd,
+        version,
+    }
+    .main_loop()
 }
 
-fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
-     let mut props = HashMap::new();
+fn load_persistent(config: &Config) -> HashMap<String, (String, u64)> {
+    let mut props = HashMap::new();
     let props_path = config.get_config_path(&None::<String>, "webdata", "properties");
-    if let Ok(file) = File::open(&props_path) {
-        let lines = BufReader::new(file).lines();
-        for prop_def in lines.map_while(Result::ok).filter_map(|line| if line.starts_with('#') || line.trim().is_empty() {None} else {Some(line)}) {
-             // zKMfbJn35gFy=2025-04-26T17\:38\:36.2465801;C\:\\Users\\sunil\\projects\\simecho
-             if let Some((key,val)) = prop_def.split_once("=") {
-                 if let Some((date,cwd)) = val.split_once(';') {
-                    let last = 
-                    if let Some((date,_time)) = date.split_once('T') {
+    if let Ok(lines) = read_lines(&props_path) {
+        for prop_def in lines.map_while(Result::ok).filter_map(|line| {
+            if line.starts_with('#') || line.trim().is_empty() {
+                None
+            } else {
+                Some(line)
+            }
+        }) {
+            // zKMfbJn35gFy=2025-04-26T17\:38\:36.2465801;C\:\\Users\\sunil\\projects\\simecho
+            if let Some((key, val)) = prop_def.split_once("=") {
+                if let Some((date, cwd)) = val.split_once(';') {
+                    let last = if let Some((date, _time)) = date.split_once('T') {
                         let parts: Vec<&str> = date.splitn(3, '-').collect();
-                        seconds_from_epoch(1970, parts[0].parse::<u32>().unwrap_or(2025), parts[1].parse::<u32>().unwrap_or(1),
-                            parts[2].parse::<u32>().unwrap_or(2),0u32,0u32,0u32).unwrap()
+                        seconds_from_epoch(
+                            1970,
+                            parts[0].parse::<u32>().unwrap_or(2025),
+                            parts[1].parse::<u32>().unwrap_or(1),
+                            parts[2].parse::<u32>().unwrap_or(2),
+                            0u32,
+                            0u32,
+                            0u32,
+                        )
+                        .unwrap()
                     } else {
-                        SystemTime::now().duration_since(UNIX_EPOCH) .unwrap_or_default().as_secs()
+                        SystemTime::now()
+                            .duration_since(UNIX_EPOCH)
+                            .unwrap_or_default()
+                            .as_secs()
                     };
                     let cwd = unescape(&cwd);
                     if PathBuf::from(&cwd).exists() {
-                        props.insert(key.to_string(), (cwd.to_string(),last));
+                        props.insert(key.to_string(), (cwd.to_string(), last));
                     }
                 } else {
                     eprintln!("Invalid property value: {val}")
@@ -114,7 +175,10 @@ fn load_persistent(config: &Config) -> HashMap<String, (String,u64)> {
     props
 }
 
-fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> Result<(), Box<dyn std::error::Error>> {
+fn save_persistent(
+    config: &Config,
+    sessions: HashMap<String, (String, u64)>,
+) -> Result<(), Box<dyn std::error::Error>> {
     // update current (before save)
     // TODO consider to write a lock wrapper for something like
     // lock(save_persistent())
@@ -123,61 +187,78 @@ fn save_persistent(config: &Config, sessions: HashMap<String, (String,u64)>) -> 
     let mut props_path = config.config_dir.clone();
     props_path.push("webdata");
     props_path.set_extension("LOCK");
-    { // check if LOCK file is here
+    {
+        // check if LOCK file is here
         File::create_new(&props_path)?;
     }
     props_path.set_extension("properties");
     let mut file = OpenOptions::new()
-     .write(true)
-     .truncate(true)
-     .create(true)
-     .open(&props_path)?;
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(&props_path)?;
     //file.lock()?;
-    writeln!{file, "# WebSocket sessions"}?;
+    writeln! {file, "# WebSocket sessions"}?;
     let now = SystemTime::now();
-    writeln!{file, "# {}", simweb::http_format_time(now)}?;
+    writeln! {file, "# {}", simweb::http_format_time(now)}?;
     let now = now.duration_since(UNIX_EPOCH).unwrap().as_secs();
     for (key, value) in sessions {
-        if value.1 > now - 7*2*24*60*60 && PathBuf::from(&value.0).is_dir() {
-            let (y,m,d,h,mm,s,_) = get_datetime(1970, value.1);
-            writeln!{file,
-               "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}",esc_string(value.0) }?;
+        if value.1 > now - 7 * 2 * 24 * 60 * 60 && PathBuf::from(&value.0).is_dir() {
+            let (y, m, d, h, mm, s, _) = get_datetime(1970, value.1);
+            writeln! {file,
+            "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}",esc_string(value.0) }?;
         } else {
             //eprintln!{"path {} too old {}", value.0, value.1}
         }
     }
     //file.unlock()?;
-    { // remove  LOCK file if it is here
+    {
+        // remove  LOCK file if it is here
         props_path.set_extension("LOCK");
         fs::remove_file(&props_path)?;
     }
     Ok(())
 }
 
-fn read_aliases(mut res: HashMap<String,Vec<String>>, config: &Config, project: &Option<String> ) -> HashMap<String,Vec<String>> {
+fn read_aliases(
+    mut res: HashMap<String, Vec<String>>,
+    config: &Config,
+    project: &Option<String>,
+) -> HashMap<String, Vec<String>> {
     let aliases = config.get_config_path(project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
-        for line in lines.map_while(Result::ok)
-           .filter_map(|line| if line.starts_with('#') || line.trim().is_empty() {None} else {Some(line)}) {
-            if let Some((name,value)) = line.split_once('=') && 
-               let Some(name) = name.strip_prefix("alias ") {
+        for line in lines.map_while(Result::ok).filter_map(|line| {
+            if line.starts_with('#') || line.trim().is_empty() {
+                None
+            } else {
+                Some(line)
+            }
+        }) {
+            if let Some((name, value)) = line.split_once('=')
+                && let Some(name) = name.strip_prefix("alias ")
+            {
                 let name = name.trim();
                 let value = value.trim_matches(['"', '\'', ' ']);
-                res.insert(name.to_string(),value.split_ascii_whitespace().map(str::to_string).collect());
+                res.insert(
+                    name.to_string(),
+                    value.split_ascii_whitespace().map(str::to_string).collect(),
+                );
             }
         }
     }
-    
+
     res
 }
 
-fn esc_string(string:String) -> String {
+fn esc_string(string: String) -> String {
     let mut res = String::new();
     for c in string.chars() {
         match c {
-            ':' | '\\' | ' ' | '!' => { res.push('\\'); }
-            _ => ()
+            ':' | '\\' | ' ' | '!' => {
+                res.push('\\');
+            }
+            _ => (),
         }
         res.push(c);
     }

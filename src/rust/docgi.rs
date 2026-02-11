@@ -1057,10 +1057,10 @@ impl PageOps for PageFile {
             }
         }
         projs.sort();
-        let mut res = vec![web::Menu::MenuBox{title:"File".to_string(), hint:None, icon:None},
+        let mut res = vec![web::Menu::MenuBox{title:"File", hint:None, icon:None},
             web::Menu::MenuItem{title:"New...".to_string(), link:"javascript:newFile()".to_string(),hint:None, icon:None,short:None},
             Menu::Separator,
-            web::Menu::MenuBox{title:"Project".to_string(), hint:None, icon:None},
+            web::Menu::MenuBox{title:"Project", hint:None, icon:None},
                 web::Menu::MenuItem{title:"New...".to_string(), link:"javascript:newProject()".to_string(), hint:None, icon:None,short:None},
             web::Menu::MenuEnd,
             Menu::Separator,
@@ -1074,13 +1074,13 @@ impl PageOps for PageFile {
             web::Menu::MenuItem{title:"Close All".to_string(), link:"javascript:closeAllTab()".to_string(), hint:None, icon:None,short:None},
         web::Menu::MenuEnd,
             
-        web::Menu::MenuBox{title:"Edit".to_string(), hint:None, icon:None}, 
+        web::Menu::MenuBox{title:"Edit", hint:None, icon:None}, 
            Menu::MenuItem{title:"Undo".to_string(), link:"javascript:undoEdit()".to_string(), short:Some("^Z"), hint:None, icon:None},
            Menu::MenuItem{title:"Redo".to_string(), link:"javascript:redoEdit()".to_string(), hint:None, icon:None,short:Some("^Y")},
            Menu::Separator,
            Menu::MenuItem{title:"⏼ trim copy".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
            Menu::Separator,
-           web::Menu::MenuBox{title:"Change to".to_string(), hint:None, icon:None},
+           web::Menu::MenuBox{title:"Change to", hint:None, icon:None},
                 Menu::MenuItem{title:"Lower".to_string(), link:"javascript:lower()".to_string(),
                   hint:Some("Change case to lower"), icon:None,short:None},
                 Menu::MenuItem{title:"Upper".to_string(), link:"javascript:upper()".to_string(),
@@ -1102,7 +1102,7 @@ impl PageOps for PageFile {
            web::Menu::MenuItem{title:"Refresh Proj".to_string(), link:"javascript:refresh()".to_string(), hint:Some("Refresh the list of the project files"), icon:None,short:None},
         web::Menu::MenuEnd,
  
-         web::Menu::MenuBox{title:"Source".to_string(), hint:Some("The source navigation, compose and refactoring"), icon:None}, 
+         web::Menu::MenuBox{title:"Source", hint:Some("The source navigation, compose and refactoring"), icon:None}, 
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark currently editing line"), icon:None,short:Some("^B")},
            Menu::Separator,
            Menu::MenuItem{title:"Format".to_string(), link:"javascript:formatSrc()".to_string(), hint:Some("Format source of the current file using configured formatter"), icon:None,short:None},
@@ -1110,8 +1110,8 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,
           
-        web::Menu::MenuBox{title:"Project".to_string(), hint:None, icon:None},
-            web::Menu::MenuBox{title:"Build".to_string(), hint:None, icon:None},
+        web::Menu::MenuBox{title:"Project", hint:None, icon:None},
+            web::Menu::MenuBox{title:"Build", hint:None, icon:None},
                 Menu::MenuItem{title:"Debug".to_string(), link:"javascript:build_debug()".to_string(),
                   hint:Some("Build a debug version of the project"), icon:None,short:None},
                 Menu::MenuItem{title:"Release".to_string(), link:"javascript:build_release()".to_string(),
@@ -1119,7 +1119,7 @@ impl PageOps for PageFile {
                 Menu::MenuItem{title:"Clippy".to_string(), link:"javascript:clippy_build()".to_string(),
                   hint:Some("Get a Clippy report for the project"), icon:None,short:None},
            web::Menu::MenuEnd,
-           web::Menu::MenuBox{title:"Run".to_string(), hint:None, icon:None},
+           web::Menu::MenuBox{title:"Run", hint:None, icon:None},
                 Menu::MenuItem{title:"Debug".to_string(), link:"javascript:run_debug()".to_string(),
                   hint:Some("Run a debug version of the project"), icon:None,short:None},
                 Menu::MenuItem{title:"Release".to_string(), link:"javascript:run_release()".to_string(),
@@ -1130,7 +1130,7 @@ impl PageOps for PageFile {
            Menu::Separator,
            Menu::MenuItem{title:"Package".to_string(), link:"javascript:package()".to_string(), hint:None, icon:None,short:None},
            Menu::Separator,
-           web::Menu::MenuBox{title:"VCS".to_string(), hint:None, icon:None},
+           web::Menu::MenuBox{title:"VCS", hint:None, icon:None},
                 Menu::MenuItem{title:"Pull".to_string(), link:"javascript:vcsPull()".to_string(),
                   hint:Some("Pull changes in the project"), icon:None,short:None},
                 Menu::MenuItem{title:"Push".to_string(), link:"javascript:vcsPush()".to_string(),
@@ -1140,7 +1140,7 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Config...".to_string(), link:"javascript:config_project()".to_string(), hint:None, icon:None,short:None},
         web::Menu::MenuEnd,
         
-        web::Menu::MenuBox{title:"VCS".to_string(), hint:Some("Version Control System"), icon:None}, 
+        web::Menu::MenuBox{title:"VCS", hint:Some("Version Control System"), icon:None}, 
            Menu::MenuItem{title:"Status".to_string(), link:"javascript:vcsStatus()".to_string(), hint:None, icon:None,short:None},
            Menu::Separator,
            Menu::MenuItem{title:"Commit...".to_string(), link:"javascript:vcsCommit()".to_string(), hint:None, icon:None,short:None},
@@ -1151,7 +1151,7 @@ impl PageOps for PageFile {
         
         web::Menu::MenuItem{title:"⚙ Settings".to_string(), link:"javascript:showSettings()".to_string(), hint:None, icon:None,short:None},
         
-        web::Menu::MenuBox{title:"Help".to_string(), hint:None, icon:None},
+        web::Menu::MenuBox{title:"Help", hint:None, icon:None},
             web::Menu::MenuItem{title:"Documentation".to_string(), link:"/cgires/resource/documentation.html\" target=\"help".to_string(), hint:None,icon:None,short:None},
             web::Menu::MenuItem{title:"About...".to_string(), link:"javascript:about()".to_string(), hint:None, icon:None,short:None},
         web::Menu::MenuEnd];

@@ -9,7 +9,7 @@ use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Menu <'a> {
     MenuBox {
-        title: String, // HTML encode applied
+        title: &'a str, // HTML encode applied
         hint: Option<&'a str>, // HTML encode applied
         icon: Option<&'a str>,
     },

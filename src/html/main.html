@@ -592,7 +592,7 @@
       
       function saveSettings(current) {
         const themeSelect = document.getElementById("theme")
-        const updateTheme = THEME != themeSelect.options[themeSelect.selectedIndex].text
+        const updateTheme = !current && THEME != themeSelect.options[themeSelect.selectedIndex].text
         var payload
         if (current) {
             payload = 'mode=save-settings-project&project_home='+encodeURIComponent(PROJECT_HOME)+

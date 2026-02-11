@@ -50,8 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- IDE message box made friendly for copy its content in clipboard
-- ",
+- IDE message box made friendly for copy its content to clipboard
+- change a theme automatically updates all opened tabs",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

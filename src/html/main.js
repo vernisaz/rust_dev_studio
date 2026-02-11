@@ -507,6 +507,8 @@ function storeTabs() {
 }
 
 function closeEditor(path) {
+    EDITORS[path].editor.destroy();
+    EDITORS[path].editor.container.remove();
     delete  EDITORS[path]
     const r = document.getElementById(path)
     var removing_elements = [r]
@@ -529,7 +531,9 @@ function closeAll() {
     if (tabs.children.length > 0)
        tabs.innerHTML =   ''
     for (var key in EDITORS) {
-       delete EDITORS[key];
+        EDITORS[key].editor.destroy();
+        EDITORS[key].editor.container.remove();
+        delete EDITORS[key];
     }
 }
 

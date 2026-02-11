@@ -592,6 +592,7 @@
       
       function saveSettings(current) {
         const themeSelect = document.getElementById("theme")
+        const updateTheme = THEME != themeSelect.options[themeSelect.selectedIndex].text
         var payload
         if (current) {
             payload = 'mode=save-settings-project&project_home='+encodeURIComponent(PROJECT_HOME)+
@@ -674,6 +675,10 @@
                         COLAPSED_DIRS = document.getElementById('colaps-dir').value
                         SRC_DIR = document.getElementById('src-dir').value
                         FORMAT_ON_SAVE = document.querySelector('#format-on-save').checked
+                        if (updateTheme)
+                            for (var key in EDITORS) {
+                                EDITORS[key].editor.setTheme("ace/theme/"+EDITOR_THEME[THEME])
+                            }
                         jump('')
                     }
                  }

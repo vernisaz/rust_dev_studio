@@ -13,11 +13,12 @@ The approach of web based IDE becomes popular nowadays, for example - Code anywh
 - identificator case conversion, as camel, snake and so on
 - code analyzer with function names and usage points
 - search in all project files
-- full Unix terminal
+- full Unix terminal for all supported platforms
 - integation with Rust tools as a compiler, Rustfmt, Clippy, Cargo
 - seamless access error lines in an editor from the terminal
 - possibility to use with any other programming language(s)
 - full git integration
+- mobile and desktop browsers support
 - includes all required components as web server, scripting tool, and terminal in multi platforms environment
 
 ## Architecture
@@ -181,7 +182,7 @@ var fileNameReg
 around line 379. Add a desired language file extension in the regular expression definition.
 
 ## Version
-The current version is [1.50.06](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.06). You can check out the current development code,
+The current version is [1.50.07](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.07). You can check out the current development code,
 however it can be not stable.
 
 ## Known problems

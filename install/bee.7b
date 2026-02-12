@@ -51,7 +51,8 @@ zip [${~cwd~}]?",${~cwd~})
     "What's New in ${version}
 
 - IDE message box made friendly for copy its content to clipboard
-- change a theme automatically updates all opened tabs",
+- change a theme automatically updates all opened tabs
+- cross reference identificators added in auto completer",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

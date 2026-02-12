@@ -10,14 +10,13 @@ comp opts=[]
 version="1.22.05:188"
 set_env(VERSION,version)
 
-extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php
+extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.pas
 set_env(SEARCH_EXTS,extensions)
 
 mode=mode:prop
 if {
 	eq(mode,release) then {
-		array(comp opts, -C,opt-level=3)
-		assign(comp opts, ~~)
+		assign(comp opts, -C,opt-level=3)
 		display(${GREEN}Release build${NO_COLOR} of ${YELLOW}${version}${NO_COLOR})
 	} else {
 	    array(comp opts, --cfg, dbg_ref, --cfg,feature="quiet")

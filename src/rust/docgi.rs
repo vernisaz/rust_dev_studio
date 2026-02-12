@@ -1098,7 +1098,7 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"To Notepad".to_string(), link:"javascript:copySelected()".to_string(), hint:Some("Copy the selected to the notepad"), icon:None,short:None},
            Menu::MenuItem{title:"Save Notepad".to_string(), link:"javascript:saveNotepad()".to_string(), hint:None, icon:None,short:None},
            Menu::Separator,
-           web::Menu::MenuItem{title:"Reload".to_string(), link:"javascript:reloadCurrent()".to_string(), hint:Some("Drop changes and Reload the currently edited file"), icon:None,short:None},
+           web::Menu::MenuItem{title:"Reload".to_string(), link:"javascript:reloadCurrent()".to_string(), hint:Some("Drop changes and Reload the currently edited file"), icon:None,short:Some("^R")},
            web::Menu::MenuItem{title:"Refresh Proj".to_string(), link:"javascript:refresh()".to_string(), hint:Some("Refresh the list of the project files"), icon:None,short:None},
         web::Menu::MenuEnd,
  

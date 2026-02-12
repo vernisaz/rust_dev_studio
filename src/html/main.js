@@ -9,6 +9,10 @@ function main() {
         e.preventDefault()
         toggleBookmark()
       }
+      if (e.ctrlKey && e.code == 'KeyR') {
+        e.preventDefault()
+        reloadCurrent()
+      }
     })
     
     window.onbeforeunload = function(e) {
@@ -109,7 +113,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.05.110'
+    return '1.10.05.111'
 }
 
 function populateProjectTree() {

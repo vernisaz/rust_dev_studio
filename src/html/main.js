@@ -1,3 +1,5 @@
+var langTools
+
 function main() {
    // main app functionality
     document.addEventListener('keydown', e => {
@@ -81,17 +83,35 @@ function main() {
         wsSession = 'webId-' + makeid(12) // only allowed chars in HTTP header
     }
     
-    ace.require("ace/ext/language_tools");
+    langTools = ace.require("ace/ext/language_tools");
     
     loadSettings()
     
     vcsStatus()
     
     loadBookmarks()
+    
+    var customCompleter = {
+        getCompletions: function(editor, session, pos, prefix, callback) {
+            // Implement logic to generate suggestions based on 'prefix'
+            // For example:
+            if (prefix.length === 0) {
+                return callback(null, []);
+            }
+            var suggestions = [];
+            for (el of projectKWs) {
+                if (el.startsWith(prefix)) {
+                    suggestions.push({name: el, value: el + "()", score: 100, meta: "xref"})
+                }
+            }
+            callback(null, suggestions);
+        }
+    };
+    langTools.addCompleter(customCompleter);
 }
 
 function getVersion() {
-    return '1.10.04.109'
+    return '1.10.05.110'
 }
 
 function populateProjectTree() {

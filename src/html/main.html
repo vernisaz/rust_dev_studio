@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.06.142">
+       <input type="hidden" name="version" id="version" value="1.10.07.143">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -391,6 +391,8 @@
             fileNameReg =  /(?<path>(\w:\\)?(([\w|-]+|\.\.?)\\)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
         else
             fileNameReg = /(?<path>\/?(([\w|-]+|\.\.?)\/)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm // TODO introduce path
+      
+      var projectKWs = []
       
       function newFile() {
           const pane = document.getElementById("fileForm")
@@ -937,7 +939,9 @@
               // names must be equal
               return 0;
             })
+            projectKWs = []
             for (refEl of jsonres) {
+                projectKWs.push(refEl.name)
                 const dtEl = document.createElement("dt")
                 dtEl.innerText = `${refEl.name} (${refEl.use.length})`
                 if (refEl.trait) {

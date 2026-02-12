@@ -15,9 +15,9 @@ set_env(VERSION,version)
 mode=mode:prop
 if {
 	eq(mode,release) then {
-		array(-C,opt-level=3)
-		array(comp opts, ~~)
+		array(comp opts, -C,opt-level=3)
 		assign(comp opts, ~~)
+		display(${GREEN}Release mode${NO_COLOR})
 	}
 }
 

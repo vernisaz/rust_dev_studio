@@ -391,7 +391,7 @@ dd {
 }
 
 .color_mark {
-    color: #5c2e0a;
+    color: #BA1807;
 }
 
 #vcs-container {
@@ -424,7 +424,7 @@ input[type="search"] {
 
 .left-tree span:hover, #bookmarks > li:hover,
 #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {
-    background: #F1DF93}
+    background: #EDF5FC}
 
 .marked:before {
     content: " ✓ ";

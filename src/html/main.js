@@ -1,5 +1,3 @@
-var langTools
-
 function main() {
    // main app functionality
     document.addEventListener('keydown', e => {
@@ -83,7 +81,7 @@ function main() {
         wsSession = 'webId-' + makeid(12) // only allowed chars in HTTP header
     }
     
-    langTools = ace.require("ace/ext/language_tools");
+    var langTools = ace.require("ace/ext/language_tools");
     
     loadSettings()
     

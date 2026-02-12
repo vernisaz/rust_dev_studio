@@ -422,7 +422,9 @@ input[type="search"] {
     width: 20em;
 }
 
-.left-tree span:hover, #bookmarks > li:hover {background: #F1DF93}
+.left-tree span:hover, #bookmarks > li:hover,
+#vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {
+    background: #F1DF93}
 
 .marked:before {
     content: " ✓ ";
@@ -529,6 +531,7 @@ input[type="search"] {
          background-color: #30403F;
     }
     
-    .left-tree span:hover, #bookmarks > li:hover {background: #1E455E}
+    .left-tree span:hover, #bookmarks > li:hover,
+    #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {background: #1E455E}
 
 }

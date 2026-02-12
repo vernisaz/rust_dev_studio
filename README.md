@@ -19,6 +19,7 @@ The approach of web based IDE becomes popular nowadays, for example - Code anywh
 - possibility to use with any other programming language(s)
 - full git integration
 - mobile and desktop browsers support
+- blazing fast and safe because using Rust internallly
 - includes all required components as web server, scripting tool, and terminal in multi platforms environment
 
 ## Architecture

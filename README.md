@@ -6,6 +6,20 @@ It can be accessed from any device having an HTML5 capable browser. It's perfect
 
 The approach of web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
 
+## Features
+- multi windows editor with syntax highlighting
+- notepad with two ways copying
+- source bookmarking
+- identificator case conversion, as camel, snake and so on
+- code analyzer with function names and usage points
+- search in all project files
+- full Unix terminal
+- integation with Rust tools as a compiler, Rustfmt, Clippy, Cargo
+- seamless access error lines in an editor from the terminal
+- possibility to use with any other programming language(s)
+- full git integration
+- includes all required components as web server, scripting tool, and terminal in multi platforms environment
+
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
 perfectly suitable for using Rust. The terminal functionality is implemented using a websocket endpoint. So the RDS has

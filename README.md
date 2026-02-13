@@ -19,8 +19,8 @@ The approach of web based IDE becomes popular nowadays, for example - Code anywh
 - possibility to use with any other programming language(s)
 - full git integration
 - mobile and desktop browsers support
-- blazing fast and safe because using Rust internallly
-- includes all required components as web server, scripting tool, and terminal in multi platforms environment
+- blazing fast and safe because using Rust internally
+- includes all required components as a web server, a scripting tool, and a terminal in multi platforms environment
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is

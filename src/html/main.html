@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.07.143">
+       <input type="hidden" name="version" id="version" value="1.10.07.144">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -1020,7 +1020,6 @@
                 refs.appendChild(dtEl)
             }
          }})
-        document.getElementById("searchForm").style.display = "none"
     }
     
     function saveAll() {
@@ -1043,7 +1042,7 @@
     }
     
     function hideChildren(el, siblTag) {
-        while (el.nextSibling.tagName == siblTag) {
+        while (el.nextSibling && el.nextSibling.tagName == siblTag) {
             el = el.nextSibling
             el.classList.add('hideit')
         }

@@ -308,7 +308,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 };
                 
             }
-            '.' => {
+            '.' | '&' => {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }

@@ -317,7 +317,7 @@ function renderTree(data, parentElement, rootEl) {
   });
 }
 
-function moveToLineInFile(path, line, col, failHandler) {
+function moveToLineInFile(path, line, col, failHandler, openFind) {
     //console.log('path to show '+path+' at '+line)
     const tab_item = document.getElementById(path)
     
@@ -325,12 +325,16 @@ function moveToLineInFile(path, line, col, failHandler) {
     if (tab_item) {
         tab_item.checked = true
         EDITORS[path].editor.gotoLine(line, col, true)
+        if (openFind)
+            EDITORS[path].editor.execCommand("find")
     } else if (!lockLoad) {
         lockLoad = true
         const name = path.split('/').pop()
         ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
              "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
                  EDITORS[path].editor.gotoLine(line, col, true)
+                 if (openFind)
+                    EDITORS[path].editor.execCommand("find")
              },
              fail: function(ecode, etext) {lockLoad = false; if (failHandler && failHandler instanceof Function) failHandler(path, line, col)}})
     }

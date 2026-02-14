@@ -1015,7 +1015,7 @@
                 dtEl.dataset.col = elem.col
                 dtEl.title = elem.path
                 dtEl.onclick = function () {
-                    moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)
+                    moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col,null,true)
                 }
                 refs.appendChild(dtEl)
             }

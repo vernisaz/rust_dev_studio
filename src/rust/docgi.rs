@@ -249,11 +249,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             all_fine &= del_fil(settings_path).is_ok();
             let np = config.get_config_path(&proj, "notepad", "txt");
             let np_path = sanitize_path(&np)?; // further sanitizing is not required
-            let _ = del_fil(np_path).is_ok();
+            let _ = del_fil(np_path);
             let tabs = config.get_config_path(&proj, "tabs", "sto");
-            let _ = del_fil(&tabs).is_ok();
+            let _ = del_fil(&tabs);
             let bm = config.get_config_path(&proj, "bookmark", "json");
-            let _ = del_fil(&bm).is_ok();
+            let _ = del_fil(&bm);
             match all_fine {
                 true => Box::new(PageStuff {
                         content: "Ok".to_string(),

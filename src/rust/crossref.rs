@@ -357,7 +357,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap()
                 }
-                eprintln!{"state befor comma {state:?} at {}:{}", reader.line, reader.line_offset}
+               // eprintln!{"state befor comma {state:?} at {}:{}", reader.line, reader.line_offset}
                 match state {
                     InDataDef | Start | Direct | ExpDirect => (),
                     InCallName => name.clear(),

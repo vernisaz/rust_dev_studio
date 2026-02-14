@@ -12,15 +12,15 @@ The approach of web based IDE becomes popular nowadays, for example - Code anywh
 - source bookmarking
 - identificator case conversion, as camel, snake and so on
 - code analyzer with function names and usage points
-- search in all project files
+- search across all project files
 - full Unix terminal for all supported platforms
-- integation with Rust tools as a compiler, Rustfmt, Clippy, Cargo
-- seamless access error lines in an editor from the terminal
+- integation with Rust tools as a compiler, Rustfmt, Clippy, and Cargo
+- seamless access error lines in the editor from the terminal
 - possibility to use with any other programming language(s)
 - full git integration
 - mobile and desktop browsers support
-- blazing fast and safe because using Rust internally
-- includes all required components as a web server, a scripting tool, and a terminal in multi platforms environment
+- blazing fast and safe Rust implementation
+- includes all required components as a web server, a scripting tool, and a terminal for all supported platforms
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is

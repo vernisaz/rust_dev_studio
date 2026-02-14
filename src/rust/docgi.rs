@@ -1037,21 +1037,23 @@ impl PageOps for PageFile {
     fn get_nav(&self) -> Option<Vec<web::Menu<'_>>> {
         let mut projs = Vec::new();
         if let Ok(paths) = read_dir(&self.home) {
+            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
             for file in paths.flatten() {
-                if file.file_type().map(|t| t.is_file()).unwrap_or(false) {
-                    let file_name = file.file_name().to_string_lossy().to_string();
-                    if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
-                        let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
-                        if !session_name.is_empty() {
-                            if session_name[..1] == *"-" {
-                                session_name = &session_name[1..]
-                            } else {
+                 if file.file_type().map(|t| t.is_file()).unwrap_or(false) {
+                     let file = file.path();
+                     if let Some(ext) = file.extension() && ext == "prop" &&
+                        let Some(name) = file.file_stem() &&
+                        let Some(name) = name.to_string_lossy().strip_prefix(SETTINGS_PREF) {
+                            if !name.is_empty() && !name.starts_with("-") {
                                 continue
                             }
-                        }
-                        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
-                        projs.push(web::Menu::MenuItem{title: if session_name.is_empty() {"default".to_string()} else {
-                             session_name.to_string()}, link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(session_name)),hint:None, icon:None,short:None})
+                            let session_name = if name.is_empty() {
+                                "default"
+                            } else {
+                                name.strip_prefix('-').unwrap()
+                            };
+                            projs.push(web::Menu::MenuItem{title: session_name.to_string(),
+                                link:format!("/rustcgi/rustcgi{path_info}?session={}\" target=\"_blank",url_encode(session_name)),hint:None, icon:None,short:None})
                     }
                 }
             }

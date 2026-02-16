@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.50.07
+version=1.51.00
 
 include(cfg.7b) # created by the install
 
@@ -50,9 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- IDE message box made friendly for copy its content to clipboard
-- change a theme automatically updates all opened tabs
-- cross reference identificators added in auto completer",
+- a bind address made configurable",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,
@@ -92,8 +90,10 @@ target install:.:Install RDS if needed {
 	        # none
 	    }
 	}
+	ask(What's a bind address you will use for the RDS web server (e.g. 192.168.4.54\)[any]?, 0.0.0.0)
+	assign(BIND,~~)
 	# a logic to ask a port number and CONFIG/HOME
-	ask(What's port number use for a web server [8443]?, 8443)
+	ask(What's port number use for the web server [8443]?, 8443)
 	assign(PORT,~~)
 	cfg()
 	ask(What's apps config directory [${~~}]?, ${~~})
@@ -106,6 +106,7 @@ target install:.:Install RDS if needed {
 	assign(create time, ~~)
 	write(cfg.7b,"# auto created on ${create time}
 PORT=${PORT}
+BIND=\"${BIND}\""
 CONFIG=\"${CONFIG}\"
 HOME=\"${HOME}\"")
     mkd(${CONFIG})
@@ -158,7 +159,7 @@ alias ls='ls --color'")
 	
 	write(${~cwd~}${~/~}env.conf,"
 {
-   \"bind\" : \"0.0.0.0\",
+   \"bind\" : \"${BIND}\",
    \"port\" : ${PORT},
    \"threads\" : 40,
    \"no terminal\" : true,

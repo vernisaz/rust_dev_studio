@@ -13,6 +13,14 @@ function main() {
         e.preventDefault()
         reloadCurrent()
       }
+      if (e.code == 'F5') {
+        e.preventDefault()
+        run_debug()
+      }
+      if (e.code == 'F9'){
+        e.preventDefault()
+        build_debug()
+      }
     })
     
     window.onbeforeunload = function(e) {

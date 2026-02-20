@@ -1080,7 +1080,7 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Undo".to_string(), link:"javascript:undoEdit()".to_string(), short:Some("^Z"), hint:None, icon:None},
            Menu::MenuItem{title:"Redo".to_string(), link:"javascript:redoEdit()".to_string(), hint:None, icon:None,short:Some("^Y")},
            Menu::Separator,
-           Menu::MenuItem{title:"⏼ trim copy".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
+           Menu::MenuItem{title:"⏼ Copy diff".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
            Menu::Separator,
            web::Menu::MenuBox{title:"Change to", hint:None, icon:None},
                 Menu::MenuItem{title:"Lower".to_string(), link:"javascript:lower()".to_string(),

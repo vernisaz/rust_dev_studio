@@ -8,7 +8,7 @@ extern crate simjson;
 
 use std::{collections::HashMap,
         fs::{self, create_dir_all, read_dir, read_to_string, remove_file,write,File},
-        io::{self,Write},
+        io::{self,Write,Read},
         path::{Path,PathBuf},
         process::{Command,Stdio},
         sync::{Arc, Mutex},thread,
@@ -731,6 +731,80 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             }
         }
+        Some("format-fragment") => {
+            if let Ok(met) = env::var("REQUEST_METHOD")
+                && met == "POST"
+            {
+                let fragment = params.param("fragment").ok_or("no fragment data")?;
+                let settings =
+                    config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                let props = read_props(sanitize_path(&settings)?);
+                let mut formatted = false;
+                let json =
+                    simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
+                if let Some(format_src) = simjson::get_path_as_text(&json, &"format_src")
+                    && !format_src.is_empty()
+                {
+                    let mut parameters = format_src.split_whitespace();
+                    let prog_name = parameters.next().unwrap();
+                    let args: Vec<_> = parameters.collect();
+                    if let Ok(mut p) = Command::new(prog_name)
+                        .args(args)
+                        .stdout(Stdio::piped())
+                        .stdin(Stdio::piped())
+                        .spawn()
+                    {
+                        let res_len = fragment.len();
+                        let mut p_stdin = p.stdin.take().unwrap();
+                        thread::spawn(move || {
+                            let _ = p_stdin.write_all(fragment.as_bytes());
+                        });
+
+                        let mut res = String::with_capacity(res_len);
+                        if let Some(ref mut stdout) = p.stdout.take() {
+                            stdout.read_to_string(&mut res)?;
+                            formatted = res.len() > 0
+                        }
+                        if let Ok(status) = p.wait()
+                            && status.success()
+                            && formatted
+                        {
+                            Box::new(JsonStuff {
+                                json: format!(
+                                    r#"{{"status":"Ok", "content":"{}"}}"#,
+                                    json_encode(&res)
+                                ),
+                                name: "success".to_string(),
+                            })
+                        } else {
+                            Box::new(JsonStuff {
+                                json: r#"{"status":"Err", "message":"formatting failed"}"#
+                                    .to_string(),
+                                name: "error".to_string(),
+                            })
+                        }
+                    } else {
+                        Box::new(JsonStuff {
+                            json:
+                                r#"{"status":"Err", "message":"couldn't start formatting process"}"#
+                                    .to_string(),
+                            name: "error".to_string(),
+                        })
+                    }
+                } else {
+                    Box::new(JsonStuff {
+                        json: r#"{"status":"Err", "message":"a formatter wasn't configured"}"#
+                            .to_string(),
+                        name: "error".to_string(),
+                    })
+                }
+            } else {
+                Box::new(JsonStuff {
+                    json: r#"{"status":"Err", "message":"the request isn't POST"}"#.to_string(),
+                    name: "error".to_string(),
+                })
+            }
+        }
         Some(mode) => Box::new(PageStuffE {
             content: format! {r#"Err: The mode &quot;{mode}&quot; is not implemented in ver {VERSION}."#},
         }),
@@ -1095,6 +1169,8 @@ impl PageOps for PageFile {
                   hint:Some("Unicode 32 bit hex to two 16 bit surrogates"), icon:None,short:None},
                 Menu::MenuItem{title:"From NP".to_string(), link:"javascript:fromNotepad()".to_string(),
                   hint:Some("Replace highlighted by the notepad highlighted"), icon:None,short:None},
+                Menu::MenuItem{title:"Formatted".to_string(), link:"javascript:formatFragment()".to_string(),
+                  hint:Some("Format highlighted"), icon:None,short:None},
            web::Menu::MenuEnd,
            Menu::Separator,
            Menu::MenuItem{title:"To Notepad".to_string(), link:"javascript:copySelected()".to_string(), hint:Some("Copy the selected to the notepad"), icon:None,short:None},

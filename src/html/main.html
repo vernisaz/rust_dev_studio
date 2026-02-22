@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.07.144">
+       <input type="hidden" name="version" id="version" value="1.10.08.145">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -1192,7 +1192,29 @@
             const range = editor.selection.getRange();
             editor.session.replace(range, selectedText);
         }
+    }
+    
+    function formatFragment() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
         
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText()
+            if (!selectedContent || selectedContent == '')
+                return
+            const range = editor.selection.getRange();
+            const payload = 'mode=format-fragment&fragment='+encodeURIComponent(selectedContent)
+                +"&session="+encodeURIComponent(SESSION)
+            ajax.post({url:"./rustcgi", query: payload,
+                success: function (resp) {
+                    if (resp.status == 'Ok') {
+                        editor.session.replace(range, resp.content);
+                    } else {
+                        showErrorMessage(resp.message)
+                    }
+                }})
+            
+        }
     }
     
     function convert32BitUnicodeToSurrogates(codepoint) {

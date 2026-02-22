@@ -765,6 +765,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             stdout.read_to_string(&mut res)?;
                             formatted = res.len() > 0
                         }
+                        let mut stderr = String::new();
+                        if let Some(mut err) = p.stderr.take() {
+                            err.read_to_string(&mut stderr)?;
+                        }
                         if let Ok(status) = p.wait()
                             && status.success()
                             && formatted
@@ -778,8 +782,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             })
                         } else {
                             Box::new(JsonStuff {
-                                json: r#"{"status":"Err", "message":"formatting failed"}"#
-                                    .to_string(),
+                                json: format!(r#"{{"status":"Err", "message":"formatting failed\n{}"}}"#,
+                                    json_encode(&stderr)),
                                 name: "error".to_string(),
                             })
                         }

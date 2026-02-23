@@ -941,20 +941,37 @@ impl PageOps for JsonSettings {
 impl PageOps for JsonDirs {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let mut dirs: Vec<_> = read_dir(&self.file.file_name)
-            .map_err(|e| format!{"can't read {} because {e:?}", self.file.file_name})?
-            .filter_map(|f| if f.as_ref().map(|f| f.file_type().map(|t| t.is_dir()).unwrap_or(false)
-                    && f.file_name().into_string().map(|n| n != ".git").unwrap_or(false)).unwrap_or(false)
-                       {Some(f.unwrap().file_name().to_string_lossy().to_string())} else {None})
+            .map_err(|e| format! {"can't read {} because {e:?}", self.file.file_name})?
+            .filter_map(|f| {
+                if f.as_ref()
+                    .map(|f| {
+                        f.file_type().map(|t| t.is_dir()).unwrap_or(false)
+                            && f.file_name()
+                                .into_string()
+                                .map(|n| n != ".git")
+                                .unwrap_or(false)
+                    })
+                    .unwrap_or(false)
+                {
+                    Some(f.unwrap().file_name().to_string_lossy().to_string())
+                } else {
+                    None
+                }
+            })
             .collect();
         dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
-        Ok("[".to_owned() + &dirs.into_iter().map(|ref curr| "\"".to_owned() +
-            &json_encode(curr) + "\"").collect::<Vec<_>>().join(", ") + "]"
-        )
+        Ok("[".to_owned()
+            + &dirs
+                .into_iter()
+                .map(|ref curr| "\"".to_owned() + &json_encode(curr) + "\"")
+                .collect::<Vec<_>>()
+                .join(", ")
+            + "]")
     }
 
-    json_ret!{}
+    json_ret! {}
 
-    name_of!{"JSON"}
+    name_of! {"JSON"}
 }
 
 impl PageOps for JsonProj {

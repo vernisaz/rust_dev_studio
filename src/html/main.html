@@ -1200,7 +1200,7 @@
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
-            if (!selectedContent || selectedContent == '')
+            if (!selectedContent || selectedContent.trim() == '')
                 return
             const range = editor.selection.getRange();
             const payload = 'mode=format-fragment&fragment='+encodeURIComponent(selectedContent)
@@ -1342,7 +1342,7 @@
                         showErrorMessage(resp)
                     }
                 }, respType: 'html'})
-        }); else showErrorMessage('Format on save is on, the file will be formatted at saving')
+        }); else showErrorMessage('Format on save is enabled, the file will be formatted at saving')
     }
     
     function vcsPull() {

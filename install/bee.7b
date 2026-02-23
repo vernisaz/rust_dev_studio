@@ -49,8 +49,9 @@ zip [${~cwd~}]?",${~cwd~})
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
-
-- a bind address made configurable",
+    
+- a possibility to format the selected content
+- the bind address made configurable",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

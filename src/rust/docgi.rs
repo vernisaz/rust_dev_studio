@@ -752,6 +752,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         .args(args)
                         .stdout(Stdio::piped())
                         .stdin(Stdio::piped())
+                        .stderr(Stdio::piped())
                         .spawn()
                     {
                         let res_len = fragment.len();

@@ -992,27 +992,32 @@ impl PageOps for JsonProj {
 
 impl PageOps for JsonSess {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
-        let paths = read_dir(&self.file.file_name).map_err(|err| format!("Directory {} can't be read: {err}", &self.file.file_name))?;
-        //eprintln!("looking in:{}", &self.file.file_name);
+        let paths = read_dir(&self.file.file_name)?;
         let mut res = paths.fold("[".to_string(), |mut accum, path| {
-            let file_name = path.unwrap().file_name().to_str().unwrap().to_owned();
-            if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
-                let mut session_name = &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len ()];
-                if !session_name.is_empty() {
-                    if session_name[0..1] == *"-" {
-                        session_name = &session_name[1..]
-                    } else {
-                        return accum
+            if let Ok(path) = path
+                && let Ok(file_type) = path.file_type()
+                && file_type.is_file()
+            {
+                let file_name = path.file_name().to_str().unwrap().to_owned();
+                if file_name.starts_with(SETTINGS_PREF) && file_name.ends_with(".prop") {
+                    let mut session_name =
+                        &file_name[SETTINGS_PREF.len()..file_name.len() - ".prop".len()];
+                    if !session_name.is_empty() {
+                        if session_name[0..1] == *"-" {
+                            session_name = &session_name[1..]
+                        } else {
+                            return accum;
+                        }
                     }
+                    if accum.len() > 1 {
+                        accum.push(',')
+                    }
+                    accum.push('"');
+                    if !session_name.is_empty() {
+                        accum.push_str(&json_encode(session_name));
+                    }
+                    accum.push('"')
                 }
-                if accum.len() > 1 {
-                    accum.push(',')
-                }
-                accum.push('"');
-                if !session_name.is_empty() {
-                    accum.push_str(&json_encode(session_name));
-                }
-                accum.push('"')
             }
             accum
         });
@@ -1021,19 +1026,22 @@ impl PageOps for JsonSess {
         Ok(res)
     }
 
-    json_ret!{}
+    json_ret! {}
 
-    name_of!{"name"}
+    name_of! {"name"}
 }
+
 
 impl PageOps for JsonData {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
-        recurse_files(Path::new(&self.file.file_name)).map_err(|err| format!("Directory {} can't be read: {err}", &self.file.file_name).into())
+        recurse_files(Path::new(&self.file.file_name)).map_err(|err| {
+            format!("Directory {} can't be read: {err}", &self.file.file_name).into()
+        })
     }
 
-    json_ret!{}
+    json_ret! {}
 
-    name_of!{"JSON"}
+    name_of! {"JSON"}
 }
 
 impl PageOps for JsonVCS {
@@ -1115,17 +1123,19 @@ impl PageOps for PageFile {
 
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         match std::env::current_exe() {
-            Ok(cgi_exe) => { 
-                let main =
-                if env::var("PATH_INFO").is_ok(){
-                     PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name)
+            Ok(cgi_exe) => {
+                let main = if env::var("PATH_INFO").is_ok() {
+                    PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name)
                 } else {
-                     cgi_exe.parent().unwrap().join("resource").join(&self.file_name)
+                    cgi_exe
+                        .parent()
+                        .unwrap()
+                        .join("resource")
+                        .join(&self.file_name)
                 };
-                read_to_string(&main)
-                  .map_err(|_err| format! {"ERROR: misconfiguration - can't load {:?}", &main}.into())
+                Ok(read_to_string(&main)?)
             }
-            Err(_err) => Err("ERROR: misconfiguration - can't get CGI script path".into())
+            Err(_err) => Err("ERROR: misconfiguration - can't get CGI script path".into()),
         }
     }
 

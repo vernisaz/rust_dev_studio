@@ -757,7 +757,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     {
                         let res_len = fragment.len();
                         let mut p_stdin = p.stdin.take().unwrap();
-                        thread::spawn(move || {
+                        let stdin_handle = thread::spawn(move || {
                             let _ = p_stdin.write_all(fragment.as_bytes());
                         });
 
@@ -774,6 +774,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             && status.success()
                             && formatted
                         {
+                             let _ = stdin_handle.join();
                             Box::new(JsonStuff {
                                 json: format!(
                                     r#"{{"status":"Ok", "content":"{}"}}"#,
@@ -782,6 +783,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 name: "success".to_string(),
                             })
                         } else {
+                             let _ = stdin_handle.join();
                             Box::new(JsonStuff {
                                 json: format!(r#"{{"status":"Err", "message":"formatting failed\n{}"}}"#,
                                     json_encode(&stderr)),
@@ -886,16 +888,20 @@ pub struct Redirect {
     session: Option<String>,
 }
 
-macro_rules! json_ret{
-  () => { fn content_type(&self) -> String {
-        "application/json".to_string()
-    } }
+macro_rules! json_ret {
+    () => {
+        fn content_type(&self) -> String {
+            "application/json".to_string()
+        }
+    };
 }
 
-macro_rules! name_of{
-  ($name:literal) => { fn name(&self) -> String {
-        $name.to_string()
-    } }
+macro_rules! name_of {
+    ($name:literal) => {
+        fn name(&self) -> String {
+            $name.to_string()
+        }
+    };
 }
 
 impl PageOps for JsonSettings {

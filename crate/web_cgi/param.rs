@@ -1,10 +1,5 @@
-use std::collections::HashMap;
-use std::io;
-use std::time::SystemTime;
-#[cfg(any(unix, target_os = "redox"))]
-use std::path::{MAIN_SEPARATOR_STR};
-#[cfg(target_os = "windows")]
-use std::path::{MAIN_SEPARATOR};
+use std::{collections::HashMap,
+io, time::SystemTime};
 use simtime::get_datetime;
 
 #[derive(Debug)]
@@ -143,16 +138,4 @@ pub fn to_web_separator(mut path: String ) -> String {
         }
     }
     path
-}
-
-#[cfg(target_os = "windows")]
-pub fn has_root(path:  impl AsRef<str>) -> bool {
-    let path = path.as_ref().as_bytes();
-    path.len() > 3 && path[1] == b':' && path[2] == b'\\' || path.len() > 0 && path[0] == MAIN_SEPARATOR as _
-}
-
-#[cfg(any(unix, target_os = "redox"))]
-#[inline]
-pub fn has_root(path:  impl AsRef<str>) -> bool {
-    path.as_ref().starts_with(MAIN_SEPARATOR_STR)
 }

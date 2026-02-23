@@ -1,6 +1,6 @@
 use simcfg::read_config_root;
 
-use simweb::sanitize_web_path;
+use simweb::{sanitize_web_path, has_root};
 use std::{
     collections::HashMap,
     fs::{File, read_to_string},
@@ -45,23 +45,26 @@ impl Config {
         &self,
         project_path: impl AsRef<str> + std::fmt::Debug,
         in_project_path: Option<&String>,
-    ) -> String {
+    ) -> Option<String> {
         let project_path = project_path.as_ref();
+        if has_root(project_path) {
+            return None
+        }
         let mut res = self.workspace_dir.clone();
-        res.push(project_path.strip_prefix('/').unwrap_or(project_path)); // not allowed an absolute path yet, but it needs verify on Windows
+        res.push(project_path);
 
         if let Some(in_project_path) = in_project_path {
             res.push(in_project_path);
         }
         //eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
-        res.display().to_string()
+        Some(res.display().to_string())
     }
 
     #[allow(dead_code)]
     pub fn name_to_path(&self, name: Option<String>) -> Option<String> {
         let name = name?;
         let name = sanitize_web_path(name).ok()?;
-        Some(self.to_real_path(&name, None))
+        self.to_real_path(&name, None)
     }
 
     pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {

@@ -61,7 +61,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             Some(path) => Box::new(JsonData {
                 file: PageFile {
                     file_name: config
-                        .to_real_path(&path, None),
+                        .to_real_path(&path, None).ok_or("project path misconfiguration")?,
                     ..Default::default()
                 },
             }),
@@ -76,7 +76,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             sanitize_path(&in_project_path)?; 
             let file = params.param("name").ok_or(WebError{cause:None, reason: "no file name".to_string()})?;
             sanitize_path(&file)?; 
-            let file_path = PathBuf::from(&config.to_real_path(&project_home, Some(&in_project_path)));
+            let file_path = PathBuf::from(&config.to_real_path(&project_home, Some(&in_project_path)).ok_or("project path misconfiguration")?);
             let modified = get_file_modified(&file_path);
             let edit: String = read_to_string(&file_path)?;
             Box::new(PageFrag { fragment: PageStuff {content: format!(r#"{{"modified":{modified}, "name":"{}", "path":"{}", "content": "{}"}}"#,
@@ -87,7 +87,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
                 //eprintln!("name:{sub_path}");
                 let file_path =
-                    config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path));
+                    config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path)).ok_or("project path misconfiguration")?;
                 let file_path = sanitize_path(&file_path)?; 
                 let modified = get_file_modified(file_path);
                 let remote_modifiled = &params
@@ -110,7 +110,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             if let Some(value) = props.get("format_on_save") && value == "yes" &&
                                 let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
                                 let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") && !format_src.is_empty() {
-                                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                                 let mut parameters = format_src.split_whitespace();
                                 let prog_name = parameters.next().unwrap();
                                 let args : Vec<_> = parameters.collect();
@@ -189,7 +189,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 
                 if  let Some(proj_dir ) =  params.param("project_home") {
                     sanitize_path(&proj_dir)?;
-                    let real_dir = config.to_real_path(&proj_dir, None);
+                    let real_dir = config.to_real_path(&proj_dir, None).ok_or("project path misconfiguration")?;
                     let real_dir = Path::new(&real_dir);
                     if real_dir.exists().not() {
                         // create dir if non existent (too many directories attack possible)
@@ -225,7 +225,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("project-dir-list") => {
             // list of dirs in
-            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
             //eprintln! {"Project conn dir: {:?}", &dir};
             Box::new(JsonProj {
                 file: PageFile {
@@ -315,7 +315,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file = config.to_real_path(
                     &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
-                );
+                ).ok_or("project path misconfiguration")?;
                 let file = sanitize_path(&file)?;
                 eprintln! {"Project file to del: {:?}", &file};
                 remove_file(file)?;
@@ -344,7 +344,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-list") => {
             let dir =
-                config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
             eprintln! {"VCS dir: {:?}", &dir};
             Box::new(JsonVCS {
                 dir: PageFile {
@@ -356,7 +356,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-commit") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
                     let mut result_oper: Result<(), String> = Ok(());
@@ -409,7 +409,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .arg("commit")
                                 .arg("-m")
                                 .arg(&comment)
-                                .env("HOME", config.to_real_path("", None))
+                                .env("HOME", config.to_real_path("", None).ok_or("project path misconfiguration")?)
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                             let settings_file = sanitize_path(&settings)?;
@@ -457,7 +457,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             // git checkout -- <file>
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("restore")
@@ -491,7 +491,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("vcs-stage") => {
             // git add <file>
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("add")
@@ -553,7 +553,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut use_pnts  = HashMap::new();
             let mut total_refs = vec![];
             
-            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -626,7 +626,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let shared = Arc::new(Mutex::new(String::from("[")));
             let tp = ThreadPool::new(3);
             if let Some(string) = params.param("name") {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                 let dir_len = (dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
                 let exts = env!("SEARCH_EXTS");
@@ -697,7 +697,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 
                 let json = simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
                 
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None);
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") && let Some(prog_name) = simjson::get_path_as_text(&json,&"format_src")
                     && !prog_name.is_empty() {
                     let mut parameters = prog_name.split_whitespace();

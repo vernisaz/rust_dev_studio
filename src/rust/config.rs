@@ -48,13 +48,15 @@ impl Config {
     ) -> Option<String> {
         let project_path = project_path.as_ref();
         if has_root(project_path) {
-            return None
+            return None;
         }
         let mut res = self.workspace_dir.clone();
-        res.push(project_path);
-
-        if let Some(in_project_path) = in_project_path {
-            res.push(in_project_path);
+        if !project_path.is_empty() {
+            res.push(project_path);
+    
+            if let Some(in_project_path) = in_project_path {
+                res.push(in_project_path);
+            }
         }
         //eprintln!{"parts to connect: config: {:?} {project_path:?} {in_project_path:?} = {res:?}", self.config_dir};
         Some(res.display().to_string())

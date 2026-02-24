@@ -188,7 +188,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: format! {"Err: file is too old {modified} vs {remote_modifiled}"},
+                        content: format! {"Err: file is too old {modified} &lt; {remote_modifiled}"},
                     })
                 }
             } else {
@@ -344,7 +344,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("delete") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
-                    &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, 
+                    &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project path misconfiguration"))?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 ).ok_or("project path misconfiguration")?;
                 let file = sanitize_path(&file)?;

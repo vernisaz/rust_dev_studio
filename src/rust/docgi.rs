@@ -19,7 +19,7 @@ mod crossref;
 mod search;
 mod config;
 
-use simweb::{WebError,url_encode, json_encode};
+use simweb::{url_encode, json_encode};
 use crossref::{RefType,Reference};
 use web::{get_file_modified, sanitize_path, Menu,
     save_props, PageOps, param};
@@ -72,9 +72,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("editor-file") => {
             let project_home = config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?;
-            let in_project_path = params.param("path").ok_or(WebError{cause:None, reason: "no parameter path".to_string()})?;
+            let in_project_path = params.param("path").ok_or("no parameter 'path'")?;
             sanitize_path(&in_project_path)?; 
-            let file = params.param("name").ok_or(WebError{cause:None, reason: "no file name".to_string()})?;
+            let file = params.param("name").ok_or("no parameter 'name'")?;
             sanitize_path(&file)?; 
             let file_path = PathBuf::from(&config.to_real_path(&project_home, Some(&in_project_path)).ok_or("project path misconfiguration")?);
             let modified = get_file_modified(&file_path);
@@ -83,72 +83,103 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 json_encode(&file), json_encode(&in_project_path), json_encode(&edit))}, params,})
         }
         Some("save") => {
-            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let sub_path = &params.param("name").ok_or(WebError{cause:None, reason: "No parameter 'name'".to_string()})?; 
-                //eprintln!("name:{sub_path}");
-                let file_path =
-                    config.to_real_path(config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?, Some(sub_path)).ok_or("project path misconfiguration")?;
-                let file_path = sanitize_path(&file_path)?; 
+            if let Ok(met) = env::var("REQUEST_METHOD")
+                && met == "POST"
+            {
+                let sub_path = &params.param("name").ok_or("No parameter 'name'")?;
+                let file_path = config
+                    .to_real_path(
+                        config
+                            .get_project_home(&params.param("session"))
+                            .ok_or(Box::<dyn Error>::from("projects HOME misconfiguration"))?,
+                        Some(sub_path),
+                    )
+                    .ok_or("project path misconfiguration")?;
+                let file_path = sanitize_path(&file_path)?;
                 let modified = get_file_modified(file_path);
                 let remote_modifiled = &params
                     .param("modified")
-                    .unwrap_or_else(||"0".to_string())
+                    .unwrap_or_else(|| "0".to_string())
                     .parse::<u64>()
                     .unwrap_or_default();
                 if modified <= *remote_modifiled {
                     if let Some(data) = params.param("data") {
                         if modified == 0 {
-                            let _ = Path::new(&file_path).parent().and_then(|parent| create_dir_all(parent).ok());
+                            let _ = Path::new(&file_path)
+                                .parent()
+                                .and_then(|parent| create_dir_all(parent).ok());
                         }
                         let mut write_done = false;
                         let adata = Arc::new(data);
                         let data_for_1 = Arc::clone(&adata);
                         let data_for_2 = Arc::clone(&adata);
                         if file_path.extension() == Some(OsStr::new("rs")) {
-                            let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
+                            let settings = config.get_config_path(
+                                &params.param("session"),
+                                SETTINGS_PREF,
+                                "prop",
+                            );
                             let props = read_props(&settings);
-                            if let Some(value) = props.get("format_on_save") && value == "yes" &&
-                                let Some(json) = props.get("proj_conf") && let json = simjson::parse(json) &&
-                                let Some(format_src) = simjson::get_path_as_text(&json,&"format_src") && !format_src.is_empty() {
-                                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                            if let Some(value) = props.get("format_on_save")
+                                && value == "yes"
+                                && let Some(json) = props.get("proj_conf")
+                                && let json = simjson::parse(json)
+                                && let Some(format_src) =
+                                    simjson::get_path_as_text(&json, &"format_src")
+                                && !format_src.is_empty()
+                            {
+                                let dir = config
+                                    .to_real_path(
+                                        config
+                                            .get_project_home(&params.param("session"))
+                                            .ok_or("project path misconfiguration")?,
+                                        None,
+                                    )
+                                    .ok_or("project path misconfiguration")?;
                                 let mut parameters = format_src.split_whitespace();
                                 let prog_name = parameters.next().unwrap();
-                                let args : Vec<_> = parameters.collect();
-                                if let Ok(mut p) = Command::new(prog_name).args(args).current_dir(&dir)
+                                let args: Vec<_> = parameters.collect();
+                                if let Ok(mut p) = Command::new(prog_name)
+                                    .args(args)
+                                    .current_dir(&dir)
                                     .stdout(Stdio::piped())
-                                    .stdin(Stdio::piped()).spawn() {
-                                    //let value = data.clone();
+                                    // TODO think of possibility to discover a cause of an error
+                                    //.stderr(Stdio::piped())
+                                    .stdin(Stdio::piped())
+                                    .spawn()
+                                {
                                     let mut p_stdin = p.stdin.take().unwrap();
-                                    thread::spawn(move || {
+                                    let stdin_handle = thread::spawn(move || {
                                         let _ = p_stdin.write_all(data_for_1.as_bytes());
                                     });
-                                    if let Some(ref mut stdout) = p.stdout && let Ok(mut file_to_write) = File::create(file_path) &&
-                                        let Ok(len) = io::copy(stdout, &mut file_to_write) {
-                                            write_done = len > 0
+                                    if let Some(ref mut stdout) = p.stdout
+                                        && let Ok(mut file_to_write) = File::create(file_path)
+                                        && let Ok(len) = io::copy(stdout, &mut file_to_write)
+                                    {
+                                        write_done = len > 0
                                     }
                                     if let Ok(status) = p.wait() {
                                         write_done &= status.success()
                                     } else {
                                         write_done = false
                                     }
+                                    let _ = stdin_handle.join();
                                 }
                             }
                         }
                         if !write_done {
                             match write(file_path, &*data_for_2) {
-                                Ok(()) => {
-                                    Box::new(PageStuff {
-                                        content: format! {"Ok {}", get_file_modified(file_path)}
-                                    })
-                                }
-                                Err(err)=> Box::new(PageStuff {
+                                Ok(()) => Box::new(PageStuff {
+                                    content: format! {"Ok {}", get_file_modified(file_path)},
+                                }),
+                                Err(err) => Box::new(PageStuff {
                                     content: format!("Err: {err} for {file_path:?}"),
-                                })
+                                }),
                             }
                         } else {
                             Box::new(PageStuff {
-                                    content: format! {"Ok {}", get_file_modified(file_path)}
-                                })
+                                content: format! {"Ok {}", get_file_modified(file_path)},
+                            })
                         }
                     } else {
                         Box::new(PageStuff {
@@ -157,14 +188,14 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: format!{"Err: file is too old {modified} vs {remote_modifiled}"}
+                        content: format! {"Err: file is too old {modified} vs {remote_modifiled}"},
                     })
                 }
             } else {
                 Box::new(PageStuff {
                     content: "Err: not a POST".to_string(),
                 })
-            } 
+            }
         }
         Some("settings-project") => {
             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
@@ -225,7 +256,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("project-dir-list") => {
             // list of dirs in
-            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+            let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
             //eprintln! {"Project conn dir: {:?}", &dir};
             Box::new(JsonProj {
                 file: PageFile {
@@ -344,7 +375,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-list") => {
             let dir =
-                config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
             eprintln! {"VCS dir: {:?}", &dir};
             Box::new(JsonVCS {
                 dir: PageFile {
@@ -356,7 +387,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("vcs-commit") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
                 if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
                 {
                     let mut result_oper: Result<(), String> = Ok(());
@@ -409,7 +440,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .arg("commit")
                                 .arg("-m")
                                 .arg(&comment)
-                                .env("HOME", config.to_real_path("", None).ok_or("project path misconfiguration")?)
+                                .env("HOME", config.to_real_path("", None).ok_or("projects HOME misconfiguration")?)
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                             let settings_file = sanitize_path(&settings)?;
@@ -457,7 +488,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             // git checkout -- <file>
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("restore")
@@ -491,7 +522,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("vcs-stage") => {
             // git add <file>
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") {
                     let output = Command::new("git")
                         .arg("add")
@@ -553,7 +584,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let mut use_pnts  = HashMap::new();
             let mut total_refs = vec![];
             
-            let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+            let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -626,7 +657,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let shared = Arc::new(Mutex::new(String::from("[")));
             let tp = ThreadPool::new(3);
             if let Some(string) = params.param("name") {
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
                 let dir_len = (dir).len();
                 eprintln! {"Search for {string} in {dir:?}"}
                 let exts = env!("SEARCH_EXTS");
@@ -697,7 +728,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 
                 let json = simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
                 
-                let dir = config.to_real_path(config.get_project_home(&params.param("session")).unwrap_or_default(), None).ok_or("project path misconfiguration")?;
+                let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name") && let Some(prog_name) = simjson::get_path_as_text(&json,&"format_src")
                     && !prog_name.is_empty() {
                     let mut parameters = prog_name.split_whitespace();

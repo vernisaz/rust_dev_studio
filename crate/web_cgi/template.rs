@@ -8,6 +8,7 @@ enum TemplateState {
     InVal,
     VarStart, // $
     InVar,
+    EscVar,
 }
 
 pub trait Selectable {
@@ -90,11 +91,20 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                 TemplateState::InVal => state = TemplateState::VarStart,
                 TemplateState::VarStart => buf.push(c),
                 TemplateState::InVar => buf_var.push(c),
+                TemplateState::EscVar => {
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
             },
             '{' => match state {
                 TemplateState::VarStart => state = TemplateState::InVar,
                 TemplateState::InVal => buf.push(c),
                 TemplateState::InVar => buf_var.push(c),
+                TemplateState::EscVar => {
+                    buf.push('\\');
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
             },
             '}' => match state {
                 TemplateState::VarStart => {
@@ -102,12 +112,10 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     buf.push('$');
                     buf.push(c)
                 }
-                TemplateState::InVal => {
-                    buf.push(c)
-                }
+                TemplateState::InVal => buf.push(c),
                 TemplateState::InVar => {
                     state = TemplateState::InVal;
-                    let var: String = buf_var.clone().into_iter().collect();
+                    let var: String = buf_var.clone().iter().collect();
                     let index = var.parse::<usize>();
                     let string = if let Ok(index) = index {
                         args.get_by_id(&index)
@@ -119,19 +127,41 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     }
                     buf_var.clear()
                 }
+                TemplateState::EscVar => {
+                    buf.push('\\');
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
+            },
+            '\\' => match state {
+                TemplateState::InVal => state = TemplateState::EscVar,
+                TemplateState::VarStart => {
+                    buf.push('$');
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
+                TemplateState::InVar => buf_var.push(c),
+                TemplateState::EscVar => {
+                    buf.push(c);
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
             },
             _ => match state {
-                TemplateState::InVal => {
-                    buf.push(c)
-                }
+                TemplateState::InVal => buf.push(c),
                 TemplateState::InVar => buf_var.push(c),
                 TemplateState::VarStart => {
                     buf.push('$');
                     buf.push(c);
                     state = TemplateState::InVal
                 }
+                TemplateState::EscVar => {
+                    buf.push('\\');
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
             },
         }
     }
-    buf.into_iter().collect()
+    buf.iter().collect()
 }

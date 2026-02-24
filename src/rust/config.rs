@@ -69,13 +69,13 @@ impl Config {
         self.to_real_path(&name, None)
     }
 
-    pub fn get_config_path(&self, proj: &Option<String>, file: &str, ext: &str) -> PathBuf {
+    pub fn get_config_path(&self, proj: &Option<String>, prefix: &str, ext: &str) -> PathBuf {
         let mut res = self.config_dir.clone();
         match proj {
             Some(proj) if !proj.is_empty() && proj != "default" => {
-                res.push(file.to_string() + "-" + proj)
+                res.push(prefix.to_string() + "-" + proj)
             }
-            _ => res.push(file),
+            _ => res.push(prefix),
         }
         res.set_extension(ext);
         res

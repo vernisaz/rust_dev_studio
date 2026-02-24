@@ -114,9 +114,7 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
             if prop_def.starts_with("#") {
                 continue; // comment
             }
-            if let Some(pos) = prop_def.find('=') {
-                let name = &prop_def[0..pos];
-                let val = &prop_def[pos + 1..];
+            if let Some((name, val)) = prop_def.split_once('=') {
                 props.insert(name.to_string(), val.to_string());
             } else {
                 eprintln!("Invalid property definition: {}", &prop_def)
@@ -127,3 +125,4 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
     }
     props
 }
+

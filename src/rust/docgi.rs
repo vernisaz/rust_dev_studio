@@ -143,7 +143,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                     .args(args)
                                     .current_dir(&dir)
                                     .stdout(Stdio::piped())
-                                    // TODO think of possibility to discover a cause of an error
+                                    // TODO think of a possibility to discover a cause of an error
                                     //.stderr(Stdio::piped())
                                     .stdin(Stdio::piped())
                                     .spawn()

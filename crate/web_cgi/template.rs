@@ -9,6 +9,7 @@ enum TemplateState {
     VarStart, // $
     InVar,
     EscVar,
+    EscEsc,
 }
 
 pub trait Selectable {
@@ -95,6 +96,7 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     buf.push(c);
                     state = TemplateState::InVal
                 }
+                TemplateState::EscEsc => state = TemplateState::VarStart,
             },
             '{' => match state {
                 TemplateState::VarStart => state = TemplateState::InVar,
@@ -102,6 +104,10 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                 TemplateState::InVar => buf_var.push(c),
                 TemplateState::EscVar => {
                     buf.push('\\');
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
+                TemplateState::EscEsc => {
                     buf.push(c);
                     state = TemplateState::InVal
                 }
@@ -132,6 +138,10 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     buf.push(c);
                     state = TemplateState::InVal
                 }
+                TemplateState::EscEsc => {
+                    buf.push(c);
+                    state = TemplateState::InVal
+                }
             },
             '\\' => match state {
                 TemplateState::InVal => state = TemplateState::EscVar,
@@ -143,7 +153,11 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                 TemplateState::InVar => buf_var.push(c),
                 TemplateState::EscVar => {
                     buf.push(c);
-                    state = TemplateState::InVal
+                    state = TemplateState::EscEsc
+                }
+                TemplateState::EscEsc => {
+                    buf.push(c);
+                    state = TemplateState::EscVar
                 }
             },
             _ => match state {
@@ -154,7 +168,7 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     buf.push(c);
                     state = TemplateState::InVal
                 }
-                TemplateState::EscVar => {
+                TemplateState::EscVar | TemplateState::EscEsc => {
                     buf.push('\\');
                     buf.push(c);
                     state = TemplateState::InVal

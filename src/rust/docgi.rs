@@ -188,7 +188,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: format! {"Err: file is too old {modified} &lt; {remote_modifiled}"},
+                        content: format! {"Err: file is too old {modified} < {remote_modifiled}"},
                     })
                 }
             } else {

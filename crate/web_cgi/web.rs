@@ -94,7 +94,7 @@ fn form_nav(items: Option<Vec<Menu>>) -> String {
                     res.push_str(&format! {r#"{4}<li{separator}>
 {4}   <a href="javascript:void(0)" {1}>{2}{0}{3}</a>
 {4}   <ul class="html-sub-menu-{ident}">
-"#, html_encode(&item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
+"#, html_encode(item), get_hint(&hint), get_img(&icon), if ident>=4 {get_short(&Some("➤"))}else{String::new()}, " ".repeat(ident)});
                     separator = "";
                     ident += 4}
                 MenuItem {
@@ -213,7 +213,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
 
 fn get_hint(hint: &Option<&str>) -> String {
     if let Some(hint) = hint {
-        format! {r#" alt="{0}" title="{0}""#, html_encode(&hint)}
+        format! {r#" alt="{0}" title="{0}""#, html_encode(hint)}
     } else {
         String::new()
     }
@@ -229,7 +229,7 @@ fn get_img(icon: &Option<&str>) -> String {
 
 fn get_short(short: &Option<&str>) -> String {
     if let Some(short) = short {
-        format! {"<span style=\"float:right\">{0}</span>", html_encode(&short)}
+        format! {"<span style=\"float:right\">{0}</span>", html_encode(short)}
     } else {
         String::new()
     }

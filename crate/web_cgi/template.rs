@@ -143,7 +143,6 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                 TemplateState::InVar => buf_var.push(c),
                 TemplateState::EscVar => {
                     buf.push(c);
-                    buf.push(c);
                     state = TemplateState::InVal
                 }
             },

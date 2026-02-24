@@ -194,35 +194,35 @@
             <form name="project_conf" method="post">
             <div class="form-row">
             <label for="debug_build">Debug Build:</label>
-            <input type="text" name="debug_build" value="rb" size="50">
+            <input type="text" name="debug_build" placeholder="cargo build" value="rb" size="50">
             </div>
             <div class="form-row">
             <label for="clippy">Run Clippy:</label>
-            <input type="text" name="clippy" value="rb clippy" size="50">
+            <input type="text" name="clippy" placeholder="cargo clippy" value="rb clippy" size="50">
             </div>
             <div class="form-row">
             <label for="release_build">Release Build:</label>
-            <input type="text" name="release_build" value="rb -Drelease" size="50">
+            <input type="text" name="release_build" value="rb -Drelease" placeholder="cargo build --release" size="50">
             </div>
             <div class="form-row">
             <label for="debug_app">Debug App:</label>
-            <input type="text" name="debug_app" value="rb debug" size="50">
+            <input type="text" name="debug_app" value="rb debug" placeholder="cargo run" size="50">
             </div>
             <div class="form-row">
             <label for="run_app">Run App:</label>
-            <input type="text" name="run_app" value="rb run" size="50">
+            <input type="text" name="run_app" value="rb run" placeholder="cargo run --release"  size="50">
             </div>
             <div class="form-row">
             <label for="test_app">Test App:</label>
-            <input type="text" name="test_app" value="rb test" size="50">
+            <input type="text" name="test_app" value="rb test" placeholder="cargo test" size="50">
             </div>
             <div class="form-row">
             <label for="format_src">Source formatter:</label>
-            <input type="text" name="format_src" value="rustfmt" size="50">
+            <input type="text" name="format_src" value="rustfmt" placeholder="cargo fmt" size="50">
             </div>
             <div class="form-row">
             <label for="package_app">Package App:</label>
-            <input type="text" name="package_app" value="rb package" size="50">
+            <input type="text" name="package_app" value="rb package" placeholder="cargo install" size="50">
             </div>
             </form>
             <div class="form-footer">

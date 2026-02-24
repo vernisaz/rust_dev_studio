@@ -102,12 +102,8 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                 TemplateState::VarStart => state = TemplateState::InVar,
                 TemplateState::InVal => buf.push(c),
                 TemplateState::InVar => buf_var.push(c),
-                TemplateState::EscVar => {
+                TemplateState::EscVar | TemplateState::EscEsc => {
                     buf.push('\\');
-                    buf.push(c);
-                    state = TemplateState::InVal
-                }
-                TemplateState::EscEsc => {
                     buf.push(c);
                     state = TemplateState::InVal
                 }
@@ -133,12 +129,8 @@ pub fn interpolate(value: &str, args: &impl Selectable) -> String {
                     }
                     buf_var.clear()
                 }
-                TemplateState::EscVar => {
+                TemplateState::EscVar | TemplateState::EscEsc => {
                     buf.push('\\');
-                    buf.push(c);
-                    state = TemplateState::InVal
-                }
-                TemplateState::EscEsc => {
                     buf.push(c);
                     state = TemplateState::InVal
                 }

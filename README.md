@@ -139,7 +139,7 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 
-### Running Rustfmt from RDS
+### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
 RDS allows to run Rustfmt explicitly selecting it from menu _Source/Format_, or implicitly checking off _Format on save_ in **Settings**.
 In both cases, Rustfmt has to be configured in _Project/Config..._. You can specify a formatting program, e.g. rustfmt, and
@@ -149,6 +149,11 @@ its options, for example:
 
 If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
 saved and auto formatted, some files can be not updated in web UI, so do it manually using menu _Edit/Reload_.
+
+You are not limited to using _Rustfmt_, you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
+Just specify it in the configuration as
+
+> rustidy
 
 
 ## Cloud and multi users install

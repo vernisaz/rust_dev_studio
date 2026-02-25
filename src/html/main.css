@@ -320,6 +320,7 @@ nav ul > li:hover > ul {
 
 .form-row label, .right-details label {
   font-weight: bold;
+  margin-bottom: 0.3rem;
 }
 
 .form-footer {

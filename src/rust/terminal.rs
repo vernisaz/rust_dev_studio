@@ -104,7 +104,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Some(entry) = entry {
             let initial_dir = entry
                 .0
-                .strip_suffix(MAIN_SEPARATOR_STR)
+                .strip_suffix(MAIN_SEPARATOR_STR) // reconsider value of the code since it is not reliable on Windows
                 .unwrap_or(&entry.0)
                 .to_string();
             cwd = PathBuf::from(initial_dir);
@@ -145,7 +145,7 @@ fn load_persistent(config: &Config) -> HashMap<String, (String, u64)> {
                         let parts: Vec<&str> = date.splitn(3, '-').collect();
                         seconds_from_epoch(
                             1970,
-                            parts[0].parse::<u32>().unwrap_or(2025),
+                            parts[0].parse::<u32>().unwrap_or(2026),
                             parts[1].parse::<u32>().unwrap_or(1),
                             parts[2].parse::<u32>().unwrap_or(2),
                             0u32,

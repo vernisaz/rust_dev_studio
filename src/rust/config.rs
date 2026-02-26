@@ -64,9 +64,7 @@ impl Config {
 
     #[allow(dead_code)]
     pub fn name_to_path(&self, name: Option<String>) -> Option<String> {
-        let name = name?;
-        let name = sanitize_web_path(name).ok()?;
-        self.to_real_path(&name, None)
+        self.to_real_path(&sanitize_web_path(name?).ok()?, None)
     }
 
     pub fn get_config_path(&self, proj: &Option<String>, prefix: &str, ext: &str) -> PathBuf {

@@ -6,3 +6,4 @@ webcgi
 .config
 *.zip
 clippy-*
+.DS_Store

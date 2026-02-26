@@ -1,6 +1,6 @@
 use simcfg::read_config_root;
 
-use simweb::{sanitize_web_path, has_root};
+use simweb::{has_root, sanitize_web_path};
 use std::{
     collections::HashMap,
     fs::{File, read_to_string},
@@ -30,7 +30,7 @@ impl Config {
                     workspace_dir,
                 };
             } else {
-                eprintln!("no directory {workspace_dir:?}")
+                eprintln!("no such directory {workspace_dir:?}")
             }
         }
         config_dir.pop();
@@ -53,7 +53,7 @@ impl Config {
         let mut res = self.workspace_dir.clone();
         if !project_path.is_empty() {
             res.push(project_path);
-    
+
             if let Some(in_project_path) = in_project_path {
                 res.push(in_project_path);
             }
@@ -123,4 +123,3 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
     }
     props
 }
-

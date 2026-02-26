@@ -66,7 +66,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             }),
             _ => Box::new(JsonStuff {
-                json: r#"{"name":"No correct project HOME is set yet", "type":"file"}"#.to_string(),
+                json: r#"{"name":"No correct project path is set yet", "type":"file"}"#.to_string(),
                 name: "noproject".to_string()
              }),
         }

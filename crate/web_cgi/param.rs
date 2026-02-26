@@ -95,10 +95,17 @@ impl Param {
             match c {
                 '%' => {
                     if let Some(c1) = chars.next() {
-                        let d1 = c1.to_digit(16).unwrap();
-                        if let Some(c2) = chars.next() {
-                            let d2 = c2.to_digit(16).unwrap();
-                            res.push(((d1 << 4) + d2) as u8)
+                        if let Some(d1) = c1.to_digit(16) {
+                            if let Some(c2) = chars.next() {
+                                if let Some(d2) = c2.to_digit(16) {
+                                    res.push(((d1 << 4) + d2) as u8)
+                                } else {
+                                    res.push(if c1.is_ascii() { c as u8 } else { b'?' });
+                                    res.push(if c2.is_ascii() { c as u8 } else { b'?' })
+                                }
+                            }
+                        } else {
+                            res.push(if c1.is_ascii() { c as u8 } else { b'?' })
                         }
                     }
                 }

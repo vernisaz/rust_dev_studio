@@ -28,20 +28,22 @@ impl Param {
         if let Ok(query) = env::var(String::from("QUERY_STRING")) {
             let parts = query.split("&");
             for part in parts {
-                if let Some(keyval) = part.split_once("=") &&
-                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
-                    res.params
-                        .insert(name, val);
+                if let Some(keyval) = part.split_once("=")
+                    && let Some(name) = res.url_comp_decode(keyval.0)
+                    && let Some(val) = res.url_comp_decode(keyval.1)
+                {
+                    res.params.insert(name, val);
                 }
             }
         }
         if let Ok(header_cookies) = env::var(String::from("HTTP_COOKIE")) {
             let parts = header_cookies.split(";");
             for part in parts {
-                if let Some(keyval) = part.split_once('=') &&
-                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
-                    res.cookies
-                        .insert(name.trim().to_string(), val);
+                if let Some(keyval) = part.split_once('=')
+                    && let Some(name) = res.url_comp_decode(keyval.0)
+                    && let Some(val) = res.url_comp_decode(keyval.1)
+                {
+                    res.cookies.insert(name.trim().to_string(), val);
                 }
             }
         }
@@ -58,12 +60,11 @@ impl Param {
                 if let Ok(_ok) = stdin.read_line(&mut user_input) {
                     let parts = user_input.split("&");
                     for part in parts {
-                        if let Some(keyval) = part.split_once('=') &&
-                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
-                            res.params.insert(
-                                name,
-                                val,
-                            );
+                        if let Some(keyval) = part.split_once('=')
+                            && let Some(name) = res.url_comp_decode(keyval.0)
+                            && let Some(val) = res.url_comp_decode(keyval.1)
+                        {
+                            res.params.insert(name, val);
                         }
                     }
                 }
@@ -98,10 +99,10 @@ impl Param {
             match c {
                 '%' => {
                     if let Some(c1) = chars.next() {
-                        let d1 = c1.to_digit(16) ?;
-                            let c2 = chars.next() ?;
-                           let d2 = c2.to_digit(16) ?;
-                                    res.push(((d1 << 4) + d2) as u8)
+                        let d1 = c1.to_digit(16)?;
+                        let c2 = chars.next()?;
+                        let d2 = c2.to_digit(16)?;
+                        res.push(((d1 << 4) + d2) as u8)
                     }
                 }
                 '+' => res.push(b' '),

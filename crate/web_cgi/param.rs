@@ -28,18 +28,20 @@ impl Param {
         if let Ok(query) = env::var(String::from("QUERY_STRING")) {
             let parts = query.split("&");
             for part in parts {
-                if let Some(keyval) = part.split_once("=") {
+                if let Some(keyval) = part.split_once("=") &&
+                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
                     res.params
-                        .insert(res.url_comp_decode(keyval.0), res.url_comp_decode(keyval.1));
+                        .insert(name, val);
                 }
             }
         }
         if let Ok(header_cookies) = env::var(String::from("HTTP_COOKIE")) {
             let parts = header_cookies.split(";");
             for part in parts {
-                if let Some(keyval) = part.split_once('=') {
+                if let Some(keyval) = part.split_once('=') &&
+                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
                     res.cookies
-                        .insert(keyval.0.trim().to_string(), keyval.1.to_string());
+                        .insert(name.trim().to_string(), val);
                 }
             }
         }
@@ -56,10 +58,11 @@ impl Param {
                 if let Ok(_ok) = stdin.read_line(&mut user_input) {
                     let parts = user_input.split("&");
                     for part in parts {
-                        if let Some(keyval) = part.split_once('=') {
+                        if let Some(keyval) = part.split_once('=') &&
+                    let Some(name) = res.url_comp_decode(keyval.0) && let Some(val) = res.url_comp_decode(keyval.1) {
                             res.params.insert(
-                                res.url_comp_decode(keyval.0),
-                                res.url_comp_decode(keyval.1),
+                                name,
+                                val,
                             );
                         }
                     }
@@ -87,7 +90,7 @@ impl Param {
         }
     }
 
-    pub fn url_comp_decode(&self, comp: &str) -> String {
+    pub fn url_comp_decode(&self, comp: &str) -> Option<String> {
         let mut res = Vec::with_capacity(256);
 
         let mut chars = comp.chars();
@@ -95,25 +98,17 @@ impl Param {
             match c {
                 '%' => {
                     if let Some(c1) = chars.next() {
-                        if let Some(d1) = c1.to_digit(16) {
-                            if let Some(c2) = chars.next() {
-                                if let Some(d2) = c2.to_digit(16) {
+                        let d1 = c1.to_digit(16) ?;
+                            let c2 = chars.next() ?;
+                           let d2 = c2.to_digit(16) ?;
                                     res.push(((d1 << 4) + d2) as u8)
-                                } else {
-                                    res.push(if c1.is_ascii() { c as u8 } else { b'?' });
-                                    res.push(if c2.is_ascii() { c as u8 } else { b'?' })
-                                }
-                            }
-                        } else {
-                            res.push(if c1.is_ascii() { c as u8 } else { b'?' })
-                        }
                     }
                 }
                 '+' => res.push(b' '),
-                _ => res.push(if c.is_ascii() { c as u8 } else { b'?' }),
+                _ => res.push(if c.is_ascii() { c as u8 } else { return None }),
             }
         }
-        String::from_utf8_lossy(&res).to_string()
+        String::from_utf8(res).ok()
     }
 }
 

@@ -98,12 +98,9 @@ impl Param {
         while let Some(c) = chars.next() {
             match c {
                 '%' => {
-                    if let Some(c1) = chars.next() {
-                        let d1 = c1.to_digit(16)?;
-                        let c2 = chars.next()?;
-                        let d2 = c2.to_digit(16)?;
-                        res.push(((d1 << 4) + d2) as u8)
-                    }
+                    let d1 = chars.next()? .to_digit(16)?;
+                    let d2 = chars.next()?.to_digit(16)?;
+                    res.push(((d1 << 4) + d2) as u8)
                 }
                 '+' => res.push(b' '),
                 _ => res.push(if c.is_ascii() { c as u8 } else { return None }),

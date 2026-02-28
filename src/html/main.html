@@ -23,15 +23,15 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.08.145">
+       <input type="hidden" name="version" id="version" value="1.10.08.146">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
             </div>
             ${menu}
         </nav>
-    <dialog class="message-bar" closedby="any">
-        <p id="message-content" style="overflow:auto;">
+    <dialog class="message-bar" closedby="any" style="max-height: 90vh;overflow:auto;">
+        <p id="message-content">
     
        </p>
        <button onclick="this.parentElement.close()">Close</button>

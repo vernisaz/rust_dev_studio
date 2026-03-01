@@ -120,13 +120,11 @@ building the terminal and then build the terminal. Note that the crate has one e
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
-there is the predefined packaging.
+there is a predefined packaging.
 
-It includes all required **RDS** components. Just launch `./rds.sh` or `.\rds.bat` on _Windows_
-and you can start using the **RDS**. The access URL's stored in `rds.url`.
-
-There is a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b) to
-create the standard packaging.
+The packaging can be created by running a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b).
+The created zip file can be unzipped in any desired location and then launch `./rds.sh` or `.\rds.bat` on _Windows_
+and start using the **RDS**. The access URL's stored in `rds.url`.
 
 ## Usage tips
 
@@ -135,8 +133,11 @@ Navigate to a project directory and then *Apply* for the new project.
 Open the just created project from menu *File/Project/\<name\>* then. You can start to
 navigate over the project tree, open and edit files, build its components and so on.
 
-If you do not have the project checked out yet, then you can check it out first, and then to set the project root 
-in the *Settings*. You can execute underline OS commands as *mkdir*, *git clone*, and others in the terminal panel. 
+If you do not have the project checked out or created yet, then you can use the terminal panel and execute 
+underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
+will create a project directory, unless it exists. You can always correct the project root directory 
+in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
+and you will need to delete project files  manually using the terminal panel.
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:

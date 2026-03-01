@@ -42,7 +42,7 @@ function main() {
     
     if(document.addEventListener) document.addEventListener("visibilitychange", autosave)
     
-    document.getElementById('commandarea').addEventListener("focus", (event) => { autosave() }) // can be an overhead and a race condition
+    document.getElementById('commandarea').addEventListener("focus", (event) => { if (preventAutoSave) preventAutoSave = false; else autosave() }) // can be an overhead and a race condition
     
     document.addEventListener('copy', function(event) {
         if (!document.querySelector('#cpySpec').classList.contains('marked'))
@@ -576,6 +576,7 @@ function showErrorMessage(msg) {
     const bar = document.querySelector('.message-bar')
     const content = document.querySelector('#message-content')
     content.innerHTML = '<pre>'+htmlEncode(msg)+'</pre>'
+    preventAutoSave = true
     bar.show()
 }
 

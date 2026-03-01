@@ -31,6 +31,11 @@ written in Rust, HTML, CSS, and JavaScript and runs on the [Rust web server](htt
 It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust CGI executable. The terminal is
 a websocket endpoint utilizing the WS-CGI technology.
 
+## Quick start
+If you plan to give the project a try, just go in [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
+download *zip* file for your platform. Unzip the file in a command window and type `rds` in the unzipped directory. After answering a couple questions
+you're ready to go. File `rds.url` contains the access URL. Just copy it in your browser address bar and you are ready to use ther **RDS**.
+
 ## Config
 
 The following configuration snippet has to be added to [env.conf](https://github.com/vernisaz/simhttp/blob/master/env.conf) 

@@ -851,7 +851,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file = sanitize_path(&file)?;
                 let output = Command::new("git")
                         .arg("log")
-                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%nm %f%n"#)
+                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %f%n"#)
                         .arg("--")
                         .arg(file)
                         .current_dir(&dir)
@@ -872,6 +872,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 entries.push_str(&format!(r#""date":"{val}","#))
                             } else if let Some(val) = line.strip_prefix("m ") {
                                 entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(&val)))
+                            } else if let Some(val) = line.strip_prefix("e ") {
+                                entries.push_str(&format!(r#""email":"{}","#, json_encode(&val)))
                             }
                         }
                         Box::new(JsonStuff {
@@ -879,8 +881,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             name: "json".to_string(),
                         })
                     } else {
+                        let stderr = String::from_utf8(output.stderr)?;
                         Box::new(JsonStuff {
-                            json: r#"{"status":"Err", "message":"GIT log failed"}"#.to_string(),
+                            json: format!(r#"{{"status":"Err", "message":"GIT log failed", "cause":"{}"}}"#, json_encode(&stderr)),
                             name: "error".to_string(),
                         })
                     }

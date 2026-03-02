@@ -50,6 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
     
+- added an access to GIT history and modifications details
 - a possibility to format the selected content
 - the bind address made configurable",
 	-E ${rds}/rds${script ext},

@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.08.146">
+       <input type="hidden" name="version" id="version" value="1.10.10.148">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -277,8 +277,8 @@
    
     <div class="form-popup" id="about">
     </div>
-    <dialog closedby="any" style="max-height: 90vh;overflow:auto;position: fixed; top: 10%;">
-        <div >
+    <dialog closedby="any" style="max-height: 80vh;overflow:auto;position: fixed; top: 10%;">
+        <div style="overflow:auto;">
     
        </div>
        <button onclick="this.parentElement.close()">Close</button>
@@ -941,10 +941,15 @@
             ajax.get({url:"./rustcgi?mode=vcs-log&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path), success: function(jsonres) {
                 const historyDiv = document.querySelector('dialog div')
                 historyDiv.innerHTML = ''
-                for (e of jsonres.entries) {
-                    historyDiv.innerHTML += `<div><a href="mailto:">${e.author}</a> ${e.date}</div>
-                          <div><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
-                          <pre id="${e.commit_hash}"></pre>`
+                if (jsonres.status == 'Success')
+                    for (e of jsonres.entries) {
+                        historyDiv.innerHTML += `<div><a href="mailto:${e.email}">${e.author}</a> ${e.date}</div>
+                              <div><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
+                              <pre id="${e.commit_hash}"></pre><hr>`
+                    }
+                else {
+                    showErrorMessage(`Can't retrieve the history: ${jsonres.message}, because: ${jsonres.cause}`)
+                    return
                 }
                 historyDiv.parentElement.show()
             }})
@@ -957,7 +962,7 @@
             const path = editor_tab.id
             ajax.get({url:"./rustcgi?mode=vcs-diff&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path)+'&hash='+hashid,
             success: function(diff) {
-                const hashPre = document.querySelector('#'+hashid)
+                const hashPre = document.getElementById(hashid)
                 hashPre.textContent = diff
                 
             }, respType:"html"})

@@ -908,20 +908,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     if output.status.success() {
                         let stdout = String::from_utf8(output.stdout)?;
                         eprintln! {"git show\n {stdout}"}
-                        Box::new(JsonStuff {
-                            json: r#"{"status":"Success", "diff":"{}"}"#.to_string(),
-                            name: "error".to_string(),
+                        Box::new(PageStuff {
+                            content: format!("Ok {stdout}").to_string(),
                         })
                     } else {
-                        Box::new(JsonStuff {
-                            json: r#"{"status":"Err", "message":"GIT show failed"}"#.to_string(),
-                            name: "error".to_string(),
+                        Box::new(PageStuff {
+                            content: "Err: GIT show failed".to_string(),
                         })
                     }
             } else {
-               Box::new(JsonStuff {
-                    json: r#"{"status":"Err", "message":"the project directory isn't GIT repository"}"#.to_string(),
-                    name: "error".to_string(),
+                Box::new(PageStuff {
+                    content: "Err: the project directory isn't GIT repository".to_string(),
                 })
             }
         }

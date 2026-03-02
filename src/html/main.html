@@ -942,10 +942,25 @@
                 const historyDiv = document.querySelector('dialog div')
                 historyDiv.innerHTML = ''
                 for (e of jsonres.entries) {
-                    historyDiv.innerHTML += `<div>${e.commit_hash} ${e.author} ${e.date}</div><div>${e.message}</div>`
+                    historyDiv.innerHTML += `<div><a href="mailto:">${e.author}</a> ${e.date}</div>
+                          <div><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
+                          <pre id="${e.commit_hash}"></pre>`
                 }
                 historyDiv.parentElement.show()
             }})
+        }
+    }
+    
+    function vcsDiff(hashid) {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const path = editor_tab.id
+            ajax.get({url:"./rustcgi?mode=vcs-diff&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path)+'&hash='+hashid,
+            success: function(diff) {
+                const hashPre = document.querySelector('#'+hashid)
+                hashPre.textContent = diff
+                
+            }, respType:"html"})
         }
     }
     

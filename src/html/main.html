@@ -277,6 +277,12 @@
    
     <div class="form-popup" id="about">
     </div>
+    <dialog closedby="any" style="max-height: 90vh;overflow:auto;position: fixed; top: 10%;">
+        <div >
+    
+       </div>
+       <button onclick="this.parentElement.close()">Close</button>
+    </dialog>
    <!-- SCRIPT  -->
     <script>
       const EDITOR_MODE = {
@@ -926,6 +932,21 @@
                 closeCommit()
                 btn.disabled = false
              }, respType:"html"})
+    }
+    
+    function vcsHistory() {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const path = editor_tab.id
+            ajax.get({url:"./rustcgi?mode=vcs-log&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path), success: function(jsonres) {
+                const historyDiv = document.querySelector('dialog div')
+                historyDiv.innerHTML = ''
+                for (e of jsonres.entries) {
+                    historyDiv.innerHTML += `<div>${e.commit_hash} ${e.author} ${e.date}</div><div>${e.message}</div>`
+                }
+                historyDiv.parentElement.show()
+            }})
+        }
     }
     
     function scanXRef() {

@@ -850,16 +850,33 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file = params.param("name").ok_or("no file name to get GIT history")?;
                 let file = sanitize_path(&file)?;
                 let output = Command::new("git")
-                        .arg("log").arg("--no-decorate").arg("--")
+                        .arg("log")
+                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%nm %f%n"#)
+                        .arg("--")
                         .arg(file)
                         .current_dir(&dir)
                         .output()?;
                         
                     if output.status.success() {
-                        
+                        let stdout = String::from_utf8(output.stdout)?;
+                        eprintln! {"git log\n {stdout}"}
+                        let mut entries = String::with_capacity(stdout.len() + 200);
+                        for line in stdout.split('\n') {
+                            if line.is_empty() { continue}
+                            if let Some(val) = line.strip_prefix("h ") {
+                                if entries.len() > 0 {entries.push(',')}
+                                entries.push_str(&format!(r#"{{"commit_hash":"{val}","#))
+                            } else if let Some(val) = line.strip_prefix("a ") {
+                                entries.push_str(&format!(r#""author":"{}","#, json_encode(&val)))
+                            } else if let Some(val) = line.strip_prefix("d ") {
+                                entries.push_str(&format!(r#""date":"{val}","#))
+                            } else if let Some(val) = line.strip_prefix("m ") {
+                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(&val)))
+                            }
+                        }
                         Box::new(JsonStuff {
-                            json: r#"{"status":"Success", "entries":[{}]}"#.to_string(),
-                            name: "error".to_string(),
+                            json: format!(r#"{{"status":"Success", "entries":[{entries}]}}"#).to_string(),
+                            name: "json".to_string(),
                         })
                     } else {
                         Box::new(JsonStuff {
@@ -889,7 +906,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         .output()?;
                         
                     if output.status.success() {
-                        
+                        let stdout = String::from_utf8(output.stdout)?;
+                        eprintln! {"git show\n {stdout}"}
                         Box::new(JsonStuff {
                             json: r#"{"status":"Success", "diff":"{}"}"#.to_string(),
                             name: "error".to_string(),

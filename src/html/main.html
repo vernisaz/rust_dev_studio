@@ -963,7 +963,58 @@
             ajax.get({url:"./rustcgi?mode=vcs-diff&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path)+'&hash='+hashid,
             success: function(diff) {
                 const hashPre = document.getElementById(hashid)
-                hashPre.textContent = diff
+                const lines = diff.split(/\r?\n|\r|\n/g)
+                var state = ''
+                var res = ''
+                for (line of lines) {
+                    switch (line.charAt(0)) {
+                        case '+':
+                            switch (state) {
+                               case '+':
+                                   break;
+                               case '-':
+                                   res += '</span><span style="color:green">'
+                                   state = '+'
+                                   break;
+                               default:
+                                   res += '<span style="color:green">'
+                                   state = '+'
+                            }
+                            break;
+                        case '-':
+                            switch (state) {
+                               case '-':
+                                   break;
+                               case '+':
+                                   res += '</span><span style="color:red">'
+                                   state = '-'
+                                   break;
+                               default:
+                                   res += '<span style="color:red">'
+                                   state = '-'
+                            } 
+                            break;
+                        default:
+                            switch (state) {
+                               case '+':
+                               case '-':
+                                   res += '</span>'
+                                   state = ''
+                                   break;
+                               default:
+                                  
+                            } 
+                            break;
+                    }
+                    res += line;
+                    res += '\n'
+                }
+                switch (state) {
+                   case '+':
+                   case '-':
+                       res += '</span>'
+                }            
+                hashPre.innerHTML = res
                 
             }, respType:"html"})
         }

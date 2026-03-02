@@ -795,7 +795,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let mut res = String::with_capacity(res_len);
                         if let Some(ref mut stdout) = p.stdout.take() {
                             stdout.read_to_string(&mut res)?;
-                            formatted = res.len() > 0
+                            formatted = !res.is_empty()
                         }
                         let mut stderr = String::new();
                         if let Some(mut err) = p.stderr.take() {
@@ -864,16 +864,16 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         for line in stdout.split('\n') {
                             if line.is_empty() { continue}
                             if let Some(val) = line.strip_prefix("h ") {
-                                if entries.len() > 0 {entries.push(',')}
+                                if !entries.is_empty() {entries.push(',')}
                                 entries.push_str(&format!(r#"{{"commit_hash":"{val}","#))
                             } else if let Some(val) = line.strip_prefix("a ") {
-                                entries.push_str(&format!(r#""author":"{}","#, json_encode(&val)))
+                                entries.push_str(&format!(r#""author":"{}","#, json_encode(val)))
                             } else if let Some(val) = line.strip_prefix("d ") {
                                 entries.push_str(&format!(r#""date":"{val}","#))
                             } else if let Some(val) = line.strip_prefix("m ") {
-                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(&val)))
+                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(val)))
                             } else if let Some(val) = line.strip_prefix("e ") {
-                                entries.push_str(&format!(r#""email":"{}","#, json_encode(&val)))
+                                entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))
                             }
                         }
                         Box::new(JsonStuff {

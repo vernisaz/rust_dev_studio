@@ -843,6 +843,70 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             }
         }
+        Some("vcs-log") => {
+            let dir =
+                config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
+            if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string()) {
+                let file = params.param("name").ok_or("no file name to get GIT history")?;
+                let file = sanitize_path(&file)?;
+                let output = Command::new("git")
+                        .arg("log").arg("--no-decorate").arg("--")
+                        .arg(file)
+                        .current_dir(&dir)
+                        .output()?;
+                        
+                    if output.status.success() {
+                        
+                        Box::new(JsonStuff {
+                            json: r#"{"status":"Success", "entries":[{}]}"#.to_string(),
+                            name: "error".to_string(),
+                        })
+                    } else {
+                        Box::new(JsonStuff {
+                            json: r#"{"status":"Err", "message":"GIT log failed"}"#.to_string(),
+                            name: "error".to_string(),
+                        })
+                    }
+            } else {
+               Box::new(JsonStuff {
+                    json: r#"{"status":"Err", "message":"the project directory isn't GIT repository"}"#.to_string(),
+                    name: "error".to_string(),
+                })
+            }
+        }
+        Some("vcs-diff") => {
+            let dir =
+                config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
+            if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string()) {
+               let file = params.param("name").ok_or("no file name to get GIT history")?;
+               let file = sanitize_path(&file)?;
+               let hash = params.param("hash").ok_or("no commit hash to get GIT diff")?;
+               
+                let output = Command::new("git")
+                        .arg("show").arg("--oneline").arg("--expand-tabs").arg("--no-color")
+                        .arg(hash).arg(file)
+                        .current_dir(&dir)
+                        .output()?;
+                        
+                    if output.status.success() {
+                        
+                        Box::new(JsonStuff {
+                            json: r#"{"status":"Success", "diff":"{}"}"#.to_string(),
+                            name: "error".to_string(),
+                        })
+                    } else {
+                        Box::new(JsonStuff {
+                            json: r#"{"status":"Err", "message":"GIT show failed"}"#.to_string(),
+                            name: "error".to_string(),
+                        })
+                    }
+            } else {
+               Box::new(JsonStuff {
+                    json: r#"{"status":"Err", "message":"the project directory isn't GIT repository"}"#.to_string(),
+                    name: "error".to_string(),
+                })
+            }
+        }
         Some(mode) => Box::new(PageStuffE {
             content: format! {r#"Err: The mode &quot;{mode}&quot; is not implemented in ver {VERSION}."#},
         }),
@@ -1294,6 +1358,8 @@ impl PageOps for PageFile {
            Menu::Separator,
            Menu::MenuItem{title:"Restore".to_string(), link:"javascript:vcsRestore()".to_string(), hint:Some("Restore the current file content from VCS"), icon:None,short:None},
            Menu::MenuItem{title:"Stage".to_string(), link:"javascript:vcsStage()".to_string(), hint:Some("Stage the current file"), icon:None,short:None},
+           Menu::Separator,
+           Menu::MenuItem{title:"History...".to_string(), link:"javascript:vcsHistory()".to_string(), hint:Some("Show the history of modifications"), icon:None,short:None},
         web::Menu::MenuEnd,
         
         web::Menu::MenuItem{title:"⚙ Settings".to_string(), link:"javascript:showSettings()".to_string(), hint:None, icon:None,short:None},

@@ -1273,7 +1273,7 @@ impl PageOps for PageFile {
                                 continue
                             }
                             let session_name = if name.is_empty() {
-                                "default"
+                                "-default-"
                             } else {
                                 name.strip_prefix('-').unwrap()
                             };

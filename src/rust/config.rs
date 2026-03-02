@@ -70,7 +70,7 @@ impl Config {
     pub fn get_config_path(&self, proj: &Option<String>, prefix: &str, ext: &str) -> PathBuf {
         let mut res = self.config_dir.clone();
         match proj {
-            Some(proj) if !proj.is_empty() && proj != "default" => {
+            Some(proj) if !proj.is_empty() && proj != "-default-" && proj != "default" => {
                 res.push(prefix.to_string() + "-" + proj)
             }
             _ => res.push(prefix),

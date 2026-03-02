@@ -1123,7 +1123,7 @@
             var menuHtml = '<li><a href="javascript:newProject()">New...</a></li>'
             for (el of projs.sort()) {
                 menuHtml += `<li><a href="/rustcgi/rustcgi${PATH_INFO}?session=${htmlAttrEncode(el)}`+
-                   '" target="_blank">'+(el==''?'default':htmlEncode(el))+'</a></li>';
+                   '" target="_blank">'+(el==''?'-default-':htmlEncode(el))+'</a></li>';
             }
             var repEl = Array.from(document.querySelector('nav').querySelectorAll('a'))
                 .find(el => el.textContent === 'Project➤'); // not very relaible, so better can be mark it with a specific id

@@ -877,7 +877,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                         Box::new(JsonStuff {
-                            json: format!(r#"{{"status":"Success", "entries":[{entries}]}}"#).to_string(),
+                            json: format!(r#"{{"status":"Success", "entries":[{entries}]}}"#),
                             name: "json".to_string(),
                         })
                     } else {

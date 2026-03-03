@@ -13,7 +13,7 @@ function main() {
         e.preventDefault()
         reloadCurrent()
       }
-      if (e.code == 'F5') {
+      if (e.code == 'F5' && !(event.shiftKey || e.altKey || e.ctrlKey)) {
         e.preventDefault()
         run_debug()
       }

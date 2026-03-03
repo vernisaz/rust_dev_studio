@@ -431,6 +431,16 @@ input[type="search"] {
     content: " ✓ ";
 }
 
+dialog > div a {
+    text-decoration: none;
+    list-style-type: none;
+    color: #333;
+}
+
+dialog > div a:hover {
+  text-decoration: underline;
+}
+
 @media (prefers-color-scheme: dark) {
   /* Dark theme styles go here */
    :root {
@@ -534,5 +544,7 @@ input[type="search"] {
     
     .left-tree span:hover, #bookmarks > li:hover,
     #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {background: #1E455E}
-
+    dialog > div a {
+    color: #ccc;
+}
 }

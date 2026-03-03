@@ -17,7 +17,7 @@ function main() {
         e.preventDefault()
         run_debug()
       }
-      if (e.code == 'F9'){
+      if (e.code == 'F9' && !(event.shiftKey || e.altKey || e.ctrlKey)) {
         e.preventDefault()
         build_debug()
       }

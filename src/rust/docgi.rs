@@ -871,7 +871,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             } else if let Some(val) = line.strip_prefix("d ") {
                                 entries.push_str(&format!(r#""date":"{val}","#))
                             } else if let Some(val) = line.strip_prefix("m ") {
-                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(val)))
+                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(truncate_to_bytes(val, 104))))
                             } else if let Some(val) = line.strip_prefix("e ") {
                                 entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))
                             }
@@ -1568,4 +1568,12 @@ fn refs_to_json(refs: &[Reference], exemp_len:usize) -> String {
     let ser_ref = |current: &Reference| format!{r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column};
     refs.iter().map(ser_ref).collect::<Vec<_>>().join(",")
+}
+
+fn truncate_to_bytes(s: &str, max_bytes: usize) -> &str {
+    let mut end = max_bytes;
+    while !s.is_char_boundary(end) {
+        end -= 1;
+    }
+    &s[..end]
 }

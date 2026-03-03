@@ -91,8 +91,9 @@ impl Param {
         }
     }
 
+    // TODO think of returning Cow
     pub fn url_comp_decode(&self, comp: &str) -> Option<String> {
-        let mut res = Vec::with_capacity(256);
+        let mut res = Vec::with_capacity(comp.len());
 
         let mut chars = comp.chars();
         while let Some(c) = chars.next() {

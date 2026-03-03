@@ -851,7 +851,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file = sanitize_path(&file)?;
                 let output = Command::new("git")
                         .arg("log")
-                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %f%n"#)
+                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %s%n"#)
                         .arg("--")
                         .arg(file)
                         .current_dir(&dir)

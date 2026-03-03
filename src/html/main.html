@@ -941,13 +941,17 @@
             ajax.get({url:"./rustcgi?mode=vcs-log&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path), success: function(jsonres) {
                 const historyDiv = document.querySelector('dialog div')
                 historyDiv.innerHTML = ''
-                if (jsonres.status == 'Success')
+                if (jsonres.status == 'Success' && jsonres.entries.length > 0)
                     for (e of jsonres.entries) {
                         historyDiv.innerHTML += `<div><a href="mailto:${e.email}">${e.author}</a> ${e.date}</div>
                               <div><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
                               <pre id="${e.commit_hash}"></pre><hr>`
                     }
                 else {
+                    if (!jsonres.message)
+                        jsonres.message = 'no history yet'
+                    if (!jsonres.cause)
+                        jsonres.cause = ''
                     showErrorMessage(`Can't retrieve the history: ${jsonres.message}, because: ${jsonres.cause}`)
                     return
                 }

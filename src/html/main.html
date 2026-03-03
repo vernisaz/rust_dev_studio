@@ -943,7 +943,7 @@
                 historyDiv.innerHTML = ''
                 if (jsonres.status == 'Success' && jsonres.entries.length > 0)
                     for (e of jsonres.entries) {
-                        historyDiv.innerHTML += `<div><a href="mailto:${e.email}">${e.author}</a> ${e.date}</div>
+                        historyDiv.innerHTML += `<div><a target="_blank" href="mailto:${e.email}?subject=Re:${e.message}">${e.author}</a> ${e.date}</div>
                               <div><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
                               <pre id="${e.commit_hash}"></pre><hr>`
                     }
@@ -1010,7 +1010,7 @@
                             } 
                             break;
                     }
-                    res += line;
+                    res += htmlEncode(line);
                     res += '\n'
                 }
                 switch (state) {

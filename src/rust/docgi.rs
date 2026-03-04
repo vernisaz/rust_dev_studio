@@ -851,7 +851,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let file = sanitize_path(&file)?;
                 let output = Command::new("git")
                         .arg("log")
-                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %s%n"#)
+                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %<(104,trunc)%s%n"#)
                         .arg("--")
                         .arg(file)
                         .current_dir(&dir)
@@ -871,7 +871,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             } else if let Some(val) = line.strip_prefix("d ") {
                                 entries.push_str(&format!(r#""date":"{val}","#))
                             } else if let Some(val) = line.strip_prefix("m ") {
-                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(truncate_to_bytes(val, 104))))
+                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(truncate_to_bytes(val, 202))))
                             } else if let Some(val) = line.strip_prefix("e ") {
                                 entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))
                             }

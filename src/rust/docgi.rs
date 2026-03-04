@@ -887,7 +887,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         } else if let Some(val) = line.strip_prefix("m ") {
                             entries.push_str(&format!(
                                 r#""message":"{}"}}"#,
-                                json_encode(truncate_to_bytes(val, 202))
+                                json_encode(truncate_to_bytes(if val.is_empty() {"<no comment>"} else {val}, 202))
                             ))
                         } else if let Some(val) = line.strip_prefix("e ") {
                             entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))

@@ -425,7 +425,7 @@ input[type="search"] {
 
 .left-tree span:hover, #bookmarks > li:hover,
 #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {
-    background: #EDF5FC}
+    background: #EDF5FC;}
 
 .marked:before {
     content: " ✓ ";
@@ -439,6 +439,11 @@ dialog > div a {
 
 dialog > div a:hover {
   text-decoration: underline;
+}
+
+dialog > div a[target="_blank"] {
+    background: #EDF5FC;
+    border-radius: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -543,8 +548,10 @@ dialog > div a:hover {
     }
     
     .left-tree span:hover, #bookmarks > li:hover,
-    #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover {background: #1E455E}
+    #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover, dialog > div a[target="_blank"] {
+        background: #1E455E}
+    
     dialog > div a {
-    color: #ccc;
-}
+        color: #ccc;
+    }
 }

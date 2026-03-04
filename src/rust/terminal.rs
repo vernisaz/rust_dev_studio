@@ -34,7 +34,7 @@ impl Terminal for WebTerminal {
         unsafe { env::set_var("PWD", &self.cwd) }
         #[cfg(windows)]
         unsafe {
-            env::set_var("TERM", "xterm-256color")
+            env::set_var("COLORTERM", "truecolor")
         }
         (
             self.cwd.clone(),

@@ -654,8 +654,8 @@
                                 // TODO uncomment when the tag returns
                                 //document.getElementById("proj_name").innerHTML = htmlEncode(SESSION);
                             } else {
-                                document.title = 'Main - RDS'
-                                document.getElementById("proj_name").innerHTML = 'default'
+                                document.title = '-default- - RDS'
+                                document.getElementById("proj_name").innerHTML = '-default-'
                             }
                             
                             STORE_TABS =  document.getElementById("persisttabs").checked 
@@ -851,7 +851,7 @@
                      if (data.startsWith('Ok')) {
                          vcsStatus()
                      } else
-                        showErrorMessage('A problem in staging')
+                        showErrorMessage('A problem in a staging')
                 }, respType:"html"})
         }
     }
@@ -870,10 +870,7 @@
                 ddEl.innerText = el.name
                // ddEl.classList.add("color_mark")
                 ddEl.onclick = function () {
-                    if (ddEl.classList && ddEl.classList.contains('color_mark'))
-                        ddEl.classList.remove("color_mark")
-                    else
-                       ddEl.classList.add("color_mark")
+                    ddEl.classList.toggle("color_mark")
                 }
                 if (el.status == 'modified') {
                     mod.appendChild(ddEl)
@@ -943,7 +940,7 @@
                 historyDiv.innerHTML = ''
                 if (jsonres.status == 'Success' && jsonres.entries.length > 0)
                     for (e of jsonres.entries) {
-                        historyDiv.innerHTML += `<div><a target="_blank" href="mailto:${e.email}?subject=Re:${e.message}">${e.author}</a> on <i>${e.date}</i></div>
+                        historyDiv.innerHTML += `<div><a target="_blank" href="mailto:${e.email}?subject=Re:%20${e.message}">${e.author}</a> on <i>${e.date}</i></div>
                               <div style="font-weight: bold;"><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
                               <pre id="${e.commit_hash}"></pre><hr>`
                     }
@@ -951,8 +948,8 @@
                     if (!jsonres.message)
                         jsonres.message = 'no history yet'
                     if (!jsonres.cause)
-                        jsonres.cause = ''
-                    showErrorMessage(`Can't retrieve the history: ${jsonres.message}, because: ${jsonres.cause}`)
+                        jsonres.cause = 'Unversioned'
+                    showErrorMessage(`Can't retrieve a history: ${jsonres.message}, because: ${jsonres.cause}`)
                     return
                 }
                 historyDiv.parentElement.show()

@@ -428,11 +428,11 @@ function saveData(path, newpath, onsave) {
                  } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
              } else 
-                showErrorMessage('File '+path+' can\'t be saved, see log for details: '+ resp)
+                showErrorMessage('File '+path+' can\'t be saved, see a log for details: '+ resp)
           }
         },
         fail: function(code, reason) {
-            showErrorMessage('File '+path+' can\'t be saved, see log for details: '+ reason)
+            showErrorMessage('File '+path+' can\'t be saved, see a log for details: '+ reason)
         }, respType:"html"})
     return true
 }
@@ -606,12 +606,12 @@ function extendURL(lineStr) {
     
 function ws_setup() {
     const sec = window.location.protocol === 'https:'?'s':''
-    const port = location.port // 8443 for brutal use different server
+    const port = location.port // 8443 for brutal use a different server
     const portExt = (sec == '' && port != 80 && port != '' || sec == 's' && port != 443 && port != '')?':'+port:''
     // PROJECT_HOME
     var project = SESSION
     if (!SESSION || SESSION == '')
-        project = 'default'
+        project = '-default-'
     else
       project = SESSION
     WS_TERM_URL = 

@@ -400,7 +400,7 @@ function saveData(path, newpath, onsave) {
     else { // check if file changed
         if (dataSize == EDITORS[path]['size']) {
             if (EDITORS[path]['crc'] == crc) {
-                console.log('file '+path+' is the same')
+                //console.log('file '+path+' is the same')
                 if (onsave && typeof onsave === "function")
                      onsave() // do function on save anyway
                 return false

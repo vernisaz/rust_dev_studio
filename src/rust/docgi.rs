@@ -71,7 +71,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
              }),
         }
         Some("editor-file") => {
-            let project_home = config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?;
+            let project_home = config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?;
             let in_project_path = params.param("path").ok_or("no parameter 'path'")?;
             sanitize_path(&in_project_path)?; 
             let file = params.param("name").ok_or("no parameter 'name'")?;
@@ -344,7 +344,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("delete") => {
             if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
                 let file = config.to_real_path(
-                    &config.get_project_home(&params.param("session")).ok_or(Box::<dyn Error>::from("project path misconfiguration"))?, 
+                    &config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, 
                     params.param("name").as_ref(), // may require param::adjust_separator(
                 ).ok_or("project path misconfiguration")?;
                 let file = sanitize_path(&file)?;
@@ -440,7 +440,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .arg("commit")
                                 .arg("-m")
                                 .arg(&comment)
-                                .env("HOME", config.to_real_path("", None).ok_or("projects HOME misconfiguration")?)
+                                .env("HOME", config.to_real_path("", None).ok_or("project path misconfiguration")?)
                                 .current_dir(&dir);
                             let settings = config.get_config_path(&params.param("session"), SETTINGS_PREF, "prop");
                             let settings_file = sanitize_path(&settings)?;
@@ -464,7 +464,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 eprintln! {"git commit success {stdout}"}
                             }
                         } else {
-                            result_oper = Err("nothing to commit".to_string());
+                            result_oper = Err("nothing to commit".into());
                         }
                     }
                     Box::new(PageStuff {
@@ -844,81 +844,117 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Some("vcs-log") => {
-            let dir =
-                config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
-            if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string()) {
-                let file = params.param("name").ok_or("no file name to get GIT history")?;
+            let dir = config
+                .to_real_path(
+                    config
+                        .get_project_home(&params.param("session"))
+                        .ok_or("project path misconfiguration")?,
+                    None,
+                )
+                .ok_or("project path misconfiguration")?;
+            if let Some(dir) =
+                web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
+            {
+                let file = params
+                    .param("name")
+                    .ok_or("no file name to get GIT history")?;
                 let file = sanitize_path(&file)?;
                 let output = Command::new("git")
-                        .arg("log")
-                        .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %<(104,trunc)%s%n"#)
-                        .arg("--")
-                        .arg(file)
-                        .current_dir(&dir)
-                        .output()?;
-                        
-                    if output.status.success() {
-                        let stdout = String::from_utf8(output.stdout)?;
-                        eprintln! {"git log\n {stdout}"}
-                        let mut entries = String::with_capacity(stdout.len() + 200);
-                        for line in stdout.split('\n') {
-                            if line.is_empty() { continue}
-                            if let Some(val) = line.strip_prefix("h ") {
-                                if !entries.is_empty() {entries.push(',')}
-                                entries.push_str(&format!(r#"{{"commit_hash":"{val}","#))
-                            } else if let Some(val) = line.strip_prefix("a ") {
-                                entries.push_str(&format!(r#""author":"{}","#, json_encode(val)))
-                            } else if let Some(val) = line.strip_prefix("d ") {
-                                entries.push_str(&format!(r#""date":"{val}","#))
-                            } else if let Some(val) = line.strip_prefix("m ") {
-                                entries.push_str(&format!(r#""message":"{}"}}"#, json_encode(truncate_to_bytes(val, 202))))
-                            } else if let Some(val) = line.strip_prefix("e ") {
-                                entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))
-                            }
+                    .arg("log")
+                    .arg(r#"--pretty=format:h %H%na %an%nd %ad%ne %aE%nm %<(104,trunc)%s%n"#)
+                    .arg("--")
+                    .arg(file)
+                    .current_dir(&dir)
+                    .output()?;
+
+                if output.status.success() {
+                    let stdout = String::from_utf8(output.stdout)?;
+                    eprintln! {"git log\n {stdout}"}
+                    let mut entries = String::with_capacity(stdout.len() + 200);
+                    for line in stdout.split('\n') {
+                        if line.is_empty() {
+                            continue;
                         }
-                        Box::new(JsonStuff {
-                            json: format!(r#"{{"status":"Success", "entries":[{entries}]}}"#),
-                            name: "json".to_string(),
-                        })
-                    } else {
-                        let stderr = String::from_utf8(output.stderr)?;
-                        Box::new(JsonStuff {
-                            json: format!(r#"{{"status":"Err", "message":"GIT log failed", "cause":"{}"}}"#, json_encode(&stderr)),
-                            name: "error".to_string(),
-                        })
+                        if let Some(val) = line.strip_prefix("h ") {
+                            if !entries.is_empty() {
+                                entries.push(',')
+                            }
+                            entries.push_str(&format!(r#"{{"commit_hash":"{val}","#))
+                        } else if let Some(val) = line.strip_prefix("a ") {
+                            entries.push_str(&format!(r#""author":"{}","#, json_encode(val)))
+                        } else if let Some(val) = line.strip_prefix("d ") {
+                            entries.push_str(&format!(r#""date":"{val}","#))
+                        } else if let Some(val) = line.strip_prefix("m ") {
+                            entries.push_str(&format!(
+                                r#""message":"{}"}}"#,
+                                json_encode(truncate_to_bytes(val, 202))
+                            ))
+                        } else if let Some(val) = line.strip_prefix("e ") {
+                            entries.push_str(&format!(r#""email":"{}","#, json_encode(val)))
+                        }
                     }
+                    Box::new(JsonStuff {
+                        json: format!(r#"{{"status":"Success", "entries":[{entries}]}}"#),
+                        name: "json".to_string(),
+                    })
+                } else {
+                    let stderr = String::from_utf8(output.stderr)?;
+                    Box::new(JsonStuff {
+                        json: format!(
+                            r#"{{"status":"Err", "message":"GIT log failed", "cause":"{}"}}"#,
+                            json_encode(&stderr)
+                        ),
+                        name: "error".to_string(),
+                    })
+                }
             } else {
-               Box::new(JsonStuff {
+                Box::new(JsonStuff {
                     json: r#"{"status":"Err", "message":"the project directory isn't GIT repository"}"#.to_string(),
                     name: "error".to_string(),
                 })
             }
         }
         Some("vcs-diff") => {
-            let dir =
-                config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
-            if let Some(dir) = web::is_git_covered(&dir, &config.workspace_dir.display().to_string()) {
-               let file = params.param("name").ok_or("no file name to get GIT history")?;
-               let file = sanitize_path(&file)?;
-               let hash = params.param("hash").ok_or("no commit hash to get GIT diff")?;
-               
+            let dir = config
+                .to_real_path(
+                    config
+                        .get_project_home(&params.param("session"))
+                        .ok_or("project path misconfiguration")?,
+                    None,
+                )
+                .ok_or("project path misconfiguration")?;
+            if let Some(dir) =
+                web::is_git_covered(&dir, &config.workspace_dir.display().to_string())
+            {
+                let file = params
+                    .param("name")
+                    .ok_or("no file name to get GIT history")?;
+                let file = sanitize_path(&file)?;
+                let hash = params
+                    .param("hash")
+                    .ok_or("no commit hash to get GIT diff")?;
+
                 let output = Command::new("git")
-                        .arg("show").arg("--oneline").arg("--expand-tabs").arg("--no-color")
-                        .arg(hash).arg(file)
-                        .current_dir(&dir)
-                        .output()?;
-                        
-                    if output.status.success() {
-                        let stdout = String::from_utf8(output.stdout)?;
-                        eprintln! {"git show\n {stdout}"}
-                        Box::new(PageStuff {
-                            content: format!("Ok {stdout}").to_string(),
-                        })
-                    } else {
-                        Box::new(PageStuff {
-                            content: "Err: GIT show failed".to_string(),
-                        })
-                    }
+                    .arg("show")
+                    .arg("--oneline")
+                    .arg("--expand-tabs")
+                    .arg("--no-color")
+                    .arg(hash)
+                    .arg(file)
+                    .current_dir(&dir)
+                    .output()?;
+
+                if output.status.success() {
+                    let stdout = String::from_utf8(output.stdout)?;
+                    eprintln! {"git show\n {stdout}"}
+                    Box::new(PageStuff {
+                        content: format!("Ok {stdout}").to_string(),
+                    })
+                } else {
+                    Box::new(PageStuff {
+                        content: "Err: GIT show failed".to_string(),
+                    })
+                }
             } else {
                 Box::new(PageStuff {
                     content: "Err: the project directory isn't GIT repository".to_string(),

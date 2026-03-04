@@ -32,7 +32,7 @@ It's a really compact with a footprint below 10 MB. All web requests are handled
 a websocket endpoint utilizing the WS-CGI technology.
 
 ## Quick start
-If you plan to give the project a try, just go in [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
+If you plan to give the project a try, just go to [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
 download *zip* file for your platform. Unzip the file in a command window and type `./rds.sh` (`.\rds` on Windows) in the unzipped directory. 
 You're ready to go after answering a couple questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
 and start using the **RDS**.
@@ -102,8 +102,8 @@ The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for b
 The following crates are required for building the product:
 
 - The [Common building scripts](https://github.com/vernisaz/simscript) (it includes common building scripts only)
-- The [SimWeb](https://github.com/vernisaz/simweb)
 - The [Simple Time](https://github.com/vernisaz/simtime)
+- The [SimWeb](https://github.com/vernisaz/simweb)
 - The [SimRan](https://github.com/vernisaz/simran) 
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
@@ -116,7 +116,8 @@ Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
 The terminal functionality is separated in the crate [SimTerminal](https://github.com/vernisaz/simterminal), therefore build it before
-building the terminal and then build the terminal. Note that the crate has one extra dependency the [Simple Color](https://github.com/vernisaz/simcolor).
+building the terminal and then build the terminal. Note that the crate has one extra dependency 
+the [Simple Color](https://github.com/vernisaz/simcolor) which should be built before.
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
@@ -136,8 +137,8 @@ navigate over the project tree, open and edit files, build its components and so
 If you do not have the project checked out or created yet, then you can use the terminal panel and execute 
 underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
 will create a project directory, unless it exists. You can always correct the project root directory 
-in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
-and you will need to delete project files  manually using the terminal panel.
+in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to a project
+and you will need to delete project files  manually when required using the terminal panel.
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:
@@ -154,10 +155,10 @@ its options, for example:
 
 > rustfmt --edition 2024
 
-If formatting on save didn't happen for some reason, the file will be saved without modifications. If more than one file
-saved and auto formatted, some files can be not updated in web UI, so do it manually using menu _Edit/Reload_.
+If formatting on save didn't happen for some reason, the file will be saved as is. If more than one file
+is autosaved with formatting, some files can be not updated in the RDS UI, so do it manually using menu _Edit/Reload_.
 
-You are not limited to using _Rustfmt_, you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
+You are not limited to using _Rustfmt_, and you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
 Just specify it in the configuration as
 
 > rustidy

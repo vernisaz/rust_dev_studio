@@ -441,7 +441,7 @@ dialog > div a:hover {
   text-decoration: underline;
 }
 
-dialog > div a[target="_blank"] {
+dialog > div a[target="rds_email"] {
     background: #EDF5FC;
     border-radius: 6px;
 }
@@ -548,7 +548,7 @@ dialog > div a[target="_blank"] {
     }
     
     .left-tree span:hover, #bookmarks > li:hover,
-    #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover, dialog > div a[target="_blank"] {
+    #vcs_unv > dd:hover, #vcs_sta > dd:hover, #vcs_mod > dd:hover, dialog > div a[target="rds_email"] {
         background: #1E455E}
     
     dialog > div a {

@@ -6,12 +6,12 @@
         <link rel="stylesheet" href="/cgires/resource/main.css">
         <style>
             body {margin:auto;max-width:800px;}
-            body p a {text-decoration: none;background-color:#333;}
-            p.footer {position: absolute;
-              bottom: 10px;
-              width: 50%;
-              font-size: 0.7em;text-align: center;
-            }  
+            body p a {text-decoration: none;background-color:#ccc;}
+            footer {
+                text-align: center; /* Centers text and inline elements */
+                margin: auto;      /* Centers the footer block */
+                width: 80%;        /* Set a width for the footer */
+            }
             h2 {padding-top:1em;}
             pre {background-color: #ede38c;}
             @media (prefers-color-scheme: dark) {
@@ -33,12 +33,12 @@
         in the browser from beginning of a project, establishing a git repository, develop, debug, document,
         test and finally publish your product.</p>
         <h2>Getting started</h2>
-        <p>The RDS operates with projects. A project is some directory inside HOME directory, which is an essential
-        part of RDS configuration. The project directory can address an entire physical project directory or be just
+        <p>The RDS operates with projects. A project is some directory inside WORKSPACE directory, which is an essential
+        part of RDS configuration. A project directory can address an entire physical project directory or be just
         a part of it. </p>
         <p>The RDS understands if the project directory is a part of GIT controlled source tree.</p>
         <p> There is no any project when the RDS first time ran. Use <i>File&gt;Project&gt;New...</i> to assign a project name and
-        the project directory. If you didn't specify any project name, then it's considered <i>default</i>. A project
+        the project directory. If you didn't specify any project name, then it's considered <i>-default-</i>. A project
         directory will be created automatically, unless it's already there.
         You can start using RDS now.</p>
         <p>You can clone a project directory from a source control system using the terminal window.</p>
@@ -48,68 +48,70 @@
         any file of interest, and it will slightly change a color indicating that
         it is a part of an operation. Clicking it again will unmark it. The rest of operations
         looks obvious.</p>
-        <p>The terminal window is very powerful since will show clickable links and
-        source locations.</p>
-<h2>Architecture</h2>
-<p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is perfectly
- suitable for using Rust. The terminal
-functionality is implemented using Websocket and it utilizes WS-CGI. So server side is written in Rust
- including web server.</p>
+        <p>The terminal panel is very powerful and mimics of most a standard terminal functionality.
+        It shows the terminal content as a web content with clickable links from error messages to
+        the source code locations in the project editor wher an error happened.</p>
+        <h2>Architecture</h2>
+        <p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten 
+        CGI technology which is perfectly
+         suitable for using Rust. The terminal
+        functionality is implemented using Websocket and it utilizes WS-CGI. So server side is written in Rust
+         including the web server.</p>
+        
+        <h2>Implementation</h2>
+        <p>
+        It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust executable.
+          The terminal is a websocket endpoint represented by another Rust executable.
+        </p>
+        <h2>Config</h2>
+        <p>
+        The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>env.conf</i>  :</p>
+        <pre>
+              {"path":"/cgires/resource",
+               "CGI": false,
+               "translated": "./rds/resource"},
+              {"path":"/rustcgi",
+               "CGI": true,
+               "translated": "./rds"},
+              {"path":"/terminal",
+               "WS-CGI": true,
+               "translated": "./rds/terminal"},
+        </pre>
 
-<h2>Implementation</h2>
-<p>
-It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust executable.
-  The terminal is a websocket endpoint represented by another Rust executable.
-</p>
-<h2>Config</h2>
-<p>
-The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>env.conf</i>  :</p>
-<pre>
-      {"path":"/cgires/resource",
-       "CGI": false,
-       "translated": "./rds/resource"},
-      {"path":"/rustcgi",
-       "CGI": true,
-       "translated": "./rds"},
-      {"path":"/terminal",
-       "WS-CGI": true,
-       "translated": "./rds/terminal"},
-</pre>
-
-<p>
-Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
- with one line containing the user CONFIG directory or other directory
-where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
-</p>
-<pre>
-/home/.config
-</pre>
-
-<h2>Packaging</h2>
-<p>
-    The <b>install</b> subdirectory of the RDS source directory tree contains 
-    <a href="https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b">bee.7b</a>. Inspect it
-    to better understand which components will be required for the RDS deployment.
-</p>
-<p>
-Four underline OS executables written in Rust are:
-</p>
-<pre>
-rb
-rustcgi
-terminal
-simhttp
-</pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
-<section>
-    <h2>Command aliases</h2>
-    <p>The <b>RDS</b> terminal <code>isatty</code> currently reports <i>false</i>, therefore most command needs to add argument
-    as <code>--color=true</code> to see colorized output. The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
-    These aliases definitions have to be stored in file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
-    <pre>alias ls='ls --color'</pre>
-    <p>So every command found in the file, will be extended accordingly specified value. It can be useful not only for colorizing
-    program output, but for other all time used options.</p>
-</section>
-
-<p class="footer"> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</p>
+        <p>
+        Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
+         with one line containing the user CONFIG directory or other directory
+        where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
+        </p>
+        <pre>
+        /home/.config
+        </pre>
+        <p>Directory <i>.rds</i> may include file <i>.workspace</i> containing WORKSPACE directory location.</p>
+        <h2>Packaging</h2>
+        <p>
+            The <b>install</b> subdirectory of the RDS source directory tree contains 
+            <a href="https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b">bee.7b</a>. Inspect it
+            to better understand which components will be required for the RDS deployment.
+        </p>
+        <p>
+        Four underline OS executables written in Rust are:
+        </p>
+        <pre>
+        rb
+        rustcgi
+        terminal
+        simhttp
+        </pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
+        <section>
+            <h2>Command aliases</h2>
+            <p>The <b>RDS</b> terminal <code>isatty</code> currently reports <i>false</i>, therefore most command needs to add argument
+            as <code>--color=true</code> to see colorized output. The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
+            These aliases definitions have to be stored in file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
+            <pre>alias ls='ls --color'</pre>
+            <p>So every command found in the file, will be extended accordingly specified value. It can be useful not only for colorizing
+            program output, but for other all time used options.</p>
+        </section>
+        
+        <footer> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</footer>
     </body>
 </html>

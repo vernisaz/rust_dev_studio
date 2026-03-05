@@ -53,7 +53,7 @@ zip [${~cwd~}]?",${~cwd~})
 - added more shortcuts in menu
 - added an access to GIT history and modification details
 - a possibility to format the selected content
-- the bind address made configurable",
+- a bind address's been made configurable",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

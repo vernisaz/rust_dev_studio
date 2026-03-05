@@ -91,7 +91,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .to_real_path(
                         config
                             .get_project_home(&params.param("session"))
-                            .ok_or(Box::<dyn Error>::from("projects HOME misconfiguration"))?,
+                            .ok_or("project path misconfiguration")?,
                         Some(sub_path),
                     )
                     .ok_or("project path misconfiguration")?;
@@ -370,7 +370,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let np = config.get_config_path(&spec_name, "notepad", "txt");
             let np_path = sanitize_path(&np)?;
             Box::new(PageStuff {
-                content: read_to_string(np_path).unwrap_or_else(|_| "".to_string()),
+                content: read_to_string(np_path).unwrap_or_else(|_| String::new()),
             })
         }
         Some("vcs-list") => {
@@ -407,7 +407,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         if output.status.success().not() {
                             #[allow(unused)]
                             let stderr = String::from_utf8(output.stderr)?;
-                            eprintln! {"git reset executed err for {:?}: {stderr}", output.status}
+                            eprintln! {"git reset executing err for {:?}: {stderr}", output.status}
                             result_oper = Err(stderr)
                         }
                     }
@@ -430,7 +430,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             if !output.status.success() {
                                 #[allow(unused)]
                                 let stderr = String::from_utf8(output.stderr)?;
-                                eprintln! {"git add executed err for {:?}: {stderr}", output.status}
+                                eprintln! {"git add executing err for {:?}: {stderr}", output.status}
                                 result_oper = Err(stderr)
                             }
                         }
@@ -456,7 +456,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 if stderr.is_empty() {
                                     stderr = String::from("nothing to commit")
                                 }
-                                eprintln! {"git commit executed err for {:?} : {stderr}", output.status}
+                                eprintln! {"git commit executing err for {:?} : {stderr}", output.status}
                                 result_oper = Err(stderr)
                             } else {
                                 #[allow(unused)]
@@ -503,7 +503,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     } else {
                         #[allow(unused)]
                         let stderr = String::from_utf8(output.stderr)?;
-                        eprintln! {"git restore executed err for {:?}: {stderr}", output.status};
+                        eprintln! {"git restore executing err for {:?}: {stderr}", output.status};
                         Box::new(PageStuff {
                             content: format! {"Err: restore {stderr}"}.to_string(),
                         })
@@ -697,13 +697,19 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             })
         }
         Some("save-bookmark") => {
-            if let Ok(met) = env::var("REQUEST_METHOD") && met == "POST" {
+            if let Ok(met) = env::var("REQUEST_METHOD")
+                && met == "POST"
+            {
                 let bm = config.get_config_path(&params.param("session"), "bookmark", "json");
                 let bm_file = sanitize_path(&bm)?;
                 fs::write(bm_file, params.param("bookmarks").unwrap_or_default())?;
-                Box::new(PageStuff { content: "Ok".to_string() })
+                Box::new(PageStuff {
+                    content: "Ok".to_string(),
+                })
             } else {
-                Box::new(PageStuff { content: "Err: not a POST".to_string() })
+                Box::new(PageStuff {
+                    content: "Err: not a POST".to_string(),
+                })
             }
         }
         Some("load-bookmark") => {
@@ -712,12 +718,12 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(bookmarks) = fs::read_to_string(bm_file) {
                 Box::new(JsonStuff {
                     json: bookmarks,
-                    name: "bookmarks".to_string()
+                    name: "bookmarks".to_string(),
                 })
             } else {
                 Box::new(JsonStuff {
                     json: "[]".to_string(),
-                    name: "empty_bookmarks".to_string()
+                    name: "empty_bookmarks".to_string(),
                 })
             }
         }

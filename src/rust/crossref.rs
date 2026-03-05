@@ -1,8 +1,6 @@
-//use std::collections::HashMap;
-//use std::env;
-use std::fs::File;
-//use std::io;
-use std::io::prelude::*;
+#![allow(clippy::single_match)]
+#![allow(clippy::match_single_binding)]
+use std::{fs::File, io::prelude::*};
 
 use crate::crossref::LexState::{InCallName, InParams, InCallParams, InKW, InName, Start, ExpInName, 
      InColSep, ExPNamSep, InNum, ExpInCallName, ExpInStruct, ExpInEnum, InDataDef, InStruct, InEnum,

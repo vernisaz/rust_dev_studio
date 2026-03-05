@@ -261,11 +261,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InName | InCallName => {
-                        prev_state.push((state,name.clone()));
-                        state = InGenTypeOrComp
-                    }
-                    InImplName => {
+                    InName | InCallName | InImplName => {
                         prev_state.push((state,name.clone()));
                         state = InGenTypeOrComp
                     }
@@ -486,7 +482,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }*/
             '>' => { //eprintln!{"state > {state:?} name={name}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap().0
+                    (state,_) = prev_state.pop().unwrap()
                 }
                 match state {
                     InCallName => {state = ExpDirect},

@@ -188,13 +188,16 @@ pub fn get_file_modified<P: AsRef<Path>>(path: P) -> u64 { // in seconds
     }
 }
 
-pub fn format_system_time(time: SystemTime) -> String {
-    let dur = time.duration_since(SystemTime::UNIX_EPOCH).unwrap();
+pub fn format_system_time_secs(time_secs: u64) -> String {
     // calc timezone
     let tz = get_local_timezone_offset();
-    let (y, m, d, h, min, s, w) = get_datetime(1970, (dur.as_secs() as i64 + (tz as i64) * 60) as u64);
+    let (y, m, d, h, min, s, w) = get_datetime(1970, (time_secs as i64 + (tz as i64) * 60) as u64);
     format!("{m:0>2}-{d:0>2}-{y:0>2} {}, {h:0>2}:{min:0>2}:{s:0>2} {:03}{:02}",
          DAYS_OF_WEEK[w as usize], tz/60, tz%60)
+}
+
+pub fn format_system_time(time: SystemTime) -> String {
+    format_system_time_secs(time.duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs())
 }
 
 pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> {

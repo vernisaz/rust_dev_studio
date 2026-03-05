@@ -176,14 +176,14 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
         type_of_scope : Default::default()
     };
     let mut cbracket_cnt : u16 = Default::default();
-    let mut prev_state = Vec::new();
+    let mut prev_state : Vec<(_,String)> = Vec::new();
     while let Some(c) = co {
         match c {
             '"' => {} // TODO add processing
             'a'..='z' | 'A'..='Z' | '_' => {
                 //eprintln!{"state in curr {state:?}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                 Start | StartInScope  => {name.push(c); state = InKW} //| InFnBody
@@ -206,7 +206,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             '0'..='9' => {
                 //eprintln!{"state in dig {state:?}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                 Start | StartInScope => {state = InNum}
@@ -220,7 +220,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             '(' => { //eprintln!{"state ( {state:?}, name={name}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                    InName => {
@@ -258,11 +258,15 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             '<' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InName | InCallName => {
-                        prev_state.push(state);
+                        prev_state.push((state,name.clone()));
+                        state = InGenTypeOrComp
+                    }
+                    InImplName => {
+                        prev_state.push((state,name.clone()));
                         state = InGenTypeOrComp
                     }
                     _ => ()
@@ -270,7 +274,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             ' ' | '\r' | '\n' | '\t' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     Start | StartInScope => {state = InKW; name.clear()}
@@ -282,6 +286,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                             "struct" => state = ExpInStruct,
                             "trait" => state = ExpInTraitName,
                             "impl" => state = ExpImplName,
+                            "pub" => (), // quilifier
                             // eventually all reserved words from https://doc.rust-lang.org/reference/keywords.html
                             _ => state = Start
                         }
@@ -301,14 +306,14 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     }
                     InName | InCallName => name.clear(),
                     InColSep => state = Start,
-                    InComment if c == '\n' => {state = prev_state.pop().unwrap();}
+                    InComment if c == '\n' => {state = prev_state.pop().unwrap().0;}
                     _ => (),
                 };
                 
             }
             '.' | '&' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InCallName | InKW | InGenTypeOrComp => {
@@ -335,7 +340,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             ':' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InKW => {
@@ -354,7 +359,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             ',' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 // eprintln!{"state befor comma {state:?} at {}:{}", reader.line, reader.line_offset}
                 match state {
@@ -365,7 +370,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             '{' => { //eprintln!{"state {{ {state:?}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                    InStruct => {
@@ -420,7 +425,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             ')' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InParams => {
@@ -435,7 +440,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             '}' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                //eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset}
                match state {
@@ -460,7 +465,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             '=' => {
                 //eprintln!{"state = {state:?} name={name}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     ExpEndComment => state = InStarComment,
@@ -481,17 +486,17 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }*/
             '>' => { //eprintln!{"state > {state:?} name={name}"}
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InCallName => {state = ExpDirect},
-                    InGenTypeOrComp => state = prev_state.pop().unwrap(),
+                    InGenTypeOrComp => (state,name) = prev_state.pop().unwrap(),
                      _ => ()
                 }
             }
             '#' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     Start => {state = ExpDirect},
@@ -500,7 +505,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             '[' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     ExpDirect => state = Direct,
@@ -509,7 +514,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             }
             ']' => {
                 if state == ExpComment {
-                    state = prev_state.pop().unwrap()
+                    state = prev_state.pop().unwrap().0
                 }
                 match state {
                     Direct => state = Start,
@@ -519,8 +524,8 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
             '/' => {
                 match state {
                     ExpComment => state = InComment,
-                    ExpEndComment => state = prev_state.pop().unwrap(),
-                     _ => {prev_state.push(state); state = ExpComment;}
+                    ExpEndComment => state = prev_state.pop().unwrap().0,
+                     _ => {prev_state.push((state,name.clone())); state = ExpComment;}
                 }
             }
             '*' => {

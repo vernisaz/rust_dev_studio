@@ -23,6 +23,7 @@ use simweb::{url_encode, json_encode};
 use crossref::{RefType,Reference};
 use web::{get_file_modified, sanitize_path, Menu,
     save_props, PageOps, param};
+use crate::web::web::format_system_time_secs;
 use simtpool::ThreadPool;
 use config::{SETTINGS_PREF,read_props};
 
@@ -188,7 +189,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 } else {
                     Box::new(PageStuff {
-                        content: format! {"Err: file is too old {modified} > {remote_modifiled}"},
+                        content: format! {"Err: file is too old {} > {}",
+                        format_system_time_secs(modified), format_system_time_secs(*remote_modifiled)}
                     })
                 }
             } else {

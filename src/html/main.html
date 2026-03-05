@@ -937,7 +937,8 @@
             const path = editor_tab.id
             ajax.get({url:"./rustcgi?mode=vcs-log&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path), success: function(jsonres) {
                 const historyDiv = document.querySelector('dialog div')
-                historyDiv.innerHTML = ''
+                historyDiv.innerHTML = `<div style="font-weight: bold;"><a href="javascript:vcsDiff('')">Current ${path}</a></div>
+                                       <pre id="diff-${path}"></pre><hr>`
                 if (jsonres.status == 'Success' && jsonres.entries.length > 0)
                     for (e of jsonres.entries) {
                         historyDiv.innerHTML += `<div><a target="rds_email" href="mailto:${e.email}?subject=Re:%20${e.message}">${e.author}</a> on <i>${e.date}</i></div>
@@ -963,7 +964,17 @@
             const path = editor_tab.id
             ajax.get({url:"./rustcgi?mode=vcs-diff&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path)+'&hash='+hashid,
             success: function(diff) {
-                const hashPre = document.getElementById(hashid)
+                if (diff.startsWith('Ok ')) {
+                    diff = diff.substring(3)
+                } else {
+                    showErrorMessage(diff)
+                    return
+                }
+                if (diff == '') {
+                    showErrorMessage('No current changes')
+                    return
+                }
+                const hashPre = hashid && hashid != ''?document.getElementById(hashid):document.getElementById('diff-'+path)
                 const lines = diff.split(/\r?\n|\r|\n/g)
                 var state = ''
                 var res = ''

@@ -930,11 +930,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .param("name")
                     .ok_or("no file name to get GIT history")?;
                 let file = sanitize_path(&file)?;
-                let hash = params
-                    .param("hash")
-                    .ok_or("no commit hash to get GIT diff")?;
-
-                let output = Command::new("git")
+                let output = if let Some(hash) = params
+                    .param("hash") && hash.is_empty().not() {
+                        Command::new("git")
                     .arg("show")
                     .arg("--oneline")
                     .arg("--expand-tabs")
@@ -942,7 +940,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .arg(hash)
                     .arg(file)
                     .current_dir(&dir)
-                    .output()?;
+                    .output()?
+                    } else {
+                        Command::new("git")
+                    .arg("diff").arg("HEAD")
+                    .arg("--oneline")
+                    .arg("--expand-tabs")
+                    .arg("--no-color")
+                    .arg(file)
+                    .current_dir(&dir)
+                    .output()?
+                    };
 
                 if output.status.success() {
                     let stdout = String::from_utf8(output.stdout)?;

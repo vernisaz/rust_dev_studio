@@ -1,4 +1,4 @@
-.rds-version-1_12-04 { /* version 1.12.04 */
+.rds-version-1_12-05 { /* version 1.12.05 */
     display: block;
 }
 
@@ -444,6 +444,10 @@ dialog > div a:hover {
 dialog > div a[target="rds_email"] {
     background: #EDF5FC;
     border-radius: 6px;
+}
+
+dt > span:hover {
+  text-decoration: underline;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.10.148">
+       <input type="hidden" name="version" id="version" value="1.10.11.149">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -1037,8 +1037,9 @@
             const refs = document.getElementById("xrefs")
             refs.replaceChildren()
             jsonres.sort((a, b) => {
-              const nameA = a.name.toUpperCase(); // ignore upper and lowercase
-              const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+              const nameA = a.name.toUpperCase();
+              const nameB = b.name.toUpperCase();
+              // case insensitive comparision
               if (nameA < nameB) {
                 return -1;
               }
@@ -1052,7 +1053,7 @@
             for (refEl of jsonres) {
                 projectKWs.push(refEl.name)
                 const dtEl = document.createElement("dt")
-                dtEl.innerText = `${refEl.name} (${refEl.use.length})`
+                dtEl.innerHTML = `${refEl.name} <span onclick="toggleVisibl(this.parentElement,'DD')">(${refEl.use.length})</span>`
                 if (refEl.trait) {
                     dtEl.title = refEl.trait + (refEl.data?'/' + refEl.data:'')
                 }
@@ -1063,9 +1064,9 @@
                     //alert('-->'+this.getAttribute('line'))
                     moveToLineInFile(this.dataset.path, this.dataset.line, this.dataset.col)
                 }
-                dtEl.ondblclick = function() {
+                /*dtEl.ondblclick = function() {
                     toggleVisibl(this, 'DD')
-                }
+                }*/
                /* addEventListener( 'click', function(){
                   // delete the column here
                 } )*/                

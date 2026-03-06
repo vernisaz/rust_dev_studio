@@ -31,7 +31,7 @@ pub enum ScopeType {
     Trait,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Scope {
     pub name: String,
     pub name_for: Option<String>,
@@ -171,15 +171,11 @@ enum LexState {
 }
 
 pub fn scan(reader: &mut Reader) -> Vec<Reference> {
-    let mut res = Vec::new();
+    let mut res = Vec::with_capacity(256);
     let mut state = Start;
     let mut co = reader.next();
-    let mut name = String::from("");
-    let mut scope = Scope {
-        name: String::from(""),
-        name_for: None,
-        type_of_scope: Default::default(),
-    };
+    let mut name = String::with_capacity(64);
+    let mut scope : Scope = Default::default();
     let mut cbracket_cnt: u16 = Default::default();
     let mut prev_state: Vec<(_, _)> = Vec::new();
     while let Some(c) = co {
@@ -402,7 +398,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
-                // eprintln!{"state befor comma {state:?} at {}:{}", reader.line, reader.line_offset}
+                // eprintln!{"state before comma {state:?} at {}:{}", reader.line, reader.line_offset}
                 match state {
                     InDataDef | Start | Direct | ExpDirect => (),
                     InCallName => name.clear(),
@@ -493,9 +489,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 //eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset}
                 match state {
                     InDataDef => {
-                        scope.name_for = None;
-                        scope.name.clear();
-                        scope.type_of_scope = Default::default();
+                        scope = Default::default();
                         name.clear();
                         state = Start
                     }

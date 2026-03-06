@@ -6,6 +6,12 @@ use crate::web::Menu::{MenuEnd, MenuBox, MenuItem, Separator};
 
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
 
+pub const HTTP_DAYS_OF_WEEK: &[&str] = &["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"];
+
+pub const HTTP_MONTH: &[&str] = &[
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Menu <'a> {
     MenuBox {
@@ -157,7 +163,7 @@ pub fn html_encode(orig: &str) -> Cow<'_, str> {
     Cow::Borrowed(orig)
 }
 
-pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>> { // perhaps String is better
+pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>> {
     let path = path.as_ref();
     for component in path.components() {
         if component == Component::ParentDir {
@@ -169,7 +175,7 @@ pub fn sanitize_path(path: & impl AsRef<Path>) -> Result<& Path, Box<dyn Error>>
 
 pub fn save_props(path: &Path, props: &HashMap<String, String>) -> io::Result<()> {
     let mut data =
-        format! {"# property file on {}\n", &format_system_time(SystemTime::now())}.to_string();
+        format! {"# property file on {}\n", &format_system_time(SystemTime::now())};
     for (key, value) in props {
         data.push_str(&format! {"{}={}\n", key, value})
     }
@@ -200,16 +206,27 @@ pub fn format_system_time(time: SystemTime) -> String {
     format_system_time_secs(time.duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs())
 }
 
+pub fn http_format_time(time: SystemTime) -> String {
+    let dur = time.duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs();
+    let (y, m, d, h, min, s, w) = get_datetime(1970, dur);
+    format!(
+        "{}, {d:0>2} {} {y:0>2} {h:0>2}:{min:0>2}:{s:0>2} GMT",
+        HTTP_DAYS_OF_WEEK[w as usize],
+        HTTP_MONTH[(m - 1) as usize]
+    )
+}
+
 pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> {
     let mut res: Vec<String> = Vec::new();
     let str_ext = ext.as_ref();
-    if path.as_ref().is_dir() {
+    let path = path.as_ref();
+    if path.is_dir() {
         for path in fs::read_dir(&path).into_iter().flatten().filter_map(|e| if let Ok(path) = e { Some(path.path()) } else {None}) {
             // no reason to dive for non dir path
             res.append(&mut list_files(path, ext))
         }
-    } else if let Some(curr_ext) = path.as_ref().extension() && str_ext.contains(&*curr_ext.to_string_lossy()) {
-            res.push(path.as_ref().to_str().unwrap().to_string())
+    } else if let Some(curr_ext) = path.extension() && str_ext.contains(&*curr_ext.to_string_lossy()) {
+            res.push(path.display().to_string())
     }
     res
 }
@@ -239,12 +256,13 @@ fn get_short(short: &Option<&str>) -> String {
 }
 
 pub fn is_git_covered(dir: &impl AsRef<Path>, home: &impl AsRef<Path> ) -> Option<String> {
-    let git_dir = dir.as_ref().join(".git");
+    let dir = dir.as_ref();
+    let git_dir = dir.join(".git");
     if git_dir.is_dir() {
-        Some(dir.as_ref().display().to_string())
-    } else if dir.as_ref() == home.as_ref() {
+        Some(dir.display().to_string())
+    } else if dir == home.as_ref() {
             None
-    } else if let Some(parent) = dir.as_ref().parent() {
+    } else if let Some(parent) = dir.parent() {
             is_git_covered(&parent, home)
     } else {
         None

@@ -1,17 +1,10 @@
-use simtime::get_datetime;
-use std::{collections::HashMap, env, io, time::SystemTime};
+use std::{collections::HashMap, env, io,};
 
 #[derive(Debug)]
 pub struct Param {
     params: HashMap<String, String>,
     cookies: HashMap<String, String>,
 }
-
-pub const HTTP_DAYS_OF_WEEK: &[&str] = &["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"];
-
-pub const HTTP_MONTH: &[&str] = &[
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
 
 impl Default for Param {
     fn default() -> Self {
@@ -109,16 +102,6 @@ impl Param {
         }
         String::from_utf8(res).ok()
     }
-}
-
-pub fn http_format_time(time: SystemTime) -> String {
-    let dur = time.duration_since(SystemTime::UNIX_EPOCH).unwrap();
-    let (y, m, d, h, min, s, w) = get_datetime(1970, dur.as_secs());
-    format!(
-        "{}, {d:0>2} {} {y:0>2} {h:0>2}:{min:0>2}:{s:0>2} GMT",
-        HTTP_DAYS_OF_WEEK[w as usize],
-        HTTP_MONTH[(m - 1) as usize]
-    )
 }
 
 pub fn to_web_separator(mut path: String) -> String {

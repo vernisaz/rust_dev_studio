@@ -2,11 +2,12 @@
 #![allow(clippy::match_single_binding)]
 use std::{fs::File, io::prelude::*};
 
-use crate::crossref::LexState::{InCallName, InParams, InCallParams, InKW, InName, Start, ExpInName, 
-     InColSep, ExPNamSep, InNum, ExpInCallName, ExpInStruct, ExpInEnum, InDataDef, InStruct, InEnum,
-     ExpImplName, InImplName, InExpFor, InForName, InForKW, ExpInForName, InExpOpenImpl, StartInScope,
-     InTraitName, ExpInTraitName, ExpFnBody, InFnBody, ExpDirect, Direct, InComment, ExpComment, InStarComment,
-     ExpEndComment, InGenTypeOrComp,
+use crate::crossref::LexState::{
+    Direct, ExPNamSep, ExpComment, ExpDirect, ExpEndComment, ExpFnBody, ExpImplName, ExpInCallName,
+    ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName, InCallName, InCallParams,
+    InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl, InFnBody, InForKW, InForName,
+    InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams, InStarComment, InStruct,
+    InTraitName, Start, StartInScope,
 };
 
 const BUF_SIZE: usize = 1024;
@@ -14,7 +15,7 @@ const BUF_SIZE: usize = 1024;
 #[allow(dead_code)]
 #[derive(Debug, PartialEq, Default, Clone)]
 pub enum RefType {
-    #[default] 
+    #[default]
     Function, // add scope as impl of or impl trait for
     Variable,
     Data, // like struct or type
@@ -24,17 +25,17 @@ pub enum RefType {
 
 #[derive(Debug, PartialEq, Default, Clone)]
 pub enum ScopeType {
-    #[default] 
+    #[default]
     SelfImpl,
     TraitFor,
-    Trait
+    Trait,
 }
 
 #[derive(Debug, Clone)]
 pub struct Scope {
     pub name: String,
     pub name_for: Option<String>,
-    pub type_of_scope: ScopeType
+    pub type_of_scope: ScopeType,
 }
 
 #[derive(Debug, Clone)]
@@ -44,7 +45,7 @@ pub struct Reference {
     pub line: usize,
     pub column: u16,
     pub type_of_use: RefType,
-    pub scope: Option<Scope>
+    pub scope: Option<Scope>,
 }
 
 pub struct Reader {
@@ -62,7 +63,9 @@ impl Reader {
         self.pos += 1;
         if self.pos >= self.end {
             self.end = self.file.read(&mut self.buf).unwrap_or(0);
-            if self.end == 0 { return None }
+            if self.end == 0 {
+                return None;
+            }
             self.pos = 0
         }
         self.line_offset += 1;
@@ -97,7 +100,7 @@ impl Reader {
                 num_byte -= 1
             }
             self.line_offset += 1;
-            return Some(std::char::from_u32(c32).unwrap_or(std::char::REPLACEMENT_CHARACTER))
+            return Some(std::char::from_u32(c32).unwrap_or(std::char::REPLACEMENT_CHARACTER));
         }
         if self.buf[self.pos] == line_separator() {
             self.line += 1;
@@ -109,7 +112,7 @@ impl Reader {
     }
 }
 
-pub fn scan_file(file: &impl AsRef<str>) -> Vec< Reference> {
+pub fn scan_file(file: &impl AsRef<str>) -> Vec<Reference> {
     let path = file.as_ref();
     let mut r = Reader {
         file: File::open(path).unwrap(),
@@ -143,29 +146,31 @@ enum LexState {
     InDataDef,
     ExpImplName,
     InImplName,
-    InExpFor, InForName,
+    InExpFor,
+    InForName,
     InForKW,
-    ExpInForName, InExpOpenImpl, 
-    
+    ExpInForName,
+    InExpOpenImpl,
+
     ExpInTraitName,
     InTraitName,
     ExpFnBody,
     InFnBody,
-    
+
     StartInScope,
     ExpDirect,
     Direct,
-    
+
     ExpComment,
     InStarComment,
     ExpEndComment,
     InComment,
-    
+
     InGenTypeOrComp,
     //VarOrFn,
 }
 
-pub fn scan(reader: &mut Reader) -> Vec< Reference> {
+pub fn scan(reader: &mut Reader) -> Vec<Reference> {
     let mut res = Vec::new();
     let mut state = Start;
     let mut co = reader.next();
@@ -173,10 +178,10 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
     let mut scope = Scope {
         name: String::from(""),
         name_for: None,
-        type_of_scope : Default::default()
+        type_of_scope: Default::default(),
     };
-    let mut cbracket_cnt : u16 = Default::default();
-    let mut prev_state : Vec<(_,String)> = Vec::new();
+    let mut cbracket_cnt: u16 = Default::default();
+    let mut prev_state: Vec<(_, _)> = Vec::new();
     while let Some(c) = co {
         match c {
             '"' => {} // TODO add processing
@@ -186,21 +191,48 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                Start | StartInScope  => {name.push(c); state = InKW} //| InFnBody
-                ExpInName  => {state = InName; name.push(c) }
-                ExPNamSep | InColSep | ExpInCallName | InFnBody | ExpDirect | InCallParams => {state = InCallName; name.push(c) }
-                ExpInEnum => {state = InEnum; name.push(c);
-                    //eprintln!{"state in car {state:?} at {}:{}", reader.line, reader.line_offset}
-                }
-                ExpInStruct => {state = InStruct; name.push(c) }
-                InName | InKW | InCallName | InImplName | InTraitName | InForKW | InForName => name.push(c),
-                ExpImplName => {state = InImplName; name.push(c)}
-                InExpFor => {state = InForKW; name.push(c)}
-                ExpInTraitName => {state = InTraitName; name.push(c)}
-                ExpInForName => {state = InForName; name.push(c)}
-                
-                _ => (),
-               
+                    Start | StartInScope => {
+                        name.push(c);
+                        state = InKW
+                    } //| InFnBody
+                    ExpInName => {
+                        state = InName;
+                        name.push(c)
+                    }
+                    ExPNamSep | InColSep | ExpInCallName | InFnBody | ExpDirect | InCallParams => {
+                        state = InCallName;
+                        name.push(c)
+                    }
+                    ExpInEnum => {
+                        state = InEnum;
+                        name.push(c);
+                        //eprintln!{"state in car {state:?} at {}:{}", reader.line, reader.line_offset}
+                    }
+                    ExpInStruct => {
+                        state = InStruct;
+                        name.push(c)
+                    }
+                    InName | InKW | InCallName | InImplName | InTraitName | InForKW | InForName => {
+                        name.push(c)
+                    }
+                    ExpImplName => {
+                        state = InImplName;
+                        name.push(c)
+                    }
+                    InExpFor => {
+                        state = InForKW;
+                        name.push(c)
+                    }
+                    ExpInTraitName => {
+                        state = InTraitName;
+                        name.push(c)
+                    }
+                    ExpInForName => {
+                        state = InForName;
+                        name.push(c)
+                    }
+
+                    _ => (),
                 }
             }
             '0'..='9' => {
@@ -209,50 +241,56 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                Start | StartInScope => {state = InNum}
-                ExpInName  => {state = InNum;  }
-                ExPNamSep | InColSep => {state = InNum }
-                InName | InKW | InCallName | InStruct |
-                InEnum | InImplName | InForKW | InForName | InTraitName => name.push(c),
-                _ => (),
-               
+                    Start | StartInScope => state = InNum,
+                    ExpInName => {
+                        state = InNum;
+                    }
+                    ExPNamSep | InColSep => state = InNum,
+                    InName | InKW | InCallName | InStruct | InEnum | InImplName | InForKW
+                    | InForName | InTraitName => name.push(c),
+                    _ => (),
                 }
             }
-            '(' => { //eprintln!{"state ( {state:?}, name={name}"}
+            '(' => {
+                //eprintln!{"state ( {state:?}, name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                   InName => {
+                    InName => {
                         let fn_def = Reference {
-                        name: name.to_owned(),
-                        src: reader.path.to_owned(),
-                        line: reader.line,
-                        column: reader.line_offset,
-                        type_of_use: RefType::Function,
-                        scope: if scope.name . is_empty() {None} else {Some(scope.clone())}
+                            name: name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Function,
+                            scope: if scope.name.is_empty() {
+                                None
+                            } else {
+                                Some(scope.clone())
+                            },
                         };
                         res.push(fn_def);
                         state = InParams
                     }
                     InCallName | InKW => {
-                         let fn_cal = Reference {
-                        name: name.to_owned(),
-                        src: reader.path.to_owned(),
-                        line: reader.line,
-                        column: reader.line_offset,
-                        type_of_use: RefType::Access,
-                        scope: None // it needs to be quilified
+                        let fn_cal = Reference {
+                            name: name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Access,
+                            scope: None, // it needs to be quilified
                         };
                         res.push(fn_cal);
                         state = InCallParams
                     }
-                   /* InKW => {
+                    /* InKW => {
                         name.clear();
                         // check ??? KW
                         state = InCallParams
                     }*/
-                    _ => ()
+                    _ => (),
                 }
                 name.clear();
             }
@@ -262,10 +300,10 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
                 match state {
                     InName | InCallName | InImplName => {
-                        prev_state.push((state,name.clone()));
+                        prev_state.push((state, name.clone()));
                         state = InGenTypeOrComp
                     }
-                    _ => ()
+                    _ => (),
                 }
             }
             ' ' | '\r' | '\n' | '\t' => {
@@ -273,7 +311,10 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    Start | StartInScope => {state = InKW; name.clear()}
+                    Start | StartInScope => {
+                        state = InKW;
+                        name.clear()
+                    }
                     InKW => {
                         //eprintln!{"state KW {name} at {}:{}", reader.line, reader.line_offset}
                         match name.as_str() {
@@ -284,28 +325,29 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                             "impl" => state = ExpImplName,
                             "pub" => (), // quilifier
                             // eventually all reserved words from https://doc.rust-lang.org/reference/keywords.html
-                            _ => state = Start
+                            _ => state = Start,
                         }
                         name.clear()
                     }
                     InForKW => {
                         match name.as_str() {
                             "for" => state = ExpInForName,
-                            _ => state = InExpOpenImpl
+                            _ => state = InExpOpenImpl,
                         }
                         name.clear()
                     }
                     InImplName => {
-                        state = InExpFor ;
+                        state = InExpFor;
                         scope.name.replace_range(.., &name.to_string());
                         name.clear()
                     }
                     InName | InCallName => name.clear(),
                     InColSep => state = Start,
-                    InComment if c == '\n' => {state = prev_state.pop().unwrap().0;}
+                    InComment if c == '\n' => {
+                        state = prev_state.pop().unwrap().0;
+                    }
                     _ => (),
                 };
-                
             }
             '.' | '&' => {
                 if state == ExpComment {
@@ -313,9 +355,9 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
                 match state {
                     InCallName | InKW | InGenTypeOrComp => {
-                    // just chain of struct names
-                         name.clear();
-                         state = InCallName;
+                        // just chain of struct names
+                        name.clear();
+                        state = InCallName;
                     }
                     ExpInCallName => name.clear(),
                     _ => (),
@@ -332,7 +374,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 } else {
                     state = StartInScope
                 }
-               // eprintln!{"state befor semi {temp:?} after {state:?} at {}:{}", reader.line, reader.line_offset}
+                // eprintln!{"state befor semi {temp:?} after {state:?} at {}:{}", reader.line, reader.line_offset}
             }
             ':' => {
                 if state == ExpComment {
@@ -348,7 +390,10 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         //name.clear();
                         state = InColSep
                     }
-                    InColSep => {name.clear(); state = ExpInCallName}
+                    InColSep => {
+                        name.clear();
+                        state = ExpInCallName
+                    }
                     _ => (),
                 }
                 name.clear()
@@ -361,34 +406,35 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 match state {
                     InDataDef | Start | Direct | ExpDirect => (),
                     InCallName => name.clear(),
-                     _ => state = ExpInCallName
+                    _ => state = ExpInCallName,
                 }
             }
-            '{' => { //eprintln!{"state {{ {state:?}"}
+            '{' => {
+                //eprintln!{"state {{ {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                   InStruct => {
+                    InStruct => {
                         let struct_def = Reference {
-                        name: name.to_owned(),
-                        src: reader.path.to_owned(),
-                        line: reader.line,
-                        column: reader.line_offset,
-                        type_of_use: RefType::Data,
-                        scope: None
+                            name: name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Data,
+                            scope: None,
                         };
                         res.push(struct_def);
                         state = InDataDef;
                     }
                     InEnum => {
-                         let enum_def = Reference {
-                        name: name.to_owned(),
-                        src: reader.path.to_owned(),
-                        line: reader.line,
-                        column: reader.line_offset,
-                        type_of_use: RefType::Data,
-                        scope: None
+                        let enum_def = Reference {
+                            name: name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Data,
+                            scope: None,
                         };
                         res.push(enum_def);
                         state = InDataDef;
@@ -396,7 +442,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     InForName => {
                         scope.name_for = Some(name.to_owned());
                         scope.type_of_scope = ScopeType::TraitFor;
-                        state = StartInScope 
+                        state = StartInScope
                     }
                     InTraitName => {
                         scope.name = name.to_owned();
@@ -404,20 +450,26 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         scope.type_of_scope = ScopeType::Trait;
                         state = StartInScope
                     }
-                    InExpOpenImpl  => {
-                        state = StartInScope
-                    }
+                    InExpOpenImpl => state = StartInScope,
                     ExpFnBody => state = InFnBody,
                     InFnBody => cbracket_cnt += 1,
-                    ExpDirect => {state = InFnBody; cbracket_cnt += 1},
-                    _ => state = {
-                    // TODO activate brackets logic
-                        //cbracket_cnt += 1;
-                        if scope.name.is_empty() {Start} else {StartInScope}
+                    ExpDirect => {
+                        state = InFnBody;
+                        cbracket_cnt += 1
+                    }
+                    _ => {
+                        state = {
+                            // TODO activate brackets logic
+                            //cbracket_cnt += 1;
+                            if scope.name.is_empty() {
+                                Start
+                            } else {
+                                StartInScope
+                            }
+                        }
                     }
                 }
                 name.clear()
-                
             }
             ')' => {
                 if state == ExpComment {
@@ -438,8 +490,8 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
-               //eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset}
-               match state {
+                //eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset}
+                match state {
                     InDataDef => {
                         scope.name_for = None;
                         scope.name.clear();
@@ -448,15 +500,30 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                         state = Start
                     }
                     InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName => {
-                        if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1} else {
-                         state = StartInScope
+                        if cbracket_cnt > 0 {
+                            state = StartInScope;
+                            cbracket_cnt -= 1
+                        } else {
+                            state = StartInScope
                         }
                     }
-                    Start => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1},
-                    InKW => if cbracket_cnt > 0 {state = StartInScope; cbracket_cnt -= 1} else {state = Start},
-                   // ExPNamSep => 
-                    _ => (),// eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset},
-                } 
+                    Start => {
+                        if cbracket_cnt > 0 {
+                            state = StartInScope;
+                            cbracket_cnt -= 1
+                        }
+                    }
+                    InKW => {
+                        if cbracket_cnt > 0 {
+                            state = StartInScope;
+                            cbracket_cnt -= 1
+                        } else {
+                            state = Start
+                        }
+                    }
+                    // ExPNamSep =>
+                    _ => (), // eprintln!{"state {state:?} at closing }} balance: {cbracket_cnt} at {}:{}", reader.line, reader.line_offset},
+                }
             }
             '=' => {
                 //eprintln!{"state = {state:?} name={name}"}
@@ -480,14 +547,15 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     _ => ()
                 }
             }*/
-            '>' => { //eprintln!{"state > {state:?} name={name}"}
+            '>' => {
+                //eprintln!{"state > {state:?} name={name}"}
                 if state == ExpComment {
-                    (state,_) = prev_state.pop().unwrap()
+                    (state, _) = prev_state.pop().unwrap()
                 }
                 match state {
-                    InCallName => {state = ExpDirect},
-                    InGenTypeOrComp => (state,name) = prev_state.pop().unwrap(),
-                     _ => ()
+                    InCallName => state = ExpDirect,
+                    InGenTypeOrComp => (state, name) = prev_state.pop().unwrap(),
+                    _ => (),
                 }
             }
             '#' => {
@@ -495,8 +563,8 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    Start => {state = ExpDirect},
-                     _ => ()
+                    Start => state = ExpDirect,
+                    _ => (),
                 }
             }
             '[' => {
@@ -505,7 +573,7 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
                 match state {
                     ExpDirect => state = Direct,
-                     _ => ()
+                    _ => (),
                 }
             }
             ']' => {
@@ -514,27 +582,25 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
                 }
                 match state {
                     Direct => state = Start,
-                     _ => ()
+                    _ => (),
                 }
             }
-            '/' => {
-                match state {
-                    ExpComment => state = InComment,
-                    ExpEndComment => state = prev_state.pop().unwrap().0,
-                     _ => {prev_state.push((state,name.clone())); state = ExpComment;}
+            '/' => match state {
+                ExpComment => state = InComment,
+                ExpEndComment => state = prev_state.pop().unwrap().0,
+                _ => {
+                    prev_state.push((state, name.clone()));
+                    state = ExpComment;
                 }
-            }
-            '*' => {
-                match state {
-                    ExpComment => state = InStarComment,
-                    InStarComment => state = ExpEndComment,
-                     _ => ()
-                }
-            }
-            _ => match state {
-                
+            },
+            '*' => match state {
+                ExpComment => state = InStarComment,
+                InStarComment => state = ExpEndComment,
                 _ => (),
-            }
+            },
+            _ => match state {
+                _ => (),
+            },
         }
         co = reader.next()
     }
@@ -543,13 +609,10 @@ pub fn scan(reader: &mut Reader) -> Vec< Reference> {
 
 #[cfg(win)]
 fn line_separator() -> u8 {
-  13
+    13
 }
 
 #[cfg(not(win))]
 fn line_separator() -> u8 {
-  10
+    10
 }
-
-
-

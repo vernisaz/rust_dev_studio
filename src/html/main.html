@@ -1053,7 +1053,7 @@
             for (refEl of jsonres) {
                 projectKWs.push(refEl.name)
                 const dtEl = document.createElement("dt")
-                dtEl.innerHTML = `${refEl.name} <span onclick="toggleVisibl(this.parentElement,'DD')">(${refEl.use.length})</span>`
+                dtEl.innerHTML = `${refEl.name} <span onclick="event.stopPropagation();toggleVisibl(this.parentElement,'DD')">(${refEl.use.length})</span>`
                 if (refEl.trait) {
                     dtEl.title = refEl.trait + (refEl.data?'/' + refEl.data:'')
                 }

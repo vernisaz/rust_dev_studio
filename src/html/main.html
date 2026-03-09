@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.11.149">
+       <input type="hidden" name="version" id="version" value="1.10.11.150">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -1372,14 +1372,16 @@
     
     // project function 
     function runCmd(cmd3) {
-        if (!cmd3)
+        if (!cmd3) {
+            showErrorMessage('The command wasn\'t configured')
             return
+        }
         //saveAllFiles() // autosave()
         document.getElementById('commandarea').focus() // focus saves
         if (termWskt && termWskt.readyState===WebSocket.OPEN) {
             termWskt.send(cmd3+'\n')
         } else {
-            alert(`The server ${ws_url} is currently unreachable`)
+            showErrorMessage(`The server ${ws_url} is currently unreachable`)
         }
     }
     function build_debug() {

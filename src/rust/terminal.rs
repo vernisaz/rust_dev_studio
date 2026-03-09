@@ -193,33 +193,38 @@ fn save_persistent(
         File::create_new(&props_path)?;
     }
     props_path.set_extension("properties");
-    let mut file = OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .create(true)
-        .open(&props_path)?;
-    //file.lock()?;
-    writeln! {file, "# WebSocket sessions"}?;
-    let now = SystemTime::now();
-    writeln! {file, "# {}", simweb::http_format_time(now)}?;
-    let now = now.duration_since(UNIX_EPOCH).unwrap().as_secs();
-    for (key, value) in sessions {
-        if value.1 > now - 7 * 2 * 24 * 60 * 60 && PathBuf::from(&value.0).is_dir() {
-            let (y, m, d, h, mm, s, _) = get_datetime(1970, value.1);
-            writeln! {file,
-            "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}",esc_string(value.0) }?;
-        } else {
-            //eprintln!{"path {} too old {}", value.0, value.1}
+    let try_update_data = || -> Result<(), Box<dyn Error>> {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(&props_path)?;
+        //file.lock()?;
+        writeln! {file, "# WebSocket sessions"}?;
+        let now = SystemTime::now();
+        writeln! {file, "# {}", simweb::http_format_time(now)}?;
+        let now = now.duration_since(UNIX_EPOCH).unwrap().as_secs();
+        for (key, value) in sessions {
+            if value.1 > now - 7 * 2 * 24 * 60 * 60 && PathBuf::from(&value.0).is_dir() {
+                let (y, m, d, h, mm, s, _) = get_datetime(1970, value.1);
+                writeln! {file,
+                "{key}={y:04}-{m:02}-{d:02}T{h:02}\\:{mm:02}\\:{s:02}.0000000;{}",esc_string(value.0) }?;
+            } else {
+                //eprintln!{"path {} too old {}", value.0, value.1}
+            }
         }
-    }
+        Ok(())
+    };
+    let err = try_update_data();
     //file.unlock()?;
     {
         // remove  LOCK file if it is here
         props_path.set_extension("LOCK");
         fs::remove_file(&props_path)?;
     }
-    Ok(())
+    err
 }
+
 
 fn read_aliases(
     mut res: HashMap<String, Vec<String>>,

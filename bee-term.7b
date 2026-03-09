@@ -9,7 +9,7 @@ crate_dir=..${~/~}crates
 # repository = "https://github.com/vernisaz/rust_dev_studio/tree/master"
 comp opts=[]
 
-version="1.25:053"
+version="1.25:054"
 set_env(VERSION,version)
 
 mode=mode:prop

@@ -45,33 +45,44 @@ impl Terminal for WebTerminal {
     }
 
     fn save_state(&self) -> Result<(), Box<dyn Error>> {
-        let mut sessions = load_persistent(&self.config);
-        sessions.insert(
-            self.session.to_string(),
-            (
-                self.cwd.display().to_string(),
-                SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs(),
-            ),
-        );
-        save_persistent(&self.config, sessions)
+        self.update_persistent(|sessions| {
+            sessions.insert(
+                self.session.to_string(),
+                (
+                    self.cwd.display().to_string(),
+                    SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap_or_default()
+                        .as_secs(),
+                ),
+            );
+        })
     }
     fn persist_cwd(&mut self, cwd: &Path) {
-        let mut sessions = load_persistent(&self.config);
-        sessions.insert(
-            self.session.to_string(),
-            (
-                cwd.display().to_string(),
-                SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs(),
-            ),
-        );
+        let _ = self.update_persistent(|sessions| {
+            sessions.insert(
+                self.session.to_string(),
+                (
+                    cwd.display().to_string(),
+                    SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap_or_default()
+                        .as_secs(),
+                ),
+            );
+        });
         self.cwd = cwd.into();
-        let _ = save_persistent(&self.config, sessions);
+    }
+}
+
+impl WebTerminal {
+    fn update_persistent<F>(&self, f: F) -> Result<(), Box<dyn Error>>
+    where
+        F: FnOnce(&mut HashMap<String, (String, u64)>),
+    {
+        let mut sessions = load_persistent(&self.config);
+        f(&mut sessions);
+        save_persistent(&self.config, sessions)
     }
 }
 
@@ -224,7 +235,6 @@ fn save_persistent(
     }
     err
 }
-
 
 fn read_aliases(
     mut res: HashMap<String, Vec<String>>,

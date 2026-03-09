@@ -985,6 +985,7 @@
                                case '+':
                                    break;
                                case '-':
+                               case '@':
                                    res += '</span><span style="color:#00d75f">'
                                    state = '+'
                                    break;
@@ -998,6 +999,7 @@
                                case '-':
                                    break;
                                case '+':
+                               case '@':
                                    res += '</span><span style="color:red">'
                                    state = '-'
                                    break;
@@ -1006,10 +1008,33 @@
                                    state = '-'
                             } 
                             break;
+                        case '@':
+                            switch (state) {
+                               case '@': // unreachable
+                                   break;
+                               case '+':
+                               case '-':
+                                   res += '</span><span style="color:#0087ff">'
+                                   state = '@'
+                                   break;
+                               default:
+                                   res += '<span style="color:#0087ff">'
+                                   state = '@'
+                            } 
+                            // find @@ in the line 
+                            var end = search(line,/@@/g,1)
+                            if (end > 0) {
+                                res += line.slice(0,end+2)
+                                res += '</span>'
+                                line = line.slice(end+2)
+                                state = ''
+                            }
+                            break;
                         default:
                             switch (state) {
                                case '+':
                                case '-':
+                               case '@':
                                    res += '</span>'
                                    state = ''
                                    break;
@@ -1024,6 +1049,7 @@
                 switch (state) {
                    case '+':
                    case '-':
+                   case '@':
                        res += '</span>'
                 }            
                 hashPre.innerHTML = res

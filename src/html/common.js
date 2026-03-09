@@ -102,64 +102,11 @@ function decodeHtmlEntity(text) {
     return text  
 }
 
-function message(key) {
-	// TODO use key in lookup localized message association
-	if (localized_messages) {
-		var mess = localized_messages[key];
-		if (mess) {
-			getElement('status').innerHTML = mess;
-			return;
-		}			
-	}
-	getElement('status').innerHTML = key;
-}
-
-
-function loadInnerPage(base, anchor, res, cusfun) {
-   var url = base+anchor.substring(1)
-   var payloadDiv =  document.querySelector(res)
-   if (payloadDiv) {
-	  ajax['get']({url:url,respType:'html',
-    	  success: function(html) {
-	         payloadDiv.innerHTML = html
-             // TODO probably update title and other state indicators
-             const innerForm = document.querySelector('form')
-             if (innerForm)
-                 innerForm.action=url
-             if(cusfun && typeof cusfun === 'function')
-                 cusfun()
-	      }
-      })
-   }
-}
-
-function submitPage(base, anchor, res, massageData) {
-	const url = base+anchor.substring(1)
-	const frm = document.querySelector(res) || document.querySelector('form')
-	const xhr = new XMLHttpRequest()
-	
-	if(massageData && typeof massageData === 'function')
-       massageData()
-	
-	const fd = new FormData( frm )
-
-    // Define what happens on successful data submission
-    xhr.addEventListener( "load", function(event) {
-     // alert( event.target.responseText )
-      location.hash = '#'+ event.target.responseText
-    } )
-
-    // Define what happens in case of error
-    xhr.addEventListener( "error", function( event ) {
-      if (defaultErrorHandlers && defaultErrorHandlers.submitError && typeof defaultErrorHandlers.submitError === "function")
-          defaultErrorHandlers.submitError(event) // instanceof Function
-    } )
-
-    // Set up our request
-    xhr.open( "POST", url );
-
-    // The data sent is what the user provided in the form
-    xhr.send( fd );
+function search(string, regexp, from = 0) {
+    const index = string.slice(from).search(regexp);
+    return index === -1
+        ? -1
+        : index + from;
 }
 
 function trimAndEllipsize(str, maxLength) {

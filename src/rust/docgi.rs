@@ -19,13 +19,13 @@ mod crossref;
 mod search;
 mod config;
 
-use simweb::{url_encode, json_encode};
-use crossref::{RefType,Reference};
-use web::{get_file_modified, sanitize_path, Menu,
-    save_props, PageOps, param};
-use crate::web::web::format_system_time_secs;
-use simtpool::ThreadPool;
-use config::{SETTINGS_PREF,read_props};
+use {simweb::{url_encode, json_encode},
+crossref::{RefType,Reference},
+web::{get_file_modified, sanitize_path, Menu,
+      save_props, PageOps, param},
+crate::web::web::format_system_time_secs,
+simtpool::ThreadPool,
+config::{SETTINGS_PREF,read_props} };
 
 macro_rules! eprintln {
     ($($rest:tt)*) => {
@@ -227,8 +227,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     if real_dir.exists().not() {
                         // create dir if non existent (too many directories attack possible)
                         fs::create_dir_all(real_dir)?;
-                    } else if real_dir.is_file() {
-                        return Err("a file specified instead of a directory".into())
+                    } else if real_dir.is_dir().not() {
+                        return Err("a sym link or a file specified instead of a directory".into())
                     }
                 }
                 for key in  ["project_home", "theme", "autosave", "projectnp", "user", "persist_tabs", "proj_conf", "ai_server_url", "colapsed_dirs", "src_dir", "format_on_save"] {
@@ -248,7 +248,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("dir-list") => {
             // list of dirs in
             let dir = config.name_to_path(params.param("name")).ok_or(Box::<dyn Error>::from("project home misconfiguration"))?;
-            eprintln! {"Project dir: {:?}", &dir};
             Box::new(JsonDirs {
                 file: PageFile {
                     file_name: dir,
@@ -259,7 +258,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         Some("project-dir-list") => {
             // list of dirs in
             let dir = config.to_real_path(config.get_project_home(&params.param("session")).ok_or("project path misconfiguration")?, None).ok_or("project path misconfiguration")?;
-            //eprintln! {"Project conn dir: {:?}", &dir};
             Box::new(JsonProj {
                 file: PageFile {
                     file_name: dir,

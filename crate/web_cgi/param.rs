@@ -18,7 +18,7 @@ impl Param {
             params: HashMap::new(),
             cookies: HashMap::new(),
         };
-        if let Ok(query) = env::var(String::from("QUERY_STRING")) {
+        if let Ok(query) = env::var("QUERY_STRING") {
             let parts = query.split("&");
             for part in parts {
                 if let Some(keyval) = part.split_once("=")
@@ -29,9 +29,10 @@ impl Param {
                 }
             }
         }
-        if let Ok(header_cookies) = env::var(String::from("HTTP_COOKIE")) {
+        if let Ok(header_cookies) = env::var("HTTP_COOKIE") {
             let parts = header_cookies.split(";");
             for part in parts {
+            // cookie name and value do not require any encoding besides of semicolon, comma, and blank, however most clients will use url or base64 
                 if let Some(keyval) = part.split_once('=')
                     && let Some(name) = res.url_comp_decode(keyval.0)
                     && let Some(val) = res.url_comp_decode(keyval.1)
@@ -41,12 +42,12 @@ impl Param {
             }
         }
         //
-        if let Ok(method) = env::var(String::from("REQUEST_METHOD"))
+        if let Ok(method) = env::var("REQUEST_METHOD")
             && method == "POST"
         {
             let mut user_input = String::new();
             let stdin = io::stdin();
-            if let Ok(content_type) = env::var(String::from("CONTENT_TYPE"))
+            if let Ok(content_type) = env::var("CONTENT_TYPE")
                 && content_type == "application/x-www-form-urlencoded"
             {
                 // use simweb to process other types
@@ -76,7 +77,7 @@ impl Param {
     }
 
     pub fn path_info(&self) -> String {
-        if let Ok(pi) = env::var(String::from("PATH_INFO")) {
+        if let Ok(pi) = env::var("PATH_INFO") {
             pi.to_string()
         } else {
             // since path info is never an empty string

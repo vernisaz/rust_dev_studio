@@ -187,7 +187,7 @@ var ajax = {
         	   req.success(JSON.parse(xhr.responseText));
            } catch(e) {
               if (typeof req.fail === 'function')
-                  req.fail( xhr.status, `${e} - '${xhr.responseText}`)
+                  req.fail( xhr.status, `${e} - ${xhr.responseText}`)
            }
         } else if (this.noaccesscode === xhr.status &&  this.noaccessredirect) {
            window.location = this.noaccessredirect

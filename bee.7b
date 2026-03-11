@@ -7,10 +7,10 @@ crate_dir=..${~/~}crates
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.22.08:195"
+version="1.23.00:196"
 set_env(VERSION,version)
 
-extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.pas
+extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go
 set_env(SEARCH_EXTS,extensions)
 
 mode=mode:prop

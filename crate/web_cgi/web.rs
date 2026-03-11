@@ -74,7 +74,7 @@ pub trait PageOps {
                     ("name", self.name()),
                     ("menu", form_nav(self.get_nav())),
                     ("theme", String::from("")),
-                    ("path_info", std::env::var("PATH_INFO").unwrap_or("".to_string())),
+                    ("path_info", std::env::var("PATH_INFO").unwrap_or(String::new())),
                 ]);
                 self.apply_specific(&mut page_items);
                 //eprintln! {"{page_items:?}"};
@@ -221,7 +221,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
     let str_ext = ext.as_ref();
     let path = path.as_ref();
     if path.is_dir() {
-        for path in fs::read_dir(&path).into_iter().flatten().filter_map(|e| {
+        for path in fs::read_dir(path).into_iter().flatten().filter_map(|e| {
             if let Ok(path) = e {
                 Some(path.path())
             } else {
@@ -231,9 +231,8 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
             // no reason to dive for non dir path
             res.append(&mut list_files(path, ext))
         }
-    } else if let Some(curr_ext) = path.extension()
-        // for sake of perfomance, it is better name[name.rfind('.').unwrap()..]
-        && str_ext.contains(&(".".to_string() + &curr_ext.to_string_lossy()))
+    } else if path.extension().is_some() && let Some(name) = path.file_name().unwrap().to_str() 
+        && str_ext.contains(&name[name.rfind('.').unwrap()..])
     {
         res.push(path.display().to_string())
     }
@@ -250,7 +249,7 @@ fn get_hint(hint: &Option<&str>) -> String {
 
 fn get_img(icon: &Option<&str>) -> String {
     if let Some(icon) = icon {
-        format! {"<img src=\"{}\">", icon}
+        format! {"<img src=\"{icon}\">"} // potentionally URL encode
     } else {
         String::new()
     }

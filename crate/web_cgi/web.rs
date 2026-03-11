@@ -180,7 +180,7 @@ pub fn save_props(path: &Path, props: &HashMap<String, String>) -> io::Result<()
         data.push_str(&format! {"{}={}\n", key, value})
     }
     // since writing can happen concurrently
-    // try create PROP.LOCK
+    // try to create PROP.LOCK
     // if success, do write and then delete the LOCK
     fs::write(path, data)
 }
@@ -225,7 +225,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
             // no reason to dive for non dir path
             res.append(&mut list_files(path, ext))
         }
-    } else if let Some(curr_ext) = path.extension() && str_ext.contains(&*curr_ext.to_string_lossy()) {
+    } else if let Some(curr_ext) = path.extension() && str_ext.contains(&(".".to_string() + &curr_ext.to_string_lossy())) {
             res.push(path.display().to_string())
     }
     res

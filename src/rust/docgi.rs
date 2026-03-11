@@ -1118,7 +1118,7 @@ impl PageOps for JsonDirs {
                     })
                     .unwrap_or(false)
                 {
-                    Some(f.unwrap().file_name().to_string_lossy().to_string())
+                    Some(f.unwrap().file_name().display().to_string())
                 } else {
                     None
                 }

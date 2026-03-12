@@ -399,7 +399,7 @@
         if (WIN_SERVER)
             fileNameReg =  /(?<path>(\w:\\)?(([\w|-]+|\.\.?)\\)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
         else
-            fileNameReg = /(?<path>\/?(([\w|-]+|\.\.?)\/)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm // TODO introduce path
+            fileNameReg = /(?<path>\/?(([\w|-]+|\.\.?)\/)*)(?<file>[\w|-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
       
       var projectKWs = []
       
@@ -410,7 +410,7 @@
           // clean current
           document.forms[0].filename.value = ''; document.forms[0].place.value = ''
           pane.style.display = "block"
-          const btn = document.querySelector(".form-container .btn")
+          const btn = pane.querySelector(".form-container .btn")
           btn.innerText='Create'
           btn.onclick = function() {
               if (document.forms[0].filename.value) {
@@ -436,7 +436,7 @@
           const saveId = document.querySelector('input[name="tabs"]:checked').id
           if (saveId) {
                const pane = document.getElementById("fileForm")
-               const btn = document.querySelector(".form-container .btn")
+               const btn = pane.querySelector(".form-container .btn")
                const lastSlash = saveId.lastIndexOf('/')
                if (lastSlash > 0) {
                    document.forms[0].place.value = saveId.substring(0, lastSlash)
@@ -462,7 +462,7 @@
                       if (path)
                          path += '/'
                       const pathstr = path + document.forms[0].filename.value
-                      saveData(saveId, pathstr, function () {
+                      saveData(saveId, pathstr, function () { // an I reuse pane instead of obtaining it again
                           document.getElementById("fileForm").style.display = 'none'
                       
                           ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(document.forms[0].filename.value)
@@ -480,11 +480,11 @@
       }
       
       function submitFile(name, path) {
-          // check if the file already exists
           if (!path)
              path = name
           else
              path = path + '/' + name
+          // check if the file already exists
           moveToLineInFile(path, 1, 1, function() {
               newFileTab(name, path)
           })

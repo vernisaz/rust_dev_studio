@@ -334,8 +334,7 @@ function moveToLineInFile(path, line, col, failHandler, openFind) {
         tab_item.checked = true
         EDITORS[path].editor.gotoLine(line, col, true)
         if (openFind) {
-            EDITORS[path].editor.execCommand("find")
-            //EDITORS[path].editor.getSession().setValue(openFind)
+            ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[path].editor); EDITORS[path].editor.searchBox.show(openFind)});
         }
     } else if (!lockLoad) {
         lockLoad = true
@@ -344,7 +343,7 @@ function moveToLineInFile(path, line, col, failHandler, openFind) {
              "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
                  EDITORS[path].editor.gotoLine(line, col, true)
                  if (openFind && openFind != '') {
-                    EDITORS[path].editor.execCommand("find")
+                    ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[path].editor); EDITORS[path].editor.searchBox.show(openFind)});
                  }
              },
              fail: function(ecode, etext) {lockLoad = false; if (failHandler && failHandler instanceof Function) failHandler(path, line, col)}})

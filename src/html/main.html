@@ -462,7 +462,7 @@
                       if (path)
                          path += '/'
                       const pathstr = path + document.forms[0].filename.value
-                      saveData(saveId, pathstr, function () { // an I reuse pane instead of obtaining it again
+                      saveData(saveId, pathstr, function () {
                           document.getElementById("fileForm").style.display = 'none'
                       
                           ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(document.forms[0].filename.value)
@@ -1320,8 +1320,8 @@
     
     function fromNotepad() {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
-        const notepad = document.getElementById("notepad")
         if (editor_tab) {
+            const notepad = document.getElementById("notepad")
             const editor = EDITORS[editor_tab.id].editor
             const selectedText = notepad.value.substring(notepad.selectionStart, notepad.selectionEnd);
             const range = editor.selection.getRange();
@@ -1405,6 +1405,7 @@
         }
         //saveAllFiles() // autosave()
         document.getElementById('commandarea').focus() // focus saves
+        // check if storing in progress, set an executio of the command at end of storing
         if (termWskt && termWskt.readyState===WebSocket.OPEN) {
             termWskt.send(cmd3+'\n')
         } else {

@@ -404,7 +404,7 @@ function saveData(path, newpath, onsave) {
             if (EDITORS[path]['crc'] == crc) {
                 //console.log('file '+path+' is the same')
                 if (onsave && typeof onsave === "function")
-                     onsave() // do function on save anyway
+                     onsave(false) // do function on save anyway
                 return false
             }
         }
@@ -422,11 +422,11 @@ function saveData(path, newpath, onsave) {
              if (resp.startsWith('Ok')) {
                  if (docTab)
                      docTab.dataset.modified = resp.substring(3)
-                 if (onsave && typeof onsave === "function")
-                     onsave()
                  if (EDITORS[path]) {
                      EDITORS[path]['size'] = dataSize
                      EDITORS[path]['crc'] = crc
+                     if (onsave && typeof onsave === "function")
+                        onsave(true)
                  } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
              } else 
@@ -507,6 +507,8 @@ function saveAllFiles() {
 }
 
 function autosave() {
+    // set flag storing in progress and execute the devered command at the end of storing
+    // TODO redo the code saving one by one 
     if (AUTOSAVE)
     // scan all opened editors
          Object.keys(EDITORS).forEach(key => saveData(key,null, () => {

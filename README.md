@@ -4,20 +4,20 @@
 Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on a cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
-The approach of web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
+The approach of a web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
 
 ## Features
 - multi windows editor with syntax highlighting
-- notepad with two ways copying
-- source bookmarking
-- identificator case conversion, as camel, snake and so on
-- code analyzer with function names and usage points
+- a notepad with two ways copying
+- source code bookmarking
+- identifier case conversion, as camel, snake and so on
+- code analyzer with function names, usage points, and autocomplete
 - search across all project files
 - full Unix terminal for all supported platforms
-- integation with Rust tools as a compiler, Rustfmt, Clippy, and Cargo
-- seamless access error lines in the editor from the terminal
+- integration with Rust toolchain as a compiler, Rustfmt, Clippy, and Cargo
+- seamless access to error lines in the editor from the terminal error reporting content
 - possibility to use with any other programming language(s)
-- full git integration
+- full *git* integration
 - mobile and desktop browsers support
 - blazing fast and safe Rust implementation
 - includes all required components as a web server, a scripting tool, and a terminal for all supported platforms
@@ -85,7 +85,7 @@ It is a standard alias syntax of Unix shell allowing to setup an alias for the R
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with the **SimHTTP**,
 because the server provides the WS CGI support.
 
-There is a Java terminal websocket endpoint built on JSR 356 technology. It's out of support, but still
+There is a Java terminal websocket endpoint built on JSR 356 technology. It's out of a support, but still
 can be obtained from [there](https://gitlab.com/tools6772135/rusthub/-/tree/master/src/java/rustcgi).
 
 ## Ace Cloud editor
@@ -93,7 +93,7 @@ The Rust Development Studio is loosely coupled with Ace (Ajax.org Cloud9) Editor
 
 RDS is coming bundled with some version of the Ace editor. You can always bundle it with any other version of the editor. 
 Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download the desired version. A copy of it has to be placed in the directory
-**resource/ace**. It's reflected in the installation script.
+**resource/ace** inside RDS directory. It's reflected in the installation script.
 
 ## Building RDS components
 
@@ -137,8 +137,8 @@ navigate over the project tree, open and edit files, build its components and so
 If you do not have the project checked out or created yet, then you can use the terminal panel and execute 
 underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
 will create a project directory, unless it exists. You can always correct the project root directory 
-in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to a project
-and you will need to delete project files  manually when required using the terminal panel.
+in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
+and you will need to delete project files  manually when it's required using the terminal panel.
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:
@@ -150,19 +150,20 @@ color=always
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
 RDS allows to run Rustfmt explicitly selecting it from menu _Source/Format_, or implicitly checking off _Format on save_ in **Settings**.
-In both cases, Rustfmt has to be configured in _Project/Config..._. You can specify a formatting program, e.g. rustfmt, and
+In both cases, Rustfmt has to be configured in _Project/Config..._ . You can specify a formatting program, e.g. rustfmt, and
 its options, for example:
 
 > rustfmt --edition 2024
 
 If formatting on save didn't happen for some reason, the file will be saved as is. If more than one file
-is autosaved with formatting, some files can be not updated in the RDS UI, so do it manually using menu _Edit/Reload_.
+is autosaved with formatting, some files can be not updated in the RDS UI in Safari, so do it manually using menu _Edit/Reload_.
 
 You are not limited to using _Rustfmt_, and you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
 Just specify it in the configuration as
 
 > rustidy
 
+An absolute path to the program can be required, unless it's accessible from PATH.
 
 ## Cloud and multi users install
 If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of RDS which provides:
@@ -182,28 +183,28 @@ More likely, other browsers will work too. If you encounter problems with your b
 then, please, report them to the author.
 
 ## Like the IDE but Rust
-You can add any other language in the support. Open [main.html](https://github.com/vernisaz/rust_dev_studio/blob/229f4862dc61c7aeb480769df776109763f3d945/src/html/main.html#L264) and navigate to
-around line 278 to see
+You can add any other language in the support. Open [main.html](https://github.com/vernisaz/rust_dev_studio/blob/master/src/html/main.html) and navigate to
+around line 288 to see
 ```javascript
 const EDITOR_MODE = {
 ```
-Add more modes accordingly file extension of the code type of your interest.
+Add more modes accordingly a file extension of the code type of your interest.
 
-If you need to navigate in a source code from error messages in the terminal, look for 
+If you need to navigate in a source code from error messages for the language compiler in the terminal, look for 
 ```javascript
 var fileNameReg
 ```
-around line 379. Add a desired language file extension in the regular expression definition.
+around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.50.07](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.50.07). You can check out the current development code,
+The current version is [1.51.00](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.51.00). You can also check out the current development code,
 however it can be not stable.
 
 ## Known problems
 
 1. files can stop to be opened from the left navigation panel (work around - select
-_Refresh Proj_ from _Edit_ menu or reload the project page)
-2. A file tab can appear empty after auto restore tabs in Safari. Just select 'Edit/Reload' to get its content.
+_Refresh Proj_ from _Edit_ menu or reload the RDS browser window)
+2. A file tab can appear empty after auto restore tabs in Safari. Just select _Edit/Reload_ to get its content.
 
 ## Reading about
 
@@ -213,7 +214,7 @@ _Refresh Proj_ from _Edit_ menu or reload the project page)
 ## Help wanted
 
 If you like the IDE and want to contribute to its development, please contact me using the standard
-github communication way. Entry level people are welcome.
+github communication way. Entry level people are welcome, because you will use the vibe programming.
 
 Current tasks:
 

@@ -587,7 +587,7 @@ function showErrorMessage(msg) {
 // terminal specific
     var WS_TERM_URL
 function extendURL(lineStr) {
-    const urlRegex = /https?:\/\/[a-zA-Z0-9-._~/?#]+/g;
+    const urlRegex = /https?:\/\/[a-zA-Z0-9-._~]+[\:\d\d\d?]?[a-zA-Z0-9-._~/]*(\?([a-zA-Z0-9-._~%]+=([a-zA-Z0-9-._~%]+)?&?)*)?/gm;
     return lineStr.replace(urlRegex, (url) => {
               return '<a href="' + url + '" target="_blank">' + url + '</a>';
         }).replace(fileNameReg, (fileName) => {

@@ -4,10 +4,11 @@ project  =rustcgi
 main=src${~/~}rust${~/~}docgi
 common =..${~/~}simscript${~/~}comm-build.7b:file
 crate_dir=..${~/~}crates
+doc_dir=..${~/~}docs
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.23.00:196"
+version="1.23.02:197"
 set_env(VERSION,version)
 
 extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go

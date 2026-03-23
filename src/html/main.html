@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.10.11.150">
+       <input type="hidden" name="version" id="version" value="1.11.01.152">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -197,10 +197,6 @@
             <input type="text" name="debug_build" placeholder="cargo build" value="rb" size="50">
             </div>
             <div class="form-row">
-            <label for="clippy">Run Clippy:</label>
-            <input type="text" name="clippy" placeholder="cargo clippy" value="rb clippy" size="50">
-            </div>
-            <div class="form-row">
             <label for="release_build">Release Build:</label>
             <input type="text" name="release_build" value="rb -Drelease" placeholder="cargo build --release" size="50">
             </div>
@@ -215,6 +211,14 @@
             <div class="form-row">
             <label for="test_app">Test App:</label>
             <input type="text" name="test_app" value="rb test" placeholder="cargo test" size="50">
+            </div>
+            <div class="form-row">
+            <label for="clippy">Run Clippy:</label>
+            <input type="text" name="clippy" placeholder="cargo clippy" value="rb clippy" size="50">
+            </div>
+            <div class="form-row">
+            <label for="clippy">Create Documents:</label>
+            <input type="text" name="rustdoc" placeholder="cargo doc --open" value="rb doc" size="50">
             </div>
             <div class="form-row">
             <label for="format_src">Source formatter:</label>
@@ -1375,6 +1379,7 @@
         tarFrm.test_app.value = PROJ_CONF['test_app']  || '' 
         tarFrm.package_app.value = PROJ_CONF['package_app']  || 'rb package'
         tarFrm.format_src.value = PROJ_CONF['format_src']  || 'rustfmt'
+        tarFrm.rustdoc.value = PROJ_CONF['rust_doc']  || ''
     }
     
     function saveProjConf() {
@@ -1388,6 +1393,7 @@
         PROJ_CONF['test_app'] = tarFrm.test_app.value
         PROJ_CONF['package_app'] = tarFrm.package_app.value
         PROJ_CONF['format_src'] = tarFrm.format_src.value
+        PROJ_CONF['rust_doc'] = tarFrm.rustdoc.value
         saveSettings(true)
         // close
         hideProjConf()
@@ -1426,6 +1432,10 @@
     
     function clippy_build() {
         runCmd(PROJ_CONF['clippy'])
+    }
+    
+    function create_doc() {
+        runCmd(PROJ_CONF['rust_doc'])
     }
     
     function run_release() {

@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.51.00
+version=1.51.06
 
 include(cfg.7b) # created by the install
 
@@ -50,10 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
     
-- added more shortcuts in menu
-- added an access to GIT history and modification details
-- a possibility to format the selected content
-- a bind address's been made configurable",
+- Added a menu item for creation a documentation",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.11.01.152">
+       <input type="hidden" name="version" id="version" value="1.11.01.153">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -63,7 +63,7 @@
                 <label for="refersx" title="Build cross references">X-Refers</label>
                 <div class="tab_content">
                     <input type="search" placeholder="Filter" onkeyup="filterRefs(this)" style="display: inline-block !important;"/>
-                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="scanXRef()">&#128260;</span>
+                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="scanXRef()" title="Refresh/build cross references">&#128260;</span>
                     <dl id="xrefs"></dl>
                 </div>
                 
@@ -71,7 +71,7 @@
                 <label for="searchx" title="Search for a string in the project files">Search</label>
                 <div class="tab_content">
                     <input type="search" name="search_for" placeholder="Search for" onkeyup="performSearch(this)" style="display: inline-block !important;" autofocus/>
-                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="performSearch()">&#x1F50D;</span>
+                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="performSearch()" title="Perform a search">&#x1F50D;</span>
                   <dl id="searches"></dl>
                 </div>
             </div>
@@ -655,11 +655,8 @@
                             FORMAT_ON_SAVE = document.querySelector('#format-on-save').checked
                             if (SESSION) {
                                 document.title = SESSION + ' - RDS'
-                                // TODO uncomment when the tag returns
-                                //document.getElementById("proj_name").innerHTML = htmlEncode(SESSION);
                             } else {
                                 document.title = '-default- - RDS'
-                                document.getElementById("proj_name").innerHTML = '-default-'
                             }
                             
                             STORE_TABS =  document.getElementById("persisttabs").checked 

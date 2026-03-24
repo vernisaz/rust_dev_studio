@@ -165,6 +165,21 @@ Just specify it in the configuration as
 
 An absolute path to the program can be required, unless it's accessible from PATH.
 
+### Documenting a project
+
+You can use `rustdoc` for documenting an application or a crate. You need to specify a way of calling `rustdoc` or a similar purpose tool.
+Since a different project management tool can be used, you need to specify it in _Project/Config..._.
+
+Viewing the documentation is convinient in the same browser and from the same web serer as RDS runs from.
+Add the following entry in the `mapping` section of `env.conf` of **SimHTTP**:
+```JSON
+    {"path":"/doc",
+    "translated": "../docs"}
+```
+A link to view the documentation will be shown on a console when [RB](https://github.com/vernisaz/rust_bee) scripts are used.
+A mapping entry to `HOME/rust_docs` gets added automatically by RDS installation script. You can modify the entry accordingly
+your real documentation directory location.
+
 ## Cloud and multi users install
 If you plan to use the IDE on a Cloud in the multi users environment, then you need to provide a proxy server in the front of RDS which provides:
 - Decryption/Re-encryption (SSL Proxy)

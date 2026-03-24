@@ -174,7 +174,9 @@ alias ls='ls --color'")
        \"translated\": \"${cgi dir}\"},
     {\"path\":\"/terminal\",
        \"WS-CGI\": true,
-       \"translated\": \"${term}\"}],   
+       \"translated\": \"${term}\"},
+    {\"path\":\"/doc\",
+       \"translated\": \"${HOME}${~/~}rust_docs\"}],   
 	")
 	read(env.tmpl)
 	writea(${~cwd~}${~/~}env.conf,${~~})

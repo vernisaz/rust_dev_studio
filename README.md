@@ -176,8 +176,9 @@ Add the following entry in the `mapping` section of `env.conf` of **SimHTTP**:
     {"path":"/doc",
     "translated": "../docs"}
 ```
-A link to view the documentation will be shown on a console when [RB](https://github.com/vernisaz/rust_bee) scripts are used.
-A mapping entry to `HOME/rust_docs` gets added automatically by RDS installation script. You can modify the entry accordingly
+A link to view the documentation will be shown on a console when [RB](https://github.com/vernisaz/rust_bee) 
+[scripts](https://github.com/vernisaz/simscript) are used.
+A mapping entry to `HOME/rust_docs` in `enc.conf`gets added automatically by the **RDS** installation script. You can modify the entry accordingly
 your real documentation directory location.
 
 ## Cloud and multi users install

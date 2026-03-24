@@ -157,6 +157,15 @@ alias ls='ls --color'")
 	scalar(ar2,\\\\)
 	assign(term,~~)
 	
+	assign(doc dir,${HOME}${~/~}rust_docs)
+	ar3=[]
+	for v:doc dir:\\ {
+		array(ar3,v)
+		assign(ar3,~~)
+	}
+	scalar(ar3,\\\\)
+	assign(doc dir,~~)
+	
 	write(${~cwd~}${~/~}env.conf,"
 {
    \"bind\" : \"${BIND}\",
@@ -176,7 +185,7 @@ alias ls='ls --color'")
        \"WS-CGI\": true,
        \"translated\": \"${term}\"},
     {\"path\":\"/doc\",
-       \"translated\": \"${HOME}${~/~}rust_docs\"}],   
+       \"translated\": \"${doc dir}\"}],   
 	")
 	read(env.tmpl)
 	writea(${~cwd~}${~/~}env.conf,${~~})

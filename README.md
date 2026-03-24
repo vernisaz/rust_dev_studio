@@ -147,6 +147,11 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 
+Note that RDS is a web UI, it means that most operations will end at an accessing remote host.
+It can take time and be costly, therefore RDS minimizes the ammount of such operations. As result,
+a visible state of the project and the actual state can go out of the sync. Therefore,
+do not hesitate to use _Edit/Reload_ when you have doubts.
+
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
 RDS allows to run Rustfmt explicitly selecting it from menu _Source/Format_, or implicitly checking off _Format on save_ in **Settings**.

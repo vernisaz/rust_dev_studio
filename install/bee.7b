@@ -191,6 +191,8 @@ alias ls='ls --color'")
 	writea(${~cwd~}${~/~}env.conf,${~~})
 	# create log directory
 	mkd(${~cwd~}${~/~}log)
+	# create doc directory
+	mkd(${HOME}${~/~}rust_docs)
 	write(${~cwd~}${~/~}.dot,.)
 	rm(env.tmpl); # since the configuration created
 	display(Installed.)

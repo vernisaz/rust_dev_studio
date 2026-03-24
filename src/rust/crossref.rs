@@ -175,7 +175,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
     let mut state = Start;
     let mut co = reader.next();
     let mut name = String::with_capacity(64);
-    let mut scope : Scope = Default::default();
+    let mut scope: Scope = Default::default();
     let mut cbracket_cnt: u16 = Default::default();
     let mut prev_state: Vec<(_, _)> = Vec::new();
     while let Some(c) = co {

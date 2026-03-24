@@ -77,7 +77,8 @@ fn calc_mismatch_shift(
 ///
 /// # Returns
 /// A vector of starting indices where the pattern occurs in the text.
-pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize,usize)> { //Vec<usize> {
+pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize, usize)> {
+    //Vec<usize> {
     //eprintln!{"search {pat} in {}", &text[0..16]}
     let mut positions = Vec::new();
 
@@ -86,13 +87,13 @@ pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize,usize)> { //Ve
 
     // Handle edge cases where the text or pattern is empty, or the pattern is longer than the text
     if text_len == 0 || pat_len == 0 || pat_len > text_len {
-        return None
+        return None;
     }
 
     // Convert text and pattern to character vectors for easier indexing
     let pat: Vec<char> = pat.chars().collect();
     let text: Vec<char> = text.chars().collect();
-    
+
     let text_len = text.len() as isize;
     let pat_len = pat.len() as isize;
 
@@ -102,8 +103,8 @@ pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize,usize)> { //Ve
     let mut shift = 0;
 
     // Main loop: shift the pattern over the text
-    while shift <= text_len - pat_len  {
-        let mut j:isize = pat_len - 1;
+    while shift <= text_len - pat_len {
+        let mut j: isize = pat_len - 1;
 
         // Compare pattern from right to left
         while j >= 0 && pat[j as usize] == text[(shift + j) as usize] {
@@ -128,7 +129,7 @@ pub fn boyer_moore_search(text: &str, pat: &str) -> Option<(usize,usize)> { //Ve
     }
 }
 
-fn pos_to_line(text: &[char], pos: usize) -> (usize,usize) {
+fn pos_to_line(text: &[char], pos: usize) -> (usize, usize) {
     let mut line = 1;
     let mut col = 0;
     for chr in text.iter().take(pos) {
@@ -148,8 +149,20 @@ mod tests {
 
     #[test]
     fn test_boyer_moore() {
-        assert_eq!(boyer_moore_search("bad_char_table[pattern.as_bytes()[i] as usize] = m - 1 - i;", "usiz"), Some(15));
-        assert_eq!(boyer_moore_search("系统监测到您的网络环境存在异常风险，为保证您的正常访问，请输入验证码进行验证。", "系统监"), Some(0));
+        assert_eq!(
+            boyer_moore_search(
+                "bad_char_table[pattern.as_bytes()[i] as usize] = m - 1 - i;",
+                "usiz"
+            ),
+            Some(15)
+        );
+        assert_eq!(
+            boyer_moore_search(
+                "系统监测到您的网络环境存在异常风险，为保证您的正常访问，请输入验证码进行验证。",
+                "系统监"
+            ),
+            Some(0)
+        );
         assert_eq!(boyer_moore_search("abcabcabc", "xyz"), None);
     }
 }

@@ -579,7 +579,7 @@ function showErrorMessage(msg) {
     // show animated fixed position message line
     const bar = document.querySelector('.message-bar')
     const content = bar.querySelector('#message-content')
-    content.textContent = htmlEncode(msg)
+    content.textContent = msg
     preventAutoSave = true
     bar.show()
 }

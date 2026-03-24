@@ -96,7 +96,6 @@ nav ul > li:hover > ul {
     position: fixed;
     top: 32px;
     left: 8px;
-    text-align: center;
     border-radius: 8px;
     margin: 1rem;
     z-index: 999;

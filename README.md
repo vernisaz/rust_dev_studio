@@ -14,7 +14,7 @@ The approach of a web based IDE becomes popular nowadays, for example - Code any
 - code analyzer with function names, usage points, and autocomplete
 - search across all project files
 - full Unix terminal for all supported platforms
-- integration with Rust toolchain as a compiler, Rustfmt, Clippy, and Cargo
+- integration with Rust toolchain as a compiler, Rustfmt, Clippy, Rustdoc, and Cargo
 - seamless access to error lines in the editor from the terminal error reporting content
 - possibility to use with any other programming language(s)
 - full *git* integration
@@ -151,7 +151,7 @@ Note that RDS is a web UI, it means that most operations will end at an accessin
 It can take time and be costly, therefore RDS minimizes the ammount of such operations. As result,
 a visible state of the project and the actual state can go out of the sync. Therefore,
 do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all
-changes done in the tab, you may save the tab content to some new file in cases when some new content was typed.
+changes done in the tab, you may save the tab content to some new file in cases when the tab content was changed.
 
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).

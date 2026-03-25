@@ -138,7 +138,7 @@ If you do not have the project checked out or created yet, then you can use the 
 underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
 will create a project directory, unless it exists. You can always correct the project root directory 
 in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
-and you will need to delete project files  manually when it's required using the terminal panel.
+and you will need to delete project files  manually using the terminal panel when it's required.
 
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:

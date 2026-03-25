@@ -150,7 +150,8 @@ color=always
 Note that RDS is a web UI, it means that most operations will end at an accessing remote host.
 It can take time and be costly, therefore RDS minimizes the ammount of such operations. As result,
 a visible state of the project and the actual state can go out of the sync. Therefore,
-do not hesitate to use _Edit/Reload_ when you have doubts.
+do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all
+changes done in the tab, you may save the tab content to some new file in cases when some new content was typed.
 
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).

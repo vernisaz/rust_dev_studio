@@ -402,6 +402,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 match state {
                     InDataDef | Start | Direct | ExpDirect => (),
                     InCallName => name.clear(),
+                    InComment => (),
                     _ => state = ExpInCallName,
                 }
             }
@@ -582,6 +583,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
             '/' => match state {
                 ExpComment => state = InComment,
                 ExpEndComment => state = prev_state.pop().unwrap().0,
+                InComment => (),
                 _ => {
                     prev_state.push((state, name.clone()));
                     state = ExpComment;

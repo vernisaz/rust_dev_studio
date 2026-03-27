@@ -1,12 +1,12 @@
 extern crate simcolor;
+extern crate simcli;
 use simcolor::Colorized;
 use std::fs::File;
 use std::io::Read;
 use std::fs;
 use std::path::PathBuf;
 use std::io::Error;
-mod cli;
-use crate::cli::CLI;
+use crate::simcli::CLI;
 #[allow(unused)]
 const VERSION: &str = env!("VERSION");
 fn main() -> std::io::Result<()> {

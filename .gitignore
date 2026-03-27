@@ -6,4 +6,5 @@ webcgi
 .config
 *.zip
 clippy-*
+nonutf8
 .DS_Store

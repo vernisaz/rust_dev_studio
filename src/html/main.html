@@ -923,12 +923,12 @@
         ajax.post({url:"./rustcgi", query: "mode=vcs-commit&name="+encodeURIComponent(commfiles)+
              "&session="+encodeURIComponent(SESSION) + "&cache="+encodeURIComponent(undofiles) +
              "&comment="+encodeURIComponent(document.getElementById("comment").value), success: function (data) { 
-                 if (data.startsWith('Ok')) {
-                    vcsStatus()
-                 } else
+                 if (!data.startsWith('Ok')) {
                     showErrorMessage('A problem in the commit ' + data.substring(3))
+                 } 
                 closeCommit()
                 btn.disabled = false
+                vcsStatus()
              }, respType:"html"})
     }
     

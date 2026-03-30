@@ -507,6 +507,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         if !files.is_empty() {
                             let output = Command::new("git")
                                 .arg("add")
+                                .arg("--force")
                                 .args(files)
                                 .current_dir(&dir)
                                 .output()?;

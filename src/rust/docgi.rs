@@ -557,7 +557,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 eprintln! {"git commit success {stdout}"}
                             }
                         } else {
-                            result_oper = Err("nothing to commit".into());
+                            result_oper = Err(format!("commit skipped, because {result_oper:?}").into());
                         }
                     }
                     Box::new(PageStuff {

@@ -129,6 +129,29 @@ function makeid(length) {
     return result;
 }
 
+function normalizePath(path,separator,root) {
+    separator = separator || '/'
+    root = root || ''
+  // Remove multiple slashes
+  if (separator ==  '/') {
+    path = path.replace(/\/\/+/g, separator);
+  } else {
+    path = path.replace(/\\\\+/g, separator);
+  }
+  let segments = path.split(separator);
+  let normalizedSegments = [];
+
+  for (let segment of segments) {
+    if (segment === '..') {
+      normalizedSegments.pop(); // Go up one directory
+    } else if (segment !== '.' && segment.trim() !== '') {
+      normalizedSegments.push(segment); // Push valid directory names
+    }
+  }
+
+  return /*(separator == '/'?'/':'') +*/ normalizedSegments.join(separator); // Reconstruct the path
+}
+
 var ajax = {
    noaccesscode:403,
 

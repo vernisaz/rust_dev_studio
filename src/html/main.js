@@ -599,7 +599,10 @@ function extendURL(lineStr) {
             var path = matches[0].groups.path
             if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                 path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
-            path = path.replaceAll('\\', '/')
+            /*if (path.startsWith('./') || path.startsWith('.\\') )
+                path = path.substring(2) // potentially . can be in the middle, so better 
+            path = path.replaceAll('\\', '/')*/
+            path = normalizePath(path)
             const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
             return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${fileName}</a>`
         } else {

@@ -144,7 +144,7 @@ function normalizePath(path,separator,root) {
   for (let segment of segments) {
     if (segment === '..') {
       normalizedSegments.pop(); // Go up one directory
-    } else if (segment !== '.' && segment.trim() !== '') {
+    } else if (segment !== '.') { // && segment !== '') { - the condition is always true since repeating slashes removed
       normalizedSegments.push(segment); // Push valid directory names
     }
   }

@@ -5,7 +5,7 @@ crate_dir=..${~/~}..${~/~}..${~/~}crates
 doc_dir=..${~/~}..${~/~}..${~/~}docs
 comp opts=[]
 
-version=1.00
+version=1.01
 set_env(VERSION,version)
 
 include(common);

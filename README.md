@@ -140,6 +140,11 @@ will create a project directory, unless it exists. You can always correct the pr
 in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
 and you will need to delete project files  manually using the terminal panel when it's required.
 
+**RDS** text editor operates with files in format UTF-8, therefore, if you migrate some project
+to **RDS** with files in other formats, they can be not opened. You need to convert such files in UTF-8.
+Unless the files have long fragments in other encoding, you can use [the tool](./tools/nonutf8/README.md)
+for the task.
+
 When you use **Cargo** to build a Rust project, make sure to set `CARGO_TERM_COLOR` env variable to `always`. It
 is controlled also by `term.color` of Cargo settings. For example:
 ```

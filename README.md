@@ -141,7 +141,7 @@ in the *Settings*. You can also delete any undesired projects in *Settings*. How
 and you will need to delete project files  manually using the terminal panel when it's required.
 
 **RDS** text editor operates with files in UTF-8 encoding, therefore, if you migrate some project
-to **RDS** with files in other other encodings, they can be not opened. You need to convert such files in UTF-8.
+to **RDS** with files in other encodings, they can be not opened. You need to convert such files in UTF-8.
 Unless the files have long fragments in other encoding, you can use [the tool](./tools/nonutf8/README.md)
 for the task.
 
@@ -156,7 +156,7 @@ Note that RDS is a web UI, it means that most operations will end at an accessin
 It can take time and be costly, therefore RDS minimizes the ammount of such operations. As result,
 a visible state of the project and the actual state can go out of the sync. Therefore,
 do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all
-changes done in the tab, you may save the tab content to some new file in cases when the tab content was changed.
+changes done in the tab, you may save the tab content to a new file in cases when the tab content was changed.
 
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).

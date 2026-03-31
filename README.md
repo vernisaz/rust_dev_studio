@@ -152,11 +152,11 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 
-Note that RDS is a web UI, it means that most operations will end at an accessing remote host.
-It can take time and be costly, therefore RDS minimizes the ammount of such operations. As result,
+Note that RDS is a web UI, it means that most operations will end at accessing a remote host.
+It can take time and be costly, therefore RDS minimizes an ammount of such operations. As result,
 a visible state of the project and the actual state can go out of the sync. Therefore,
 do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all
-changes done in the tab, you may save the tab content to a new file in cases when the tab content was changed.
+changes done in the tab, you may save the tab content first to a new file.
 
 ### Running Rustfmt and other Rust formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
@@ -166,7 +166,7 @@ its options, for example:
 
 > rustfmt --edition 2024
 
-If formatting on save didn't happen for some reason, the file will be saved as is. If more than one file
+If a formatting on save didn't happen for some reason, the file will be saved as is. If more than one file
 is autosaved with formatting, some files can be not updated in the RDS UI in Safari, so do it manually using menu _Edit/Reload_.
 
 You are not limited to using _Rustfmt_, and you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
@@ -224,14 +224,14 @@ var fileNameReg
 around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.51.00](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.51.00). You can also check out the current development code,
+The current version is [1.51.06](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.51.06). You can also check out the current development code,
 however it can be not stable.
 
 ## Known problems
 
 1. files can stop to be opened from the left navigation panel (work around - select
 _Refresh Proj_ from _Edit_ menu or reload the RDS browser window)
-2. A file tab can appear empty after auto restore tabs in Safari. Just select _Edit/Reload_ to get its content.
+2. A file tab can appear empty after the auto restore tabs in Safari. Just select _Edit/Reload_ to get its content.
 
 ## Reading about
 

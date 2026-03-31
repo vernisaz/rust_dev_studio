@@ -140,8 +140,8 @@ will create a project directory, unless it exists. You can always correct the pr
 in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
 and you will need to delete project files  manually using the terminal panel when it's required.
 
-**RDS** text editor operates with files in format UTF-8, therefore, if you migrate some project
-to **RDS** with files in other formats, they can be not opened. You need to convert such files in UTF-8.
+**RDS** text editor operates with files in UTF-8 encoding, therefore, if you migrate some project
+to **RDS** with files in other other encodings, they can be not opened. You need to convert such files in UTF-8.
 Unless the files have long fragments in other encoding, you can use [the tool](./tools/nonutf8/README.md)
 for the task.
 
@@ -179,9 +179,9 @@ An absolute path to the program can be required, unless it's accessible from PAT
 ### Documenting a project
 
 You can use `rustdoc` for documenting an application or a crate. You need to specify a way of calling `rustdoc` or a similar purpose tool.
-Since a different project management tool can be used, you need to specify it in _Project/Config..._.
+Since a different documenting tool can be used, you need to specify it in _Project/Config..._.
 
-Viewing the documentation is convinient in the same browser and from the same web serer as RDS runs from.
+Viewing the documentation is convinient in the same browser and from the same web server as RDS runs from.
 Add the following entry in the `mapping` section of `env.conf` of **SimHTTP**:
 ```JSON
     {"path":"/doc",

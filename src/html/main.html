@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.11.01.154">
+       <input type="hidden" name="version" id="version" value="1.12.00.155">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -508,7 +508,6 @@
       }
       
       function saveCurrent() {
-          //openFileMenu()
           const currentTab = document.querySelector('input[name="tabs"]:checked')
           if (currentTab) {
              saveData(currentTab.id, null, FORMAT_ON_SAVE?() => {reloadCurrent(currentTab)}: null)
@@ -516,7 +515,6 @@
       }
       
       function closeCurrent() {
-          //openFileMenu()
           const currentTab = document.querySelector('input[name="tabs"]:checked')
           if (currentTab) {
               if (isDataChanged(currentTab.id)) {
@@ -600,7 +598,6 @@
           }})
       }
           
-      
       function jump(h){
         var url = location.href;               //Save down the URL without hash.
         location.href = "#"+h;                 //Go to the target element.

@@ -162,6 +162,8 @@ function loadSettings() {
                   COLAPSED_DIRS = load.colapsed_dirs
               if (load && load.src_dir)
                   SRC_DIR= load.src_dir
+              if (load && load.ed_font)
+                  ED_FONT= load.ed_font
               if (load && load.format_on_save)
                   FORMAT_ON_SAVE= load.format_on_save
               // TODO other inits
@@ -201,12 +203,15 @@ function render_editor(edittab, path) {
     if (ext == 'txt' || ext == 'md')
         editor.setOption("spellcheck", true)
     //editor.setFontSize(16)
-    editor.setOptions({
+    let options = {
         fontSize: "12pt",
         enableBasicAutocompletion: true, // Enables basic autocompletion
         enableSnippets: true,            // Enables code snippets
         enableLiveAutocompletion: true
-    })
+    }
+    if (ED_FONT && ED_FONT != '')
+        options.fontFamily = ED_FONT
+    editor.setOptions(options)
     editor.resize()
     const editorArea = document.querySelector('div.center-pane');
     const viewportHeight = editorArea.getBoundingClientRect().height

@@ -143,8 +143,8 @@
                     </select>
                 </div>
                 <div class="form-col">
-                    <label for="src-dir">Compilation folder</label>
-                    <input type="text" placeholder="Compilation in the directory" id="src-dir" size="16">
+                    <label for="ed-font">Editor font</label>
+                    <input type="text" placeholder="Mono font used in the editor" id="ed-font" size="16">
                 </div>
             </div>
             <div class="form-row" style="display:flex; gap: 2em;">
@@ -166,6 +166,10 @@
                     <label for="format-on-save">Format on save</label>
                     <input type="checkbox" title="Trying to format .rs files on save" id="format-on-save">
                 </div>
+            </div>
+            <div class="form-row">
+                <label for="src-dir">Compilation folder</label>
+                <input type="text" placeholder="Compilation in the directory" id="src-dir" size="42">
             </div>
             <div class="form-row">
                 <label for="user">User for VCS</label>
@@ -397,6 +401,8 @@
       
       let SRC_DIR = ''
       
+      let ED_FONT = ''
+      
       let caseId = 'num1@'
       
       var fileNameReg
@@ -575,6 +581,7 @@
               document.getElementById("format-on-save").checked = load.format_on_save
               document.getElementById('colaps-dir').value = load.colapsed_dirs
               document.getElementById('src-dir').value = load.src_dir
+              document.getElementById('ed-font').value = load.ed_font
               var projectDir = load.project_home
               if (projectDir.startsWith('~/'))
                   projectDir = projectDir.substring(2)
@@ -625,6 +632,7 @@
             '&ai_server_url='+encodeURIComponent(document.getElementById("ai-access").value) +
             '&src_dir='+encodeURIComponent(document.getElementById("src-dir").value) +
             '&colapsed_dirs='+encodeURIComponent(document.getElementById('colaps-dir').value) +
+            '&ed_font='+encodeURIComponent(document.getElementById("ed-font").value) +
             '&format_on_save='+(document.getElementById('format-on-save').checked?'yes':'no')
         }
         payload += '&proj_conf='+encodeURIComponent(JSON.stringify(PROJ_CONF))
@@ -685,6 +693,7 @@
                         AUTOSAVE = document.getElementById("autosave").checked
                         COLAPSED_DIRS = document.getElementById('colaps-dir').value
                         SRC_DIR = document.getElementById('src-dir').value
+                        ED_FONT = document.getElementById('ed-font').value
                         FORMAT_ON_SAVE = document.querySelector('#format-on-save').checked
                         if (updateTheme)
                             for (var key in EDITORS) {

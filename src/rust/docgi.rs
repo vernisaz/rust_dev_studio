@@ -272,6 +272,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     "ai_server_url",
                     "colapsed_dirs",
                     "src_dir",
+                    "ed_font",
                     "format_on_save",
                 ] {
                     set_value(key.to_string());
@@ -1262,12 +1263,13 @@ impl PageOps for JsonSettings {
         let ai_url = props.get("ai_server_url").unwrap_or(&binding);
         let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(f_binding);
         let src_dir = props.get("src_dir").unwrap_or(&binding);
+        let ed_font = json_encode(props.get("ed_font").unwrap_or(&binding));
         let project_home = json_encode(project_home);
         Ok(
             format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
             "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
-            "colapsed_dirs":"{}", "src_dir":"{3}", "format_on_save":{format_on_save}}}"#,
+            "colapsed_dirs":"{}", "src_dir":"{3}", "ed_font":"{ed_font}", "format_on_save":{format_on_save}}}"#,
             &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user), json_encode(src_dir)},
         )
     }

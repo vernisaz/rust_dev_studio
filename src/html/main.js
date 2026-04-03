@@ -209,8 +209,12 @@ function render_editor(edittab, path) {
         enableSnippets: true,            // Enables code snippets
         enableLiveAutocompletion: true
     }
-    if (ED_FONT && ED_FONT != '')
-        options.fontFamily = ED_FONT
+    if (ED_FONT && ED_FONT != '') {
+        const FontAndSize = ED_FONT.split(":", 2)
+        options.fontFamily = FontAndSize[0]
+        if (FontAndSize.length == 2 && FontAndSize[1] != '')
+            options.fontSize = FontAndSize[1]
+    }
     editor.setOptions(options)
     editor.resize()
     const editorArea = document.querySelector('div.center-pane');

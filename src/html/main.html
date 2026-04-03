@@ -139,12 +139,12 @@
             <div class="form-row" style="display:flex; gap: 2em;">
                 <div class="form-col">
                     <label for="theme">Theme</label>
-                    <select name="theme" placeholder="Enter a theme" id="theme">
+                    <select name="theme" placeholder="Enter a theme" title="Specify a theme used for editor" id="theme">
                     </select>
                 </div>
                 <div class="form-col">
                     <label for="ed-font">Editor font</label>
-                    <input type="text" placeholder="Mono font used in the editor" id="ed-font" size="16">
+                    <input type="text" placeholder="Monaco:12pt" title="Mono font used in the editor[:size]" id="ed-font" size="20">
                 </div>
             </div>
             <div class="form-row" style="display:flex; gap: 2em;">
@@ -169,19 +169,19 @@
             </div>
             <div class="form-row">
                 <label for="src-dir">Compilation folder</label>
-                <input type="text" placeholder="Compilation in the directory" id="src-dir" size="42">
+                <input type="text" placeholder="src" title="A compilation directory (optional)" id="src-dir" size="42">
             </div>
             <div class="form-row">
                 <label for="user">User for VCS</label>
-                <input type="text" placeholder="Enter a user as Name <email>" id="user" size="42">
+                <input type="text" placeholder="Casandra R.<casandra.r@rds.com>" title="Enter a user as Name <email>" id="user" size="42">
             </div>
             <div class="form-row">
                 <label for="colaps-dir">Colapsed folders</label>
-                <input type="text" placeholder="Folders to be colapsed in the project tree" id="colaps-dir" size="42">
+                <input type="text" placeholder="bin,out" title="Folders to be colapsed in the project tree" id="colaps-dir" size="42">
             </div>
             <div class="form-row">
                 <label for="ai-access">AI server URL</label>
-                <input type="url" placeholder="Enter AI access URL (optional)" id="ai-access" size="42">
+                <input type="url" placeholder="https://dev.anthropic2.com:8080/learning/webbee/Query" title="Enter AI access URL (optional)" id="ai-access" size="42">
             </div>
             <div class="form-footer">
                 <button type="button" class="btn" onclick="saveSettings()">Apply</button>

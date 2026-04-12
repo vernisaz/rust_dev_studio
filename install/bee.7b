@@ -172,9 +172,9 @@ alias ls='ls --color'")
    \"port\" : ${PORT},
    \"threads\" : 40,
    \"no terminal\" : true,
-   \"keep_alive_mins\": 6,
+   \"keep_alive_secs\": 6,
    \"ping_interval_mins\": 45,
-   \"max_chunk_size_kilo\":24576,
+   \"max_chunk_size_kilo\": 4096,
    \"mapping\" : [
     {\"path\":\"/cgires/resource\",
        \"CGI\": false,

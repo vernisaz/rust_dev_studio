@@ -50,7 +50,9 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
     
-- Added customization editor font",
+- The terminal component updated to better follow 
+  the GNU specification for qouted arguments 
+- Added a customization of the editor font",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

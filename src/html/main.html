@@ -1522,7 +1522,7 @@
                 child.remove()
                 return
             }
-            if (beforeEl == null && child.dataset.src > selTab.id)
+            if (beforeEl == null && (child.dataset.src == selTab.id && child.dataset.line > currentRow + 1 || child.dataset.src > selTab.id))
                 beforeEl = child
         }
         const bookmark = document.createElement("LI");

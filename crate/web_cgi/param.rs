@@ -77,12 +77,7 @@ impl Param {
     }
 
     pub fn path_info(&self) -> String {
-        if let Ok(pi) = env::var("PATH_INFO") {
-            pi.to_string()
-        } else {
-            // since path info is never an empty string
-            "".to_string()
-        }
+        env::var("PATH_INFO").unwrap_or_else(|_e| String::new())
     }
 
     // TODO think of returning Cow

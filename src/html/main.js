@@ -609,10 +609,10 @@ function extendURL(lineStr) {
             if (path.startsWith('/') || path.indexOf(':\\') == 1) // current OS root
                 path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
             path = normalizePath(path, WIN_SERVER?'\\':'/')
-            if (WIN_SERVER)
-                path = path.replaceAll('\\', '/') // consolidate with 'normalize'
+            //if (WIN_SERVER)
+            //    path = path.replaceAll('\\', '/') // consolidate with 'normalize'
             const extraPath = SRC_DIR==''?'':SRC_DIR + '/' //'src/'
-            return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${fileName}</a>`
+            return String.raw`<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${fileName}</a>`
         } else {
             return fileName // dead code
         }

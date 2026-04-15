@@ -117,7 +117,7 @@ Finally
 
 The terminal functionality is separated in the crate [SimTerminal](https://github.com/vernisaz/simterminal), therefore build it before
 building the terminal and then build the terminal. Note that the crate has one extra dependency 
-the [Simple Color](https://github.com/vernisaz/simcolor) which should be built before.
+the [Simple Color](https://github.com/vernisaz/simcolor) which should be built earlier.
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,

@@ -263,7 +263,7 @@
                 </div>
             </form>
             <div class="form-footer">
-            <button type="button" class="btn" onclick="createProj()">Apply</button>&nbsp;
+            <button type="button" class="btn" onclick="createProj(self)">Apply</button>&nbsp;
             <button type="button" class="btn cancel" onclick="hideCreateProj()">Cancel</button>
             </div>
         </div>
@@ -714,7 +714,9 @@
              }, respType: 'html'})
       }
       
-      function createProj() {
+      function createProj(btn) {
+          if (btn) 
+             btn.disabled = true;
            const payload = 'mode=save-settings-project&project_home='+encodeURIComponent(document.getElementById("new_proj_dir").value)+
            "&git="+ encodeURIComponent(document.getElementById("git_url").value) +
             "&session="+encodeURIComponent(document.getElementById("proj_name").value);
@@ -724,7 +726,8 @@
                    updateProjMenuList()
                 }
                 hideCreateProj()
-            }, respType: 'html'})
+                btn.disabled = false;
+            }, fail: () => {btn.disabled = false;}, respType: 'html'})
       }
       
       function reloadCurrent(tab,onload) {

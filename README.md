@@ -134,10 +134,12 @@ Navigate to a project directory and then *Apply* for the new project.
 Open the just created project from menu *File/Project/\<name\>* then. You can start to
 navigate over the project tree, open and edit files, build its components and so on.
 
-If you do not have the project checked out or created yet, then you can use the terminal panel and execute 
+If you do not have a project checked out or created yet, then you can use the terminal panel and execute 
 underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
 will create a project directory, unless it exists. You can always correct the project root directory 
-in the *Settings*. You can also delete any undesired projects in *Settings*. However it deletes only references to the project
+in the *Settings*. Note that **RDS** starting from version _1.52_ is capable to checkout a project from _GIT_ repository
+as a part of its creation.  
+You can also delete any undesired projects in *Settings*. However it deletes only references to the project
 and you will need to delete project files  manually using the terminal panel when it's required.
 
 **RDS** text editor operates with files in UTF-8 encoding, therefore, if you migrate some project

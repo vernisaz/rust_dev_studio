@@ -257,6 +257,10 @@
                     <select name="proj_dirs" id="proj_dirs" onchange="changeDir(this, 'new_proj_dir')">
                     </select>
                 </div>
+                <div class="form-row">
+                    <label for="git_url">Git URL (optional)</label>
+                    <input type="text" placeholder="https://github.com/vernisaz/simtee.git" title="Enter git URL of the project (optional)" id="git_url" size="42">
+                </div>
             </form>
             <div class="form-footer">
             <button type="button" class="btn" onclick="createProj()">Apply</button>&nbsp;
@@ -712,6 +716,7 @@
       
       function createProj() {
            const payload = 'mode=save-settings-project&project_home='+encodeURIComponent(document.getElementById("new_proj_dir").value)+
+           "&git="+ encodeURIComponent(document.getElementById("git_url").value) +
             "&session="+encodeURIComponent(document.getElementById("proj_name").value);
            ajax.post({url:"./rustcgi", query: payload, success: function (text) {
                 if (text == 'Ok') {

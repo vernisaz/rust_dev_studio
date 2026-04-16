@@ -247,7 +247,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     Some(val) => props.insert(key, val),
                     None => None,
                 };
-
+                let mut ok = String::from("Ok");
                 if let Some(proj_dir) = params.param("project_home") {
                     sanitize_path(&proj_dir)?;
                     let real_dir = config
@@ -255,8 +255,22 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         .ok_or("project path misconfiguration")?;
                     let real_dir = Path::new(&real_dir);
                     if real_dir.exists().not() {
+                        if let Some(git_url) = params.param("git") && let git_url = git_url.trim() && git_url.is_empty().not() && let Some(rep_name) = real_dir.file_name() {
+                        let output = Command::new("git")
+                        .arg("clone")
+                            .arg("-o")
+                            .arg(&rep_name)
+                            .arg(&git_url)
+                            .current_dir(&real_dir.parent().ok_or("no parent directory")?)
+                            .output()?;
+                        if output.status.success().not() {
+                            ok += " but err in clone"
+                        }
+                        }
+                        if real_dir.exists().not() {
                         // create dir if non existent (too many directories attack possible)
                         fs::create_dir_all(real_dir)?;
+                        }
                     } else if real_dir.is_dir().not() {
                         return Err("a sym link or a file specified instead of a directory".into());
                     }
@@ -280,7 +294,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 // TOOO there is a race condition which is currently ignored
                 let _ = save_props(settings_path, &props);
                 Box::new(PageStuff {
-                    content: "Ok".to_string(),
+                    content: ok,
                 })
             } else {
                 Box::new(PageStuff {

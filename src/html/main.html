@@ -63,7 +63,7 @@
                 <label for="refersx" title="Build cross references">X-Refers</label>
                 <div class="tab_content">
                     <input type="search" placeholder="Filter" onkeyup="filterRefs(this)" style="display: inline-block !important;"/>
-                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="scanXRef()" title="Refresh/build cross references">&#128260;</span>
+                    <span style="float:right;cursor:pointer;margin-right:1em;" onclick="this.previousElementSibling.value='';scanXRef()" title="Refresh/build cross references">&#128260;</span>
                     <dl id="xrefs"></dl>
                 </div>
                 

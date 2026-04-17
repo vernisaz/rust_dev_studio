@@ -121,7 +121,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.10.05.111'
+    return '1.11.00.114'
 }
 
 function populateProjectTree() {

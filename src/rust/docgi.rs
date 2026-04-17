@@ -43,6 +43,8 @@ macro_rules! eprintln {
 
 const VERSION: &str = env!("VERSION");
 
+const DEFAULT_NAME: &str = "-default-";
+
 fn main() {
     if let Err(e) = inner_main() {
         let page = PageStuff {
@@ -1511,7 +1513,7 @@ impl PageOps for PageFile {
     fn name(&self) -> String {
         match &self.session {
             Some(session) if !session.is_empty() => session.to_string(),
-            _ => "Main".to_string(),
+            _ => DEFAULT_NAME.to_string(),
         }
     }
 #[rustfmt::skip]
@@ -1529,7 +1531,7 @@ impl PageOps for PageFile {
                                 continue
                             }
                             let session_name = if name.is_empty() {
-                                "-default-"
+                                DEFAULT_NAME
                             } else {
                                 name.strip_prefix('-').unwrap()
                             };

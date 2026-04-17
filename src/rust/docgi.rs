@@ -285,7 +285,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             eprintln!("--- STDOUT ---");
                             eprintln!("{}", stdout_str);*/
                             let stderr_str = String::from_utf8_lossy(&output.stderr);
-                            if !stderr_str.trim().is_empty() {
+                            if !stderr_str.trim().is_empty() && !stderr_str.starts_with("Cloning into") {
                                 eprintln!("clonning err: {stderr_str}");
                                 ok = format!("Err:  {stderr_str}");
                             }

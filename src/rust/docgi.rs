@@ -261,6 +261,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             && let Some(rep_name) = real_dir.file_name()
                         {
                             //eprintln!("cloning {git_url} in {rep_name:?} at {real_dir:?}");
+                            eprintln!("cloning in - {:?}",real_dir.parent());
                             let output = Command::new("git")
                                 .arg("clone")
                                 .arg("-o")

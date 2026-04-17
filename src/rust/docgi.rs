@@ -263,16 +263,21 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             && let Some(rep_name) = real_dir.file_name()
                         {
                             //eprintln!("cloning {git_url} in {rep_name:?} at {real_dir:?}");
-                            eprintln!("cloning in - {:?}",real_dir.parent());
                             let output = Command::new("git")
                                 .arg("clone")
                                 .arg("-o")
                                 .arg(rep_name)
                                 .arg(git_url)
                                 .current_dir(real_dir.parent().ok_or("no parent directory")?)
+                                .env(
+                                    "HOME",
+                                    config
+                                        .to_real_path("", None)
+                                        .ok_or("project path misconfiguration")?,
+                                )
                                 .output()?;
                             if output.status.success().not() {
-                                ok = format!("Err:  {}", output.status) 
+                                ok = format!("Err:  {}", output.status)
                             }
                             /* let stdout_str = String::from_utf8_lossy(&output.stdout);
                             let stderr_str = String::from_utf8_lossy(&output.stderr);
@@ -281,10 +286,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             eprintln!("{}", stdout_str);*/
                             let stderr_str = String::from_utf8_lossy(&output.stderr);
                             if !stderr_str.trim().is_empty() {
-                               ok = format!("Err:  {stderr_str}");
+                                eprintln!("clonning err: {stderr_str}");
+                                ok = format!("Err:  {stderr_str}");
                             }
-                        }
-                        if real_dir.exists().not() {
+                        } else if real_dir.exists().not() {
                             // create dir if non existent (too many directories attack possible)
                             fs::create_dir_all(real_dir)?;
                         }
@@ -587,8 +592,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 eprintln! {"git commit success {stdout}"}
                             }
                         } else {
-                            result_oper =
-                                Err(format!("commit skipped, because {result_oper:?}"));
+                            result_oper = Err(format!("commit skipped, because {result_oper:?}"));
                         }
                     }
                     Box::new(PageStuff {

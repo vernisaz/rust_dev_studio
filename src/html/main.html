@@ -721,13 +721,14 @@
            "&git="+ encodeURIComponent(document.getElementById("git_url").value) +
             "&session="+encodeURIComponent(document.getElementById("proj_name").value);
            ajax.post({url:"./rustcgi", query: payload, success: function (text) {
+               //console.log(text)
                 if (text == 'Ok') {
                    document.getElementById("proj_name").value = ""
                    document.getElementById("git_url").value = ""
                    document.getElementById("new_proj_dir").value = "" // maybe can preserve
                    updateProjMenuList()
                 } else {
-                   showErrorMessage(err) 
+                   showErrorMessage(text) 
                 }
                 hideCreateProj()
                 btn.disabled = false;

@@ -723,7 +723,11 @@
            ajax.post({url:"./rustcgi", query: payload, success: function (text) {
                 if (text == 'Ok') {
                    document.getElementById("proj_name").value = ""
+                   document.getElementById("git_url").value = ""
+                   document.getElementById("new_proj_dir").value = "" // maybe can preserve
                    updateProjMenuList()
+                } else {
+                   showErrorMessage(err) 
                 }
                 hideCreateProj()
                 btn.disabled = false;

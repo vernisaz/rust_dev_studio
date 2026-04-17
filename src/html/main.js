@@ -335,7 +335,9 @@ function renderTree(data, parentElement, rootEl) {
 }
 
 function moveToLineInFile(path, line, col, failHandler, openFind) {
-    //console.log('path to show '+path+' at '+line)
+    // normalize path slashes
+    if (WIN_SERVER)
+        path = path.replaceAll('\\', '/')
     const tab_item = document.getElementById(path)
     
     // TODO make it a function

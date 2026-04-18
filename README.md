@@ -191,7 +191,7 @@ Add the following entry in the `mapping` section of `env.conf` of **SimHTTP**:
 ```
 A link to view the documentation will be shown on a console when [RB](https://github.com/vernisaz/rust_bee) 
 [scripts](https://github.com/vernisaz/simscript) are used.
-A mapping entry to `HOME/rust_docs` in `enc.conf`gets added automatically by the **RDS** installation script. You can modify the entry accordingly
+A mapping entry to `HOME/rust_docs` in `env.conf`gets added automatically by the **RDS** installation script. You can modify the entry accordingly
 your real documentation directory location.
 
 ## Cloud and multi users install
@@ -226,7 +226,7 @@ var fileNameReg
 around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.51.06](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.51.06). You can also check out the current development code,
+The current version is [1.52.01](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.52.01). You can also check out the current development code,
 however it can be not stable.
 
 ## Known problems

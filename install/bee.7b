@@ -49,9 +49,10 @@ zip [${~cwd~}]?",${~cwd~})
 	zip(${distro dir}${~/~}rds-${version}.zip,
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
-    
-- The terminal component updated to better follow 
-  the GNU specification for qouted arguments 
+
+- A new project can be created directly from 'git' repository URL    
+- The terminal component updated for better following 
+  the GNU specification for quoted arguments 
 - Added a customization of the editor font",
 	-E ${rds}/rds${script ext},
 	script,

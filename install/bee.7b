@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.52.01
+version=1.52.02
 
 include(cfg.7b) # created by the install
 
@@ -50,10 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- A new project can be created directly from 'git' repository URL    
-- The terminal component updated for better following 
-  the GNU specification for quoted arguments 
-- Added a customization of the editor font",
+- Added a possibility to close a terminal input",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

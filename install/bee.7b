@@ -50,7 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Added a possibility to close a terminal input",
+- Added a possibility to end the terminal input",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

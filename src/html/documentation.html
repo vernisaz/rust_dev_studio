@@ -28,7 +28,7 @@
     <body>
         <h1>Rust Development Studio - CGI</h1>
         <h2>Purpose</h2>
-        <p>To transform any browser to a powerful development environment. It doesn't matter where a browser does  run.
+        <p>Transforming any browser to a powerful development environment. It doesn't matter where a browser does  run.
         It can be a desktop, a laptop, a tablet and even a phone. Everything can be done
         in the browser from beginning of a project, establishing a git repository, develop, debug, document,
         test and finally publish your product.</p>
@@ -39,24 +39,25 @@
         <p>The RDS understands if the project directory is a part of GIT controlled source tree.</p>
         <p> There is no any project when the RDS first time ran. Use <i>File&gt;Project&gt;New...</i> to assign a project name and
         the project directory. If you didn't specify any project name, then it's considered <i>-default-</i>. A project
-        directory will be created automatically, unless it's already there.
-        You can start using RDS now.</p>
-        <p>You can clone a project directory from a source control system using the terminal window.</p>
+        directory will be created automatically, unless it's already there. Git cloning can be a part of a project creation,
+        just specify Git repository URL.
+        You can select the project in <i>File&gt;Project&gt;project_name</i> menu to start using it.</p>
+        <p>If different than Git used as a source control system, then its command for cloning can be issued in the terminal window.</p>
         <h3>Note about GIT</h3>
         <p>Selecting VCS&gt;Status will show modified/staged/unversioned files.
         You need to mark files to include them in the commit operation. Just click
         any file of interest, and it will slightly change a color indicating that
-        it is a part of an operation. Clicking it again will unmark it. The rest of operations
+        it is a part of the operation. Clicking it again will unmark it. The rest of operations
         looks obvious.</p>
         <p>The terminal panel is very powerful and mimics of most a standard terminal functionality.
         It shows the terminal content as a web content with clickable links from error messages to
-        the source code locations in the project editor wher an error happened.</p>
+        the source code locations in the project editor where an error happened.</p>
         <h2>Architecture</h2>
         <p>The client part is a quite obvious and utilizes HTML, CSS and JavaScript. But the server part resurrects the forgotten 
         CGI technology which is perfectly
          suitable for using Rust. The terminal
         functionality is implemented using Websocket and it utilizes WS-CGI. So server side is written in Rust
-         including the web server.</p>
+         including a web server.</p>
         
         <h2>Implementation</h2>
         <p>
@@ -80,7 +81,7 @@
 
         <p>
         Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
-         with one line containing the user CONFIG directory or other directory
+         with consists of one line containing the user CONFIG directory or other directory
         where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
         </p>
         <pre>
@@ -97,21 +98,27 @@
         Four underline OS executables written in Rust are:
         </p>
         <pre>
-        rb
-        rustcgi
-        terminal
-        simhttp
+        - rb
+        - rustcgi
+        - terminal
+        - simhttp
         </pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
         <section>
             <h2>Command aliases</h2>
-            <p>The <b>RDS</b> terminal <code>isatty</code> currently reports <i>false</i>, therefore most command needs to add argument
-            as <code>--color=true</code> to see colorized output. The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
+            <p>The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
             These aliases definitions have to be stored in file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
+            <pre>alias name='real_command [arguments]'</pre>
+            for example:
             <pre>alias ls='ls --color'</pre>
-            <p>So every command found in the file, will be extended accordingly specified value. It can be useful not only for colorizing
+            <p>Any name found in the file, will be replaced accordingly the specified value. It can be useful not only for colorizing
             program output, but for other all time used options.</p>
         </section>
-        
+        <section>
+            <h2>Colorized output in the terminal</h2>
+            <p>The <b>RDS</b> terminal <code>isatty</code> currently reports as <i>false</i>, therefore most commands need to add an argument
+            as <code>--color=true</code> to see colorized output. Check with a command documentation how to force colorized
+            output when color feature of a terminal can't be automatically detected.</p>
+        </section>
         <footer> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</footer>
     </body>
 </html>

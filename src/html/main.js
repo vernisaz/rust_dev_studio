@@ -121,7 +121,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.11.00.114'
+    return '1.11.01.115'
 }
 
 function populateProjectTree() {
@@ -436,6 +436,8 @@ function saveData(path, newpath, onsave) {
                     console.log('an editor for ' + path + ' isn\'t set yet')
                  if (onsave && typeof onsave === "function")
                         onsave(true)
+                 if (newpath || modified == 0)
+                    refresh()
              } else {
                 showErrorMessage('File '+path+' can\'t be saved, see the log for details: '+ resp)    
                 if (EDITORS[path]) {

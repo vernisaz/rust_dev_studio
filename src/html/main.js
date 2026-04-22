@@ -425,27 +425,27 @@ function saveData(path, newpath, onsave) {
     const payload = 'mode=save&name='+encodeURIComponent(path)+'&data='+encodeURIComponent(data)+'&modified='+modified
         +"&session="+encodeURIComponent(SESSION)
     ajax.post({url:"./rustcgi", query: payload,
-        success: function (resp) { 
-          if (resp && !resp.startsWith('Ok')) {
-              showErrorMessage('File '+path+' can\'t be saved, (' + resp + ')')
-          	  EDITORS[path]['editor'].setReadOnly(true)
-          } else {
-             if (resp.startsWith('Ok')) {
+        success: function (resp) {
+              if (resp.startsWith('Ok')) {
                  if (docTab)
                      docTab.dataset.modified = resp.substring(3)
                  if (EDITORS[path]) {
                      EDITORS[path]['size'] = dataSize
                      EDITORS[path]['crc'] = crc
-                     if (onsave && typeof onsave === "function")
-                        onsave(true)
                  } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
-             } else 
-                showErrorMessage('File '+path+' can\'t be saved, see a log for details: '+ resp)
-          }
+                 if (onsave && typeof onsave === "function")
+                        onsave(true)
+             } else {
+                showErrorMessage('File '+path+' can\'t be saved, see the log for details: '+ resp)    
+                if (EDITORS[path]) {
+                    EDITORS[path]['editor'].setReadOnly(true)
+                } else
+                    console.log('an editor for ' + path + ' isn\'t set yet')
+             }
         },
         fail: function(code, reason) {
-            showErrorMessage('File '+path+' can\'t be saved, see a log for details: '+ reason)
+            showErrorMessage('File '+path+' can\'t be saved, see the log for details: '+ reason)
         }, respType:"html"})
     return true
 }

@@ -4,7 +4,7 @@
 Web interfaced IDE for a development primarily in Rust. The IDE can run locally or on a cloud machine. 
 It can be accessed from any device having an HTML5 capable browser. It's perfect for tablets like Amazon Fire and others.
 
-The approach of a web based IDE becomes popular nowadays, for example - Code anywhere with Android Studio Cloud.
+The approach of a web based IDE becomes popular nowadays, for example - _Code anywhere with Android Studio Cloud_.
 
 ## Features
 - multi windows editor with syntax highlighting
@@ -20,6 +20,7 @@ The approach of a web based IDE becomes popular nowadays, for example - Code any
 - full *git* integration
 - mobile and desktop browsers support
 - blazing fast and safe Rust implementation
+- scalable, multi megabytes projects can be easily handled
 - includes all required components as a web server, a scripting tool, and a terminal for all supported platforms
 
 ## Architecture
@@ -44,16 +45,13 @@ of the [SimHTTP](https://github.com/vernisaz/simhttp) Rust web server:
 ```json
 "mapping" : [
   {"path":"/cgires/resource",
-       "CGI": false,
        "translated": "./../rust_dev_studio/src/html"},
        {"path":"/cgires/resource/ace",
-       "CGI": false,
        "translated": "./../side/ace-builds/src-min-noconflict"},
       {"path":"/rustcgi",
        "CGI": true,
        "translated": "./../rust_dev_studio"},
       {"path":"/cgires/resource/terminal",
-       "CGI": false,
        "translated": "./../simterminal/src/js"},
       {"path":"/terminal",
        "WS-CGI": true,
@@ -121,7 +119,7 @@ the [Simple Color](https://github.com/vernisaz/simcolor) which should be built e
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
-there is a predefined packaging.
+there is the predefined packaging.
 
 The packaging can be created by running a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b).
 The created zip file can be unzipped in any desired location and then launch `./rds.sh` or `.\rds.bat` on _Windows_

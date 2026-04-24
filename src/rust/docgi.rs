@@ -471,7 +471,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let np = config.get_config_path(&spec_name, "notepad", "txt");
             let np_path = sanitize_path(&np)?;
             Box::new(PageStuff {
-                content: read_to_string(np_path).unwrap_or_else(|_| String::new()),
+                content: read_to_string(np_path).unwrap_or_default(),
             })
         }
         Some("vcs-list") => {
@@ -1279,25 +1279,24 @@ macro_rules! name_of {
 impl PageOps for JsonSettings {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let props = read_props(&PathBuf::from(&self.file.file_name));
-        let binding = String::new();
-        let project_home = props.get("project_home").unwrap_or(&binding);
+        let empty = String::new();
+        let project_home = props.get("project_home").unwrap_or_else(|| &empty);
         let light = "light".to_string();
         let theme = props.get("theme").unwrap_or(&light);
         let no = "no".to_string();
         let f_no = || &no;
-        let f_binding = || &binding;
         let autosave = props.get("autosave").unwrap_or(&no); // == "yes";
         let projectnp = props.get("projectnp").unwrap_or_else(f_no);
         let format_on_save = props.get("format_on_save").unwrap_or_else(f_no) == "yes";
-        let user = props.get("user").unwrap_or(&binding);
+        let user = props.get("user").unwrap_or_else(|| &empty);
         let persist_tabs = props.get("persist_tabs").unwrap_or(&no);
         let home_len = self.home_len;
         let empty_obj = "{}".to_string();
         let proj_conf = props.get("proj_conf").unwrap_or(&empty_obj);
-        let ai_url = props.get("ai_server_url").unwrap_or(&binding);
-        let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(f_binding);
-        let src_dir = props.get("src_dir").unwrap_or(&binding);
-        let ed_font = json_encode(props.get("ed_font").unwrap_or(&binding));
+        let ai_url = props.get("ai_server_url").unwrap_or_else(|| &empty);
+        let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(|| &empty);
+        let src_dir = props.get("src_dir").unwrap_or_else(|| &empty);
+        let ed_font = json_encode(props.get("ed_font").unwrap_or_else(|| &empty));
         let project_home = json_encode(project_home);
         Ok(
             format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",
@@ -1524,7 +1523,7 @@ impl PageOps for PageFile {
     fn get_nav(&self) -> Option<Vec<web::Menu<'_>>> {
         let mut projs = Vec::new();
         if let Ok(paths) = read_dir(&self.home) {
-            let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
+            let path_info = web::path_info();
             for file in paths.flatten() {
                  if file.file_type().map(|t| t.is_file()).unwrap_or(false) {
                      let file = file.path();
@@ -1717,7 +1716,7 @@ impl PageOps for Redirect {
 
     fn get_extra(&self) -> Option<Vec<(String, String)>> {
         let id = simran::generate_random_sequence(12);
-        let path_info = std::env::var("PATH_INFO").unwrap_or_else(|_| String::new());
+        let path_info = web::path_info();
         // TODO use ".?session={}&id={id}"
         Some(vec![(
             "Location".to_string(),

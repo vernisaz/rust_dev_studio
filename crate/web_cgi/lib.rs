@@ -1,11 +1,13 @@
 pub use param::Param;
-pub use web::PageOps;
 pub use web::Menu;
-pub use web::{get_file_modified, sanitize_path, save_props,
-  is_git_covered, list_files, html_encode, http_format_time};
+pub use web::PageOps;
+pub use web::{
+    get_file_modified, html_encode, http_format_time, is_git_covered, list_files, path_info,
+    sanitize_path, save_props,
+};
 
-pub mod web;
-mod template;
 pub mod param;
+mod template;
+pub mod web;
 
 extern crate simtime;

@@ -1322,21 +1322,20 @@ impl PageOps for JsonDirs {
             .filter_map(|f| {
                 if let Ok(ft) = f.file_type()
                     && ft.is_dir()
-                    && f.file_name()
-                        .into_string()
-                        .map(|n| n != ".git")
-                        .unwrap_or_default()
+                    && let Ok(file_name) = f.file_name()
+                        .into_string() && 
+                        file_name != ".git"
                 {
                     Some(format!(
                         r#""{}""#,
-                        json_encode(&f.file_name().to_string_lossy())
+                        json_encode(&file_name)
                     ))
                 } else {
                     None
                 }
             })
             .collect();
-        dirs.sort(); // TODO reconsider do sorting on a client, was sort_by_key
+        dirs.sort(); // TODO reconsider to do sorting on a client, was sort_by_key
         Ok("[".to_owned() + &dirs.join(", ") + "]")
     }
 

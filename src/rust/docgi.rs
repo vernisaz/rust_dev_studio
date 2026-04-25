@@ -1522,7 +1522,7 @@ impl PageOps for PageFile {
         if let Ok(paths) = read_dir(&self.home) {
             let path_info = web::path_info();
             for file in paths.flatten() {
-                 if file.file_type().map(|t| t.is_file()).unwrap_or(false) {
+                 if file.file_type().map(|t| t.is_file()).unwrap_or_default() {
                      let file = file.path();
                      if let Some(ext) = file.extension() && ext == "prop" &&
                         let Some(name) = file.file_stem() &&
@@ -1796,7 +1796,7 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
         let dirs: Vec<_> = read_dir(path)?
             .filter_map(|f| match f {
                 Ok(f)
-                    if f.file_type().map(|t| t.is_dir()).unwrap_or(false)
+                    if f.file_type().map(|t| t.is_dir()).unwrap_or_default()
                         && f.file_name().to_str() != Some(".git") =>
                 {
                     Some(f)
@@ -1812,10 +1812,10 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
                 buf.push_str(parent);
                 buf.push('/')
             }
-            let file_name = entry.file_name().into_string().unwrap().to_string();
+            let file_name = entry.file_name().into_string().unwrap_or_default().to_string();
             buf.push_str(&json_encode(&file_name));
             buf.push('"');
-            let mut parent_str = String::from("");
+            let mut parent_str = String::new();
             if let Some(parent) = parent {
                 parent_str.push_str(parent);
                 parent_str.push('/')

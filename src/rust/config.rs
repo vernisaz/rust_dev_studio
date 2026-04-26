@@ -1,6 +1,7 @@
 use simcfg::read_config_root;
 
-use simweb::{has_root, sanitize_web_path};
+use simweb::{sanitize_web_path};
+use crate::web::has_root;
 use std::{
     collections::HashMap,
     fs::{File, read_to_string},

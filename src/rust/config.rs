@@ -41,7 +41,6 @@ impl Config {
         }
     }
 
-    #[allow(dead_code)]
     pub fn to_real_path(
         &self,
         project_path: impl AsRef<str> + std::fmt::Debug,

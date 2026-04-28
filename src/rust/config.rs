@@ -131,6 +131,8 @@ pub fn has_root(path: impl AsRef<str>) -> bool {
 }
 
 #[cfg(any(unix, target_os = "redox"))]
+use std::path::MAIN_SEPARATOR_STR;
+#[cfg(any(unix, target_os = "redox"))]
 #[inline]
 pub fn has_root(path: impl AsRef<str>) -> bool {
   path.as_ref().starts_with(MAIN_SEPARATOR_STR)

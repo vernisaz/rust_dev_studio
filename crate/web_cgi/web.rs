@@ -1,3 +1,4 @@
+extern crate simtime;
 use crate::template;
 use crate::web::Menu::{MenuBox, MenuEnd, MenuItem, Separator};
 use std::{

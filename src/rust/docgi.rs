@@ -1282,7 +1282,7 @@ impl PageOps for JsonSettings {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         let props = read_props(&PathBuf::from(&self.file.file_name));
         let empty = String::new();
-        let project_home = props.get("project_home").unwrap_or_else(|| &empty);
+        let project_home = props.get("project_home").unwrap_or(&empty);
         let light = "light".to_string();
         let theme = props.get("theme").unwrap_or(&light);
         let no = "no".to_string();
@@ -1290,15 +1290,15 @@ impl PageOps for JsonSettings {
         let autosave = props.get("autosave").unwrap_or(&no); // == "yes";
         let projectnp = props.get("projectnp").unwrap_or_else(f_no);
         let format_on_save = props.get("format_on_save").unwrap_or_else(f_no) == "yes";
-        let user = props.get("user").unwrap_or_else(|| &empty);
+        let user = props.get("user").unwrap_or(&empty);
         let persist_tabs = props.get("persist_tabs").unwrap_or(&no);
         let home_len = self.home_len;
         let empty_obj = "{}".to_string();
         let proj_conf = props.get("proj_conf").unwrap_or(&empty_obj);
-        let ai_url = props.get("ai_server_url").unwrap_or_else(|| &empty);
-        let colapsed_dirs = props.get("colapsed_dirs").unwrap_or_else(|| &empty);
-        let src_dir = props.get("src_dir").unwrap_or_else(|| &empty);
-        let ed_font = json_encode(props.get("ed_font").unwrap_or_else(|| &empty));
+        let ai_url = props.get("ai_server_url").unwrap_or(&empty);
+        let colapsed_dirs = props.get("colapsed_dirs").unwrap_or(&empty);
+        let src_dir = props.get("src_dir").unwrap_or(&empty);
+        let ed_font = json_encode(props.get("ed_font").unwrap_or(&empty));
         let project_home = json_encode(project_home);
         Ok(
             format! {r#"{{"project_home":"{project_home}", "theme":"{theme}", "autosave" : "{autosave}",

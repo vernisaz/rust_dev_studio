@@ -166,7 +166,9 @@ its options, for example:
 
 > rustfmt --edition 2024
 
-If a formatting on save didn't happen for some reason, the file will be saved as is. If more than one file
+If a formatting on save didn't happen for some reason, the file will be saved as is. All error reporting at format on save
+remains in a web server log, therefore you can temporaly disable a format on save in cases when no formatting happens 
+and do it explicitly to see formatting errors in the IDE. If more than one file
 is autosaved with formatting, some files can be not updated in the RDS UI in Safari, so do it manually using menu _Edit/Reload_.
 
 You are not limited to using _Rustfmt_, and you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 

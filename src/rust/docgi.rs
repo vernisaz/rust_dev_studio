@@ -1663,6 +1663,8 @@ impl PageOps for PageFrag {
     fn name(&self) -> String {
         self.params.param("name").unwrap_or_default()
     }
+    
+    json_ret! {}
 }
 
 impl PageOps for PageStuff {

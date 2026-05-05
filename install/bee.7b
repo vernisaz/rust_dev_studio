@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.52.02
+version=1.52.05
 
 include(cfg.7b) # created by the install
 
@@ -31,7 +31,7 @@ ACE editor=..${~/~}side${~/~}ace-builds${~/~}src-min-noconflict
 target package:.. {
 	dependency{}
 
-	prompt("Where to write the package
+	prompt("Where to write a package
 zip [${~cwd~}]?",${~cwd~})
 	assign(distro dir,~~)
 	prompt(What is the RDS version [${version}]?,version)
@@ -50,7 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Added a possibility to finish the terminal input",
+- Several terminal improvements let it behaves more like a real terminal",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -819,14 +819,18 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         Some(name) => name.to_string(),
                     };
                     fn_ref
-                        .push_str(&format! {r#","trait":"{}", "data":"{}""#, scope.name, data_name})
+                        .push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})
                 }
                 let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
                     None => String::new(),
                     Some(vec_val) => refs_to_json(vec_val, dir_len),
                 };
-                fn_ref.push_str(&format! {r#","line":{}, "col":{}, "use":[{}]}}"#,
-                entry.line, entry.column,refs_to}); // probably format an entire entry
+                fn_ref.push_str(&format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
+                entry.line, entry.column,refs_to,match entry.type_of_use {
+                               RefType::Function  => "fn",
+                               RefType::Data => "dat",
+                               _ => "ref" 
+                            }}); // probably format an entire entry
                 json_res.push_str(&fn_ref)
             }
 

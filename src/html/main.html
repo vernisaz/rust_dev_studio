@@ -1105,6 +1105,9 @@
                 if (refEl.trait) {
                     dtEl.title = refEl.trait + (refEl.data?'/' + refEl.data:'')
                 }
+                if (refEl.type == 'dat') {
+                    dtEl.style.color = '#D9CC18'
+                }
                 dtEl.dataset.path = refEl.path
                 dtEl.dataset.line = refEl.line
                 dtEl.dataset.col = refEl.col

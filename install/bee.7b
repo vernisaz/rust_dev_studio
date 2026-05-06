@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.52.05
+version=1.53.00
 
 include(cfg.7b) # created by the install
 
@@ -50,7 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Several terminal improvements let it behaves more like a real terminal",
+- Cross reference includes references to struct and enum",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

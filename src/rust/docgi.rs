@@ -791,7 +791,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .push(entry.clone());
                             continue;
                         }
-                        RefType::Function => total_refs.push(entry.clone()),
+                        RefType::Function | RefType::Data => total_refs.push(entry.clone()),
                         _ => continue,
                     }
                 }

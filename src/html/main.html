@@ -70,9 +70,9 @@
                 <input type="radio" id="searchx" name="notpad_tabs" onclick="document.querySelector('input[name=search_for]').focus()">
                 <label for="searchx" title="Search for a string in the project files">Search</label>
                 <div class="tab_content">
-                    <input type="search" name="search_for" placeholder="Search for" onkeyup="performSearch(this)" style="display: inline-block !important;" autofocus/>
+                    <input type="search" name="search_for" placeholder="Search for (case sensitive)" onkeyup="performSearch(this)" style="display: inline-block !important;" autofocus/>
                     <span style="float:right;cursor:pointer;margin-right:1em;" onclick="performSearch()" title="Perform a search">&#x1F50D;</span>
-                  <dl id="searches"></dl>
+                    <dl id="searches"></dl>
                 </div>
             </div>
             <label for="terminal-container" style="display: inline-block;">Terminal</label><span style="float:right;cursor:pointer;margin-right:1em;" onclick="clearScreen()">⎚</span>
@@ -1139,11 +1139,11 @@
     }
     
     function filterRefs(i) {
-        const filterVal = i.value;
+        const filterVal = i.value.toLowerCase();
         const refs = document.getElementById("xrefs")
         const refEls = refs.querySelectorAll('dt')
         for (refEl of refEls) {
-            if (refEl.innerText.includes(filterVal) || filterVal == '') {
+            if (refEl.innerText.toLowerCase().includes(filterVal) || filterVal == '') {
                 refEl.style.display = ''
             } else {
                 refEl.style.display = 'none'

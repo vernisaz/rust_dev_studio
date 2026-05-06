@@ -21,6 +21,9 @@ pub enum RefType {
     Data, // like struct or type
     Impl, // impl something for something
     Access,
+    /*Struct,
+    Enum,
+    Type,*/
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]
@@ -199,12 +202,12 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InCallName;
                         name.push(c)
                     }
-                    ExpInEnum => {
+                    ExpInEnum | InEnum => {
                         state = InEnum;
                         name.push(c);
                         //eprintln!{"state in car {state:?} at {}:{}", reader.line, reader.line_offset}
                     }
-                    ExpInStruct => {
+                    ExpInStruct | InStruct => {
                         state = InStruct;
                         name.push(c)
                     }
@@ -494,12 +497,12 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         name.clear();
                         state = Start
                     }
-                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName => {
+                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName | InEnum | InStruct => {
                         if cbracket_cnt > 0 {
                             state = StartInScope;
                             cbracket_cnt -= 1
                         } else {
-                            state = StartInScope
+                            state = Start//InScope
                         }
                     }
                     Start => {
@@ -553,12 +556,12 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     _ => (),
                 }
             }
-            '#' => {
+            '#' => { //eprintln!{"state # {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    Start => state = ExpDirect,
+                    Start | InKW => state = ExpDirect,
                     _ => (),
                 }
             }
@@ -571,7 +574,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     _ => (),
                 }
             }
-            ']' => {
+            ']' => { //eprintln!{"state ] {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }

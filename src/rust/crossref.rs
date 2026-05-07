@@ -497,12 +497,13 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         name.clear();
                         state = Start
                     }
-                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName | InEnum | InStruct => {
+                    InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName
+                    | InEnum | InStruct => {
                         if cbracket_cnt > 0 {
                             state = StartInScope;
                             cbracket_cnt -= 1
                         } else {
-                            state = Start//InScope
+                            state = Start //InScope
                         }
                     }
                     Start => {
@@ -556,7 +557,8 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     _ => (),
                 }
             }
-            '#' => { //eprintln!{"state # {state:?} name={name}"}
+            '#' => {
+                //eprintln!{"state # {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
@@ -574,7 +576,8 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     _ => (),
                 }
             }
-            ']' => { //eprintln!{"state ] {state:?} name={name}"}
+            ']' => {
+                //eprintln!{"state ] {state:?} name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }

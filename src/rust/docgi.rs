@@ -818,19 +818,20 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         None => "".to_string(),
                         Some(name) => name.to_string(),
                     };
-                    fn_ref
-                        .push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})
+                    fn_ref.push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})
                 }
                 let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
                     None => String::new(),
                     Some(vec_val) => refs_to_json(vec_val, dir_len),
                 };
-                fn_ref.push_str(&format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
-                entry.line, entry.column,refs_to,match entry.type_of_use {
-                               RefType::Function  => "fn",
-                               RefType::Data => "dat",
-                               _ => "ref" 
-                            }}); // probably format an entire entry
+                fn_ref.push_str(
+                    &format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
+                    entry.line, entry.column,refs_to,match entry.type_of_use {
+                                   RefType::Function  => "fn",
+                                   RefType::Data => "dat",
+                                   _ => "ref"
+                                }},
+                ); // probably format an entire entry
                 json_res.push_str(&fn_ref)
             }
 
@@ -1326,14 +1327,10 @@ impl PageOps for JsonDirs {
             .filter_map(|f| {
                 if let Ok(ft) = f.file_type()
                     && ft.is_dir()
-                    && let Ok(file_name) = f.file_name()
-                        .into_string() && 
-                        file_name != ".git"
+                    && let Ok(file_name) = f.file_name().into_string()
+                    && file_name != ".git"
                 {
-                    Some(format!(
-                        r#""{}""#,
-                        json_encode(&file_name)
-                    ))
+                    Some(format!(r#""{}""#, json_encode(&file_name)))
                 } else {
                     None
                 }
@@ -1667,7 +1664,7 @@ impl PageOps for PageFrag {
     fn name(&self) -> String {
         self.params.param("name").unwrap_or_default()
     }
-    
+
     json_ret! {}
 }
 
@@ -1817,7 +1814,11 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
                 buf.push_str(parent);
                 buf.push('/')
             }
-            let file_name = entry.file_name().into_string().unwrap_or_default().to_string();
+            let file_name = entry
+                .file_name()
+                .into_string()
+                .unwrap_or_default()
+                .to_string();
             buf.push_str(&json_encode(&file_name));
             buf.push('"');
             let mut parent_str = String::new();

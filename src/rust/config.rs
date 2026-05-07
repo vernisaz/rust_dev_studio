@@ -1,6 +1,6 @@
 use simcfg::read_config_root;
 
-use simweb::{sanitize_web_path};
+use simweb::sanitize_web_path;
 use std::{
     collections::HashMap,
     fs::{File, read_to_string},
@@ -125,9 +125,9 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
 
 #[cfg(target_os = "windows")]
 fn has_root(path: impl AsRef<str>) -> bool {
-  let path = path.as_ref().as_bytes();
-  path.len() > 3 && path[1] == b':' && path[2] == b'\\'
-      || !path.is_empty() && path[0] == MAIN_SEPARATOR as _
+    let path = path.as_ref().as_bytes();
+    path.len() > 3 && path[1] == b':' && path[2] == b'\\'
+        || !path.is_empty() && path[0] == MAIN_SEPARATOR as _
 }
 
 #[cfg(any(unix, target_os = "redox"))]
@@ -135,6 +135,5 @@ use std::path::MAIN_SEPARATOR_STR;
 #[cfg(any(unix, target_os = "redox"))]
 #[inline]
 fn has_root(path: impl AsRef<str>) -> bool {
-  path.as_ref().starts_with(MAIN_SEPARATOR_STR)
+    path.as_ref().starts_with(MAIN_SEPARATOR_STR)
 }
-

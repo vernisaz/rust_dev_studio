@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.12.01.156">
+       <input type="hidden" name="version" id="version" value="1.12.03.159">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -153,14 +153,14 @@
                     <input type="checkbox" title="Check off for auto-save" id="autosave">
                 </div>
                 <div class="form-col">
-                    <label for="persisttabs">Save opened tabs</label>
-                    <input type="checkbox" title="Save opened tabs" id="persisttabs">
+                    <label for="persisttabs">Preserve tabs</label>
+                    <input type="checkbox" title="Preseve tabs after restarting the IDE" id="persisttabs">
                 </div>
             </div>
             <div class="form-row" style="display:flex; gap: 2em;">
                 <div class="form-col">
-                    <label for="projectnp">Project specific notepad</label>
-                    <input type="checkbox" title="Check off for a project specific notepad" id="projectnp">
+                    <label for="projectnp">Do not share notepad</label>
+                    <input type="checkbox" title="Check off for keeping a notepad content for this project only" id="projectnp">
                 </div>
                 <div class="form-col">
                     <label for="format-on-save">Format on save</label>

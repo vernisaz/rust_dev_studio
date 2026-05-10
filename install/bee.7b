@@ -50,6 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
+- References to std sources from error messages (std sources have to be installed)
+- Processing OS specific escape codes in the terminal (ESC]8)
 - Cross reference includes references to struct and enum",
 	-E ${rds}/rds${script ext},
 	script,
@@ -71,6 +73,8 @@ HOME=${HOME}",
     rustcgi${ext},
     -B ${rds}/cgi,
     terminal${ext},
+    -B ${rds}/cgi,
+    showsrc${ext},
     -B ${rds}/cgi/resource,
     +web files,
     -C ${rds}/cgi/resource/ace,

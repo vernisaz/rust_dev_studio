@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.12.03.159">
+       <input type="hidden" name="version" id="version" value="1.12.04.160">
         <nav class="nav">
             <div class="logo">
                 <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a> - ${session}
@@ -413,7 +413,7 @@
       
       var fileNameReg
         if (WIN_SERVER)
-            fileNameReg =  /(?<path>(\w:\\)?(([\w-\.])\\)*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
+            fileNameReg =  /(?<path>(\w:\\)?(([\w-\.]+)[\\/])*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
         else
             fileNameReg = /(?<path>\/?(([\w-\.]+)\/)*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
       

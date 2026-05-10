@@ -121,7 +121,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.11.02.117'
+    return '1.11.03.118'
 }
 
 function populateProjectTree() {
@@ -610,7 +610,9 @@ function extendURL(lineStr) {
             const line = matches[0].groups.line;
             const col = matches[0].groups.col;
             var path = matches[0].groups.path
-            if (path.startsWith('/') || path.indexOf(':\\') == 1) { // current OS root
+             if (WIN_SERVER)
+                path = path.replaceAll('\\', '/') // to unified look 
+            if (path.startsWith('/') || path.indexOf(':/') == 1 || path.indexOf(':\\') == 1) { // current OS root
                 const projHomePos = path.indexOf(PROJECT_HOME)
                 if (projHomePos == HOME_LEN)
                     path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
@@ -618,9 +620,10 @@ function extendURL(lineStr) {
                     return `<a href="/rustcgi/showsrc?src=${encodeURIComponent(path)}${encodeURIComponent(file)}&line=${line}&pos=${col}&theme=${EDITOR_THEME[THEME]}" target="${escape(file)}">${fileName}</a>`
                 }
             }
-            path = normalizePath(path, WIN_SERVER?'\\':'/')
+             path = normalizePath(path)
+           /* path = normalizePath(path, WIN_SERVER?'\\':'/')
             if (WIN_SERVER)
-                path = path.replaceAll('\\', '\\\\') // to prevent escape 
+                path = path.replaceAll('\\', '\\\\') // to prevent escape */
             const extraPath = SRC_DIR==''?'':SRC_DIR + (WIN_SERVER?'\\\\':'/') //'src/'
             return `<a href="javascript:moveToLineInFile('${path}${extraPath}${file}',${line},${col})">${fileName}</a>`
         } else {

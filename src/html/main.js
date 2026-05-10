@@ -615,7 +615,7 @@ function extendURL(lineStr) {
                 if (projHomePos == HOME_LEN)
                     path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                 else {
-                    return `<a href="/rustcgi/showsrc?src=${encodeURIComponent(path)}%2f${encodeURIComponent(file)}&line=${line}&pos=${col}" target="_blank">${fileName}</a>`
+                    return `<a href="/rustcgi/showsrc?src=${encodeURIComponent(path)}${encodeURIComponent(file)}&line=${line}&pos=${col}&theme=${EDITOR_THEME[THEME]}" target="${escape(file)}">${fileName}</a>`
                 }
             }
             path = normalizePath(path, WIN_SERVER?'\\':'/')

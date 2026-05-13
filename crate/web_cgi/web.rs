@@ -258,7 +258,12 @@ pub fn http_format_time(time: SystemTime) -> String {
     )
 }
 
+/// Return a list of file paths with specified extensions
+///
+/// *Note:* ext is just a string where will be a real file extension searched in,
+/// for example: ".rs.toml"
 pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> {
+    // TODO possibly returm Vec<Path> to reduce unneccesary conversions
     let mut res: Vec<String> = Vec::new();
     let str_ext = ext.as_ref();
     let path = path.as_ref();
@@ -270,7 +275,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
                 None
             }
         }) {
-            // no reason to dive for non dir path
+            // no reason to give for non dir path
             res.append(&mut list_files(path, ext))
         }
     } else if path.extension().is_some()

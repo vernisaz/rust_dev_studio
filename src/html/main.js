@@ -601,9 +601,9 @@ function showErrorMessage(msg) {
     var WS_TERM_URL
 function extendURL(lineStr) {
     const urlRegex = /https?:\/\/[a-zA-Z0-9._~-]+[\:\d{1,3}]?[a-zA-Z0-9._~/-]*(?:\?(?:[a-zA-Z0-9._~%-]+=(?:[a-zA-Z0-9._~%+-]+)?&?)*)?(?:#[a-zA-Z0-9._~-]+)?/gm;
-    return lineStr.replace(urlRegex, (url) => {
-              return '<a href="' + url + '" target="_blank">' + url + '</a>';
-        }).replace(fileNameReg, (fileName) => {
+    return replaceWithGaps(lineStr,urlRegex,
+    match => `<a href="${match}" target="_blank">${htmlEncode(match)}</a>`,
+    gap => htmlEncode(gap)).replace(fileNameReg, (fileName) => {
         const matches = [...fileName.matchAll(fileNameReg)];
         if (matches.length > 0) {
             const file = matches[0].groups.file;

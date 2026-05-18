@@ -152,6 +152,30 @@ function normalizePath(path,separator,root) {
   return /*(separator == '/'?'/':'') +*/ normalizedSegments.join(separator); // Reconstruct the path
 }
 
+function replaceWithGaps(str, regex, onMatch, onGap) {
+    let result = "";
+    let lastIndex = 0;
+    let m;
+
+    regex = new RegExp(regex, regex.flags.includes("g") ? regex.flags : regex.flags + "g");
+
+    while ((m = regex.exec(str)) !== null) {
+        // unmatched part before this match
+        result += onGap(str.slice(lastIndex, m.index));
+
+        // matched part
+        result += onMatch(m[0], ...m.slice(1));
+
+        lastIndex = regex.lastIndex;
+    }
+
+    // tail after last match
+    result += onGap(str.slice(lastIndex));
+
+    return result;
+}
+
+
 var ajax = {
    noaccesscode:403,
 

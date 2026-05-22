@@ -36,7 +36,7 @@ a websocket endpoint utilizing the WS-CGI technology.
 If you plan to give the project a try, just go to [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
 download *zip* file for your platform. Unzip the file in a command window and type `./rds.sh` (`.\rds` on Windows) in the unzipped directory. 
 You're ready to go after answering a couple questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
-and start using the **RDS**.
+and start using the **RDS**. Check [Usage tips](#usage-tips).
 
 ## Config
 

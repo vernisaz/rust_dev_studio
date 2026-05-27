@@ -57,7 +57,7 @@
         CGI technology which is perfectly
          suitable for using Rust. The terminal
         functionality is implemented using Websocket and it utilizes WS-CGI. So server side is written in Rust
-         including a web server.</p>
+         including the web server.</p>
         
         <h2>Implementation</h2>
         <p>
@@ -95,15 +95,15 @@
             to better understand which components will be required for the RDS deployment.
         </p>
         <p>
-        Four underline OS executables written in Rust are:
+        Five underline OS executables written in Rust are:
         </p>
-        <pre>
-        - rb
-        - rustcgi
-        - terminal
-        - simhttp
-        - showsrc
-        </pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
+        <ul style="list-style-type: square;">
+        <li>rb</li>
+        <li>rustcgi</li>
+        <li>terminal</li>
+        <li>showsrc</li>
+        <li>simhttp</li>
+        </ul><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy for that. Later, the feature will be added to SimHttp.</p>
         <section>
             <h2>Command aliases</h2>
             <p>The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
@@ -123,7 +123,7 @@
         <section>
             <h3>A note regarding copy</h3>
             <p><b>RDS</b> may exclude <i>diff</i> auxulary symbols as '-'/'+' when its fragment gets copied to the editor.
-            Select <i>Edit/Copy diff</i> for that. However, remember that copying just a regular fragment in the mode can be broken,
+            Select <i>Edit/Copy diff</i> for the mode. However, remember that copying just a regular fragment in the mode can be broken,
             so unselect the mode otherwise.</p>
         </section>
         <footer> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</footer>

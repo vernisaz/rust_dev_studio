@@ -102,6 +102,7 @@
         - rustcgi
         - terminal
         - simhttp
+        - showsrc
         </pre><p>SimHttp doesn't support HTTPS, so use any HTTPS proxy. Later, the feature will be added to SimHttp.</p>
         <section>
             <h2>Command aliases</h2>
@@ -118,6 +119,12 @@
             <p>The <b>RDS</b> terminal <code>isatty</code> currently reports as <i>false</i>, therefore most commands need to add an argument
             as <code>--color=true</code> to see colorized output. Check with a command documentation how to force colorized
             output when color feature of a terminal can't be automatically detected.</p>
+        </section>
+        <section>
+            <h3>A note regarding copy</h3>
+            <p><b>RDS</b> may exclude <i>diff</i> auxulary symbols as '-'/'+' when its fragment gets copied to the editor.
+            Select <i>Edit/Copy diff</i> for that. However, remember that copying just a regular fragment in the mode can be broken,
+            so unselect the mode otherwise.</p>
         </section>
         <footer> RDS &copy; <script>document.write(''+new Date().getFullYear())</script> D Rogatkin</footer>
     </body>

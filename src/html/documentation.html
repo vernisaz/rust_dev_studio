@@ -67,8 +67,7 @@
         <h2>Config</h2>
         <p>
         The following portion has to be added in <b>"mapping"</b> section of SimHttp <i>env.conf</i>  :</p>
-        <pre>
-              {"path":"/cgires/resource",
+        <pre>{"path":"/cgires/resource",
                "CGI": false,
                "translated": "./rds/resource"},
               {"path":"/rustcgi",
@@ -76,17 +75,13 @@
                "translated": "./rds"},
               {"path":"/terminal",
                "WS-CGI": true,
-               "translated": "./rds/terminal"},
-        </pre>
-
+               "translated": "./rds/terminal"},</pre>
         <p>
         Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
          with consists of one line containing the user CONFIG directory or other directory
         where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
         </p>
-        <pre>
-        /home/.config
-        </pre>
+        <pre>/home/.config</pre>
         <p>Directory <i>.rds</i> may include file <i>.workspace</i> containing WORKSPACE directory location.</p>
         <h2>Packaging</h2>
         <p>
@@ -95,7 +90,7 @@
             to better understand which components will be required for the RDS deployment.
         </p>
         <p>
-        Five underline OS executables written in Rust are:
+        Five underline OS executables're written in Rust are:
         </p>
         <ul style="list-style-type: square;">
         <li>rb</li>

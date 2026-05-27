@@ -19,9 +19,9 @@ The approach of a web based IDE becomes popular nowadays, for example - _Code an
 - possibility to use with any other programming language(s)
 - full *git* integration
 - mobile and desktop browsers support
-- blazing fast and safe Rust implementation
 - scalable, multi megabytes projects can be easily handled
 - includes all required components as a web server, a scripting tool, and a terminal for all supported platforms
+- blazing fast and safe Rust implementation with no bloat components from crates.io
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is

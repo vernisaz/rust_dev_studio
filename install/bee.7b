@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.53.00
+version=1.53.01
 
 include(cfg.7b) # created by the install
 
@@ -50,9 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- References to std sources from error messages (std sources have to be installed)
-- Processing OS specific escape codes in the terminal (ESC]8)
-- Cross reference includes references to struct and enum",
+- Improved showing a directory content on Windows",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

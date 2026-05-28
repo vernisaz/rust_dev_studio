@@ -226,8 +226,9 @@ var fileNameReg
 around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.53.00](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.53.00). You can also check out the current development code,
-however it can be not stable.
+The current version is [1.53.01](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.53.01). 
+This release is strictly for Windows, so take the previous release for other platforms.
+You can also check out the current development code, however it can be not stable.
 
 ## Known problems
 

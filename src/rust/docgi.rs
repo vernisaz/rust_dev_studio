@@ -1493,10 +1493,10 @@ impl PageOps for PageFile {
     }
 
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
-        match std::env::current_exe() {
+        match env::current_exe() {
             Ok(cgi_exe) => {
                 let main = if env::var("PATH_INFO").is_ok() {
-                    PathBuf::from(std::env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name)
+                    PathBuf::from(env::var("PATH_TRANSLATED").unwrap()).join(&self.file_name)
                 } else {
                     cgi_exe
                         .parent()

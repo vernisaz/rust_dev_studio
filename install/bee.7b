@@ -51,7 +51,7 @@ zip [${~cwd~}]?",${~cwd~})
     "What's New in ${version}
 
 - Corrected the terminal behavior at defining and processing aliases
-- Acknowledge of a case intensity in the terminal on Windows",
+- Acknowledge of a case insesitivity in the terminal on Windows",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

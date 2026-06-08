@@ -29,7 +29,7 @@ struct WebTerminal {
 }
 
 impl Terminal for WebTerminal {
-    fn init(&self) -> (PathBuf, PathBuf, HashMap<String, Vec<String>>, &str) {
+    fn init(&self) -> (PathBuf, PathBuf, HashMap<String, String>, &str) {
         let aliases = read_aliases(HashMap::new(), &self.config, &None::<String>);
         unsafe { env::set_var("PWD", &self.cwd) }
         #[cfg(windows)]
@@ -237,10 +237,10 @@ fn save_persistent(
 }
 
 fn read_aliases(
-    mut res: HashMap<String, Vec<String>>,
+    mut res: HashMap<String, String>,
     config: &Config,
     project: &Option<String>,
-) -> HashMap<String, Vec<String>> {
+) -> HashMap<String, String> {
     let aliases = config.get_config_path(project, "aliases", "prop");
     if let Ok(lines) = read_lines(&aliases) {
         // Consumes the iterator, returns an (Optional) String
@@ -255,10 +255,12 @@ fn read_aliases(
                 && let Some(name) = name.strip_prefix("alias ")
             {
                 let name = name.trim();
-                let value = value.trim_matches(['"', '\'', ' ']);
+                let value = value.trim();
+                let value = &value[1..value.len()-1];
+                
                 res.insert(
                     name.to_string(),
-                    value.split_ascii_whitespace().map(str::to_string).collect(),
+                    value.to_string(),
                 );
             }
         }

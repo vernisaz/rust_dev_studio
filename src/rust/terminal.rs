@@ -256,7 +256,7 @@ fn read_aliases(
             {
                 let name = name.trim();
                 let value = value.trim();
-                let value = &value[1..value.len()-1];
+                let value = if value.starts_with("\"") || value.starts_with("'") {&value[1..value.len()-1]}else {&value[..]};
                 
                 res.insert(
                     name.to_string(),

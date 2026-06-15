@@ -265,9 +265,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             //eprintln!("cloning {git_url} in {rep_name:?} at {real_dir:?}");
                             let output = Command::new("git")
                                 .arg("clone")
-                                .arg("-o")
-                                .arg(rep_name)
                                 .arg(git_url)
+                                .arg(rep_name)
                                 .current_dir(real_dir.parent().ok_or("no parent directory")?)
                                 .env(
                                     "HOME",

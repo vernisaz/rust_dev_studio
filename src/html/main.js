@@ -613,7 +613,7 @@ function extendURL(lineStr) {
              if (WIN_SERVER)
                 path = path.replaceAll('\\', '/') // to unified look 
             if (path.startsWith('/') || path.indexOf(':/') == 1 || path.indexOf(':\\') == 1) { // current OS root
-                const projHomePos = path.indexOf(PROJECT_HOME)
+                const projHomePos = path.indexOf(WIN_SERVER?PROJECT_HOME.replaceAll('\\', '/'):PROJECT_HOME)
                 if (projHomePos == HOME_LEN)
                     path = path.substring(HOME_LEN + PROJECT_HOME.length+1)
                 else {

@@ -9,3 +9,4 @@ clippy-*
 nonutf8
 .DS_Store
 showsrc
+test*

@@ -20,7 +20,7 @@ The approach of a web based IDE becomes popular nowadays, for example - _Code an
 - full *git* integration
 - mobile and desktop browsers support
 - scalable, multi megabytes projects can be easily handled
-- includes all required components as a web server, a scripting tool, and a terminal for all supported platforms
+- includes all required components as a web server, a scripting tool, and a terminal for all supported platforms (Windows, Linux, Mac)
 - blazing fast and safe Rust implementation with no bloat components from crates.io
 
 ## Architecture

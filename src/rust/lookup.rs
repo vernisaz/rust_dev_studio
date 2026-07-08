@@ -8,7 +8,7 @@ fn lookup(s: &str) -> Option<String> {
     let mut current_subsystem = None;
     for line in lines {
         let line = line.ok()?;
-        if line.starts_with("# ") {
+        if line.trim().is_empty() || line.starts_with("# ") {
             continue;
         }
         if let Some(new_current_subsystem) = line.strip_prefix("## ") {

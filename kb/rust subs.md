@@ -39,7 +39,7 @@ osstring osstr
 ## fmt
 
 ## fs
-
+read_dir metadata
 ## future
 
 ## hash
@@ -89,7 +89,7 @@ pathbuf
 ## str
 
 ## string
-
+strip_prefix strip_sufix
 ## sync
 
 ## task
@@ -97,6 +97,7 @@ pathbuf
 ## thread
 
 ## time
+duration_since
 ## vec
 
 

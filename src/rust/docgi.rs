@@ -25,7 +25,6 @@ mod config;
 mod crossref;
 mod search;
 
-use std::io::BufRead;
 use {
     crate::web::web::format_system_time_secs,
     config::{SETTINGS_PREF, read_props},

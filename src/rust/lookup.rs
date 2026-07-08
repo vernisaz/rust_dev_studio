@@ -1,4 +1,4 @@
-use std::io::BufReader;
+use std::io::{BufReader, BufRead};
 fn lookup(s: &str) -> Option<String> {
     // read 'rust subs.md'
     let filename = "kb/rust subs.md";

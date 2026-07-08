@@ -4,9 +4,9 @@ fn lookup(s: &str) -> Option<String> {
     let filename = "kb/rust subs.md";
     let file = File::open(filename).ok()?;
     let reader = BufReader::new(file);
-    let mut lines = reader.lines();
+    let lines = reader.lines();
     let mut current_subsystem = None;
-    while let Some(line) = lines.next() {
+    for line in lines {
         let line = line.ok()?;
         if line.starts_with("# ") {
             continue;

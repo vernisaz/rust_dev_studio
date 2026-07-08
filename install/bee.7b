@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.53.02
+version=1.53.04
 
 include(cfg.7b) # created by the install
 
@@ -50,8 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Corrected the terminal behavior at defining and processing aliases
-- Acknowledge of a case insesitivity in the terminal on Windows",
+- Added a lookup functionality to find information about requested data",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,
@@ -79,7 +78,9 @@ HOME=${HOME}",
     -C ${rds}/cgi/resource/ace,
     ACE editor,
     -B ${rds}/cgi/resource/terminal,
-    ../simterminal/src/js/terminal.js,
+    ..${~/~}simterminal${~/~}src${~/~}js${~/~}terminal.js,
+    -B ${rds}/kb,
+    kb${~/~}rust subs.md,
     -B ${rds}/doc,
     README.md)
     display(${~~} created)

@@ -25,6 +25,7 @@ mod config;
 mod crossref;
 mod search;
 
+use std::io::BufRead;
 use {
     crate::web::web::format_system_time_secs,
     config::{SETTINGS_PREF, read_props},
@@ -33,7 +34,6 @@ use {
     simweb::{json_encode, url_encode},
     web::{Menu, PageOps, get_file_modified, param, sanitize_path, save_props},
 };
-
 macro_rules! eprintln {
     ($($rest:tt)*) => {
         #[cfg(feature = "quiet")]
@@ -1190,6 +1190,23 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             }
         }
+        Some("lookup") => {
+            if let Some(word) = params.param("word") {
+                if let Some(sub_sys) = lookup(&word) {
+                    Box::new(PageStuff {
+                        content: format!("Ok {sub_sys}").to_string(),
+                    })
+                } else {
+                    Box::new(PageStuff {
+                        content: "Err: not found matched subsystem".to_string(),
+                    })
+                }
+            } else {
+                Box::new(PageStuff {
+                    content: "Err: no lookup word specified".to_string(),
+                })
+            }
+        }
         Some(mode) => Box::new(PageStuffE {
             content: format! {r#"Err: The mode &quot;{mode}&quot; is not implemented in ver {VERSION}."#},
         }),
@@ -1197,6 +1214,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
     page.show();
     Ok(())
 }
+
+include!("lookup.rs");
 
 #[derive(Debug)]
 pub struct PageStuff {
@@ -1591,9 +1610,11 @@ impl PageOps for PageFile {
          web::Menu::MenuBox{title:"Source", hint:Some("The source navigation, compose and refactoring"), icon:None}, 
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark currently editing line"), icon:None,short:Some("^B")},
            Menu::Separator,
-           Menu::MenuItem{title:"Format".to_string(), link:"javascript:formatSrc()".to_string(), hint:Some("Format source of the current file using configured formatter"), icon:None,short:None},
+              Menu::MenuItem{title:"Format".to_string(), link:"javascript:formatSrc()".to_string(), hint:Some("Format source of the current file using configured formatter"), icon:None,short:None},
            Menu::Separator,
-           Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
+              Menu::MenuItem{title:"Lookup".to_string(), link:"javascript:lookup()".to_string(), hint:Some("Lookup for the current selection in the Rust documentation"), icon:None,short:None},
+           Menu::Separator,
+              Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,
           
         web::Menu::MenuBox{title:"Project", hint:None, icon:None},

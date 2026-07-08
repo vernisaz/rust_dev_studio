@@ -100,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
         _ => (None, ""),
     };
-    let env_ver = web.param("version").unwrap_or_else(|| "".to_owned());
+    let env_ver = web.param("version").unwrap_or_else(String::new);
     let config = config::Config::new();
     let version = format!("{VERSION}-{}/{env_ver}", simterm::VERSION);
     let project_path = config.get_project_home(&project_name).unwrap_or_else(|| {

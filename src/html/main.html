@@ -1276,7 +1276,7 @@
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
-            if (selectedContent.indexOf('_') >= 0) { // already
+            if (selectedContent.indexOf('_') > 0) { // already
                 return
             }
             let res = '';
@@ -1559,6 +1559,28 @@
         else
             bookmarks.appendChild(bookmark)
         document.querySelector('#bookmrk').checked = true
+    }
+    
+    function lookup() {
+        // look for selection in the current editor
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const editor = EDITORS[editor_tab.id].editor
+            const selectedContent = editor.getSelectedText()
+            if (selectedContent != '') {
+                ajax.get({url:"./rustcgi?mode=lookup&word="+encodeURIComponent(selectedContent),
+                success: function(subs) {
+                    if (subs.startsWith('Ok ')) {
+                       const subSystem = subs.substring(3)
+                       if (subSystem != '') {
+                            window.open(`https://doc.rust-lang.org/std/${subSystem}/index.html`, '_blank').focus();
+                        }
+                    } else {
+                        showErrorMessage(`No meaningful information found for ${selectedContent}`)
+                    }
+                }, respType:"html"})
+            }
+        }
     }
       
       function about() {

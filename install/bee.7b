@@ -50,7 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Added a lookup functionality to find information about requested data",
+- Improved the terminal functionality on Windows
+- Added a lookup functionality to get a reference to the documentaion",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -143,13 +143,13 @@ function normalizePath(path,separator,root) {
 
   for (let segment of segments) {
     if (segment === '..') {
-      normalizedSegments.pop(); // Go up one directory
+      if (normalizedSegments.length > 0) normalizedSegments.pop(); // Go up one directory
     } else if (segment !== '.') { // && segment !== '') { - the condition is always true since repeating slashes removed
       normalizedSegments.push(segment); // Push valid directory names
     }
   }
 
-  return /*(separator == '/'?'/':'') +*/ normalizedSegments.join(separator); // Reconstruct the path
+  return /*(separator == '/'?'/':'') +*/ normalizedSegments.join(separator) + (normalizedSegments.length <= 1 && separator == '\\'?'\\':''); // Reconstruct the path
 }
 
 function replaceWithGaps(str, regex, onMatch, onGap) {

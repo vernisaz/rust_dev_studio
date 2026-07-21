@@ -59,7 +59,7 @@ function main() {
             var frstBl = true
             for (; i<len; ++i) {
                 const char = line.charAt(i)
-                if (char >= '0' && char <= '9' || char == '+' || char == '-' || char == '~') {
+                if (char >= '0' && char <= '9' || char == '+' || char == '-' || char == '~' || char == '|') {
                     continue
                 }
                 if (frstBl && char == ' ') {

@@ -1574,6 +1574,7 @@
             const selectedContent = editor.getSelectedText()
             if (selectedContent != '') {
                 if (!xrefCache) {
+                    // TODO put some guard to prevent Infinity looping
                     scanXRef(lookup)
                     return
                 }

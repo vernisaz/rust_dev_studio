@@ -6,6 +6,7 @@ fn lookup(s: &str) -> Option<String> {
     let reader = BufReader::new(file);
     let lines = reader.lines();
     let mut current_subsystem = None;
+    let s = s.to_lowercase(); // can make it mutable and change in place
     for line in lines {
         let line = line.ok()?;
         if line.trim().is_empty() || line.starts_with("# ") {

@@ -30,7 +30,7 @@
         <h2>Purpose</h2>
         <p>Transforming any browser to a powerful development environment. It doesn't matter where a browser does  run.
         It can be a desktop, a laptop, a tablet and even a phone. Everything can be done
-        in the browser from beginning of a project, establishing a git repository, develop, debug, document,
+        in the browser from beginning of a project, establishing a git repository, develop, getting AI assistance, debug, document,
         test and finally publish your product.</p>
         <h2>Getting started</h2>
         <p>The RDS operates with projects. A project is some directory inside WORKSPACE directory, which is an essential
@@ -42,7 +42,7 @@
         directory will be created automatically, unless it's already there. Git cloning can be a part of a project creation,
         just specify Git repository URL.
         You can select the project in <i>File&gt;Project&gt;project_name</i> menu to start using it.</p>
-        <p>If different than Git used as a source control system, then its command for cloning can be issued in the terminal window.</p>
+        <p>If a different than Git used as a source control system, then its command for cloning can be issued in the terminal window.</p>
         <h3>Note about GIT</h3>
         <p>Selecting VCS&gt;Status will show modified/staged/unversioned files.
         You need to mark files to include them in the commit operation. Just click
@@ -62,7 +62,8 @@
         <h2>Implementation</h2>
         <p>
         It's a really compact with a footprint below 10 MB. All web requests are handled by one Rust executable.
-          The terminal is a websocket endpoint represented by another Rust executable.
+          The terminal is a websocket endpoint represented by another Rust executable. There is also a Rust
+          executable to show Rust content out of the project as <b>STD</b> sources.
         </p>
         <h2>Config</h2>
         <p>
@@ -77,12 +78,12 @@
                "WS-CGI": true,
                "translated": "./rds/terminal"},</pre>
         <p>
-        Make  sure also that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
+        Make also sure  that the directory, where <code>rustcgi</code> accessed from, contains the file <b>.config</b>
          with consists of one line containing the user CONFIG directory or other directory
         where <code>rustcgi</code> will look for settings in the sub directory <i>.rds</i> of the <b>CONFIG</b>. For example,
         </p>
-        <pre>/home/.config</pre>
-        <p>Directory <i>.rds</i> may include file <i>.workspace</i> containing WORKSPACE directory location.</p>
+        <pre>/home/lidia/.config</pre>
+        <p>Directory <i>.rds</i> may include file <i>.workspace</i> containing the WORKSPACE directory location.</p>
         <h2>Packaging</h2>
         <p>
             The <b>install</b> subdirectory of the RDS source directory tree contains 
@@ -102,21 +103,22 @@
         <section>
             <h2>Command aliases</h2>
             <p>The <b>RDS</b> offers aliases feature to combine all time used arguments with a command itself. 
-            These aliases definitions have to be stored in file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
+            These alias definitions have to be stored in a file under <i>CONFIG/.rustcgi/aliases.prop</i> containing one line for every alias as:</p>
             <pre>alias name='real_command [arguments]'</pre>
             for example:
             <pre>alias ls='ls --color'</pre>
             <p>Any name found in the file, will be replaced accordingly the specified value. It can be useful not only for colorizing
             program output, but for other all time used options.</p>
+            <p><b>Note:</b> that alias extending process is recursive, and an alias can content can be extended by other alias.</p>
         </section>
         <section>
             <h2>Colorized output in the terminal</h2>
             <p>The <b>RDS</b> terminal <code>isatty</code> currently reports as <i>false</i>, therefore most commands need to add an argument
-            as <code>--color=true</code> to see colorized output. Check with a command documentation how to force colorized
+            as <code>--color=true</code> to see a colorized output. Check with a command documentation how to force colorized
             output when color feature of a terminal can't be automatically detected.</p>
         </section>
         <section>
-            <h3>A note regarding copy</h3>
+            <h3>A note regarding a copy</h3>
             <p><b>RDS</b> may exclude <i>diff</i> auxulary symbols as '-'/'+' when its fragment gets copied to the editor.
             Select <i>Edit/Copy diff</i> for the mode. However, remember that copying just a regular fragment in the mode can be broken,
             so unselect the mode otherwise.</p>

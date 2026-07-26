@@ -74,11 +74,11 @@ all projects used by RDS are landed. If there is no such file presented, then th
 will be the same as specified in the _.config_ file. For example a user _HOME_ directory
 can be provided in the _.config_ file.
 
-Also, directory _.rds_ can include file _aliases.prop_. The file contains entries in a form like :
+Directory _.rds_ can also include the file _aliases.prop_. It contains entries in Linux shell format like :
 
 > alias alias_name='command arguments...'
 
-It is a standard alias syntax of Unix shell allowing to setup an alias for the RDS terminal. 
+The specified aliases used in the RDS terminal. 
 
 You are free to use any other web server capable to run CGI scripts. But the terminal can be used only with the **SimHTTP**,
 because the server provides the WS CGI support.

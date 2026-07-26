@@ -411,6 +411,8 @@
       
       let caseId = 'num1@'
       
+      let xrefCache
+      
       var fileNameReg
         if (WIN_SERVER)
             fileNameReg =  /(?<path>(\w:\\)?(([\w.-]+)[\\/])*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
@@ -1081,8 +1083,9 @@
         }
     }
     
-    function scanXRef() {
+    function scanXRef(onComplete) {
         ajax.get({url:"./rustcgi?mode=crossref-list&session="+encodeURIComponent(SESSION), success: function(jsonres) {
+            xrefCache = jsonres
             const refs = document.getElementById("xrefs")
             refs.replaceChildren()
             jsonres.sort((a, b) => {
@@ -1568,6 +1571,15 @@
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
             if (selectedContent != '') {
+                if (!xrefCache) {
+                    scanXRef()
+                }
+                for (refEl of xrefCache) {
+                    if (refEl.name == selectedContent) {
+                        moveToLineInFile(refEl.path, refEl.line, refEl.col)
+                        return
+                    }
+                }
                 ajax.get({url:"./rustcgi?mode=lookup&word="+encodeURIComponent(selectedContent),
                 success: function(subs) {
                     if (subs.startsWith('Ok ')) {

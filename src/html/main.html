@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.12.04.161">
+       <input type="hidden" name="version" id="version" value="1.14.00.164">
         <nav class="nav">
             <div class="logo">
                 <span id="proj_name_tit">${session}</span> - <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a>
@@ -1540,13 +1540,13 @@
         const currentLineText = editor.session.getLine(currentRow);
         // look for the bookmark first
         const bookmarks = document.querySelector('#bookmarks')
-        var beforeEl = null
+        var beforeEl
         for (const child of bookmarks.children) {
             if (child.dataset.src == selTab.id && child.dataset.line == currentRow + 1) {
                 child.remove()
                 return
             }
-            if (beforeEl == null && (child.dataset.src == selTab.id && child.dataset.line > currentRow + 1 || child.dataset.src > selTab.id))
+            if (!beforeEl && (child.dataset.src == selTab.id && child.dataset.line > currentRow + 1 || child.dataset.src > selTab.id))
                 beforeEl = child
         }
         const bookmark = document.createElement("LI");
@@ -1559,7 +1559,7 @@
             // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)
         });
-        if (beforeEl != null)
+        if (beforeEl)
             bookmarks.insertBefore(bookmark, beforeEl)
         else
             bookmarks.appendChild(bookmark)
@@ -1572,6 +1572,7 @@
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
             const selectedContent = editor.getSelectedText()
+            // TODO lookup can differ based on file extension
             if (selectedContent != '') {
                 if (!xrefCache) {
                     // TODO put some guard to prevent Infinity looping

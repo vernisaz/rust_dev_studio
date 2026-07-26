@@ -1142,6 +1142,8 @@
                     refs.appendChild(ddEl)
                 }
             }
+            if (typeof onComplete === 'function')
+                onComplete()
         }})    
     }
     
@@ -1572,7 +1574,8 @@
             const selectedContent = editor.getSelectedText()
             if (selectedContent != '') {
                 if (!xrefCache) {
-                    scanXRef()
+                    scanXRef(lookup)
+                    return
                 }
                 for (refEl of xrefCache) {
                     if (refEl.name == selectedContent) {

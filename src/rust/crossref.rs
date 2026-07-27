@@ -298,7 +298,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InName | InCallName | InImplName => {
+                    InName | InCallName | InImplName | InStruct => {
                         prev_state.push((state, name.clone()));
                         state = InGenTypeOrComp
                     }
@@ -403,7 +403,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 }
                 // eprintln!{"state before comma {state:?} at {}:{}", reader.line, reader.line_offset}
                 match state {
-                    InDataDef | Start | Direct | ExpDirect => (),
+                    InDataDef | Start | Direct | ExpDirect | InGenTypeOrComp => (),
                     InCallName => name.clear(),
                     InComment => (),
                     _ => state = ExpInCallName,

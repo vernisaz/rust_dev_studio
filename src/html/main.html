@@ -411,17 +411,22 @@
       
       let caseId = 'num1@'
       
-      let xrefCache
-      
       var fileNameReg
         if (WIN_SERVER)
             fileNameReg =  /(?<path>(\w:\\)?(([\w.-]+)[\\/])*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
         else
             fileNameReg = /(?<path>\/?(([\w.-]+)\/)*)(?<file>[\w-]+\.(rs|swift|java|7b)):(?<line>\d+):(?<col>\d+|\s)/gm
       
-      var projectKWs = []
+      let xrefCache
+      
+      let projectKWs = []
       
       var preventAutoSave = false
+      
+      // last edit position if known
+      let lastFileId
+      let lastSelection
+      let lastCursor
       
       function newFile() {
           const pane = document.getElementById("fileForm")
@@ -1581,6 +1586,7 @@
                 }
                 for (refEl of xrefCache) {
                     if (refEl.name == selectedContent) {
+                        saveEdit(editor_tab.id, editor)
                         moveToLineInFile(refEl.path, refEl.line, refEl.col)
                         return
                     }
@@ -1598,6 +1604,20 @@
                 }, respType:"html"})
             }
         }
+    }
+    
+    function lastEdit() {
+        if (lastFileId) {
+            //const editor = EDITORS[lastFileId].editor
+            moveToLineInFile(lastFileId, lastCursor.row, lastCursor.column)
+        }
+    }
+    
+    function saveEdit(id,editor) {
+        const session = editor.getSession();
+        lastFileId = id
+        lastSelection = session.getSelection();
+        lastCursor = editor.selection.getCursor();
     }
       
       function about() {

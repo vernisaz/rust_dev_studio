@@ -13,6 +13,10 @@ function main() {
         e.preventDefault()
         reloadCurrent()
       }
+      if (e.ctrlKey && e.code == 'KeyW') {
+        e.preventDefault()
+        lastEdit()
+      }
       if (e.code == 'F5' && !(event.shiftKey || e.altKey || e.ctrlKey)) {
         e.preventDefault()
         run_debug()

@@ -47,7 +47,7 @@ zip [${~cwd~}]?",${~cwd~})
 	}
 	#assign(ACE Res,~~)
 	zip(${distro dir}${~/~}rds-${version}.zip,
-	-A ${rds}/What's New.txt,
+	-A'the file reflects the latest changes' ${rds}/What's New.txt,
     "What's New in ${version}
 
 - Improved the terminal functionality on Windows
@@ -58,7 +58,7 @@ zip [${~cwd~}]?",${~cwd~})
     "#
 PORT=${PORT}
 HOME=${HOME}",
-    -B ${rds},
+    -B'main script' ${rds},
     install${~/~}bee.7b,
     -B ${rds},
     install${~/~}env.tmpl,
@@ -68,15 +68,15 @@ HOME=${HOME}",
     ${simhttp HOME}${~/~}simhttp${ext},
     -C ${rds}/cgi/resource,
     src${~/~}html${~/~}main.*,
-    -B ${rds}/cgi,
+    -B'main CGI' ${rds}/cgi,
     rustcgi${ext},
-    -B ${rds}/cgi,
+    -B'terminal WS EP' ${rds}/cgi,
     terminal${ext},
-    -B ${rds}/cgi,
+    -B'show foreign files CGI' ${rds}/cgi,
     showsrc${ext},
     -B ${rds}/cgi/resource,
     +web files,
-    -C ${rds}/cgi/resource/ace,
+    -C'ACE cloud editor' ${rds}/cgi/resource/ace,
     ACE editor,
     -B ${rds}/cgi/resource/terminal,
     ..${~/~}simterminal${~/~}src${~/~}js${~/~}terminal.js,

@@ -13,7 +13,7 @@ function main() {
         e.preventDefault()
         reloadCurrent()
       }
-      if (e.ctrlKey && e.code == 'KeyW') {
+      if (e.ctrlKey && e.code == 'KeyM') {
         e.preventDefault()
         lastEdit()
       }

@@ -1579,7 +1579,7 @@ impl PageOps for PageFile {
         web::Menu::MenuBox{title:"Edit", hint:None, icon:None}, 
            Menu::MenuItem{title:"Undo".to_string(), link:"javascript:undoEdit()".to_string(), short:Some("^Z"), hint:None, icon:None},
            Menu::MenuItem{title:"Redo".to_string(), link:"javascript:redoEdit()".to_string(), hint:None, icon:None,short:Some("^Y")},
-           Menu::MenuItem{title:"Back".to_string(), link:"javascript:lastEdit()".to_string(), hint:Some("Return to the last edit"), icon:None,short:Some("^W")},
+           Menu::MenuItem{title:"Back".to_string(), link:"javascript:lastEdit()".to_string(), hint:Some("Return to the last edit"), icon:None,short:Some("^M")},
            Menu::Separator,
            Menu::MenuItem{title:"⏼ Copy diff".to_string(), link:r#"javascript:copySpec()" id="cpySpec"#.to_string(), hint:Some("Copy to clipboard with trimming line numbers"), icon:None,short:None},
            Menu::Separator,

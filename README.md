@@ -93,6 +93,8 @@ RDS is coming bundled with some version of the Ace editor. You can always bundle
 Go to [Ace](https://github.com/ajaxorg/ace-builds/) and download the desired version. A copy of it has to be placed in the directory
 **resource/ace** inside RDS directory. It's reflected in the installation script.
 
+The editor shotcut command help you can find [there](https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts). 
+
 ## Building RDS components
 
 The [RustBee](https://github.com/vernisaz/rust_bee) scripting tool is used for building. Obtain it first.

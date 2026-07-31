@@ -149,9 +149,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let project_home = config
                 .get_project_home(&params.param("session"))
                 .ok_or("project path misconfiguration")?;
-            let in_project_path = params.param("path").ok_or("no parameter 'path'")?;
+            let mut in_project_path = params.param("path").ok_or("no parameter 'path'")?;
             sanitize_path(&in_project_path)?;
-            let file = params.param("name").ok_or("no parameter 'name'")?;
+            let mut file = params.param("name").ok_or("no parameter 'name'")?;
             sanitize_path(&file)?;
             let file_path = PathBuf::from(
                 &config
@@ -164,7 +164,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             edit_file.read_to_string(&mut edit)?;
             #[cfg(target_os = "windows")]
             {
-                let path = crate::windows::get_canonical_path_without_prefix(&edit_file)?;
+                let path = crate::windows::get_canonical_path_without_prefix(&edit_file)
+                    .ok_or("Can't get canonical Windows path")?;
+                let in_proj_len = in_project_path.len();
+                in_project_path =
+                    crate::param::to_web_separator(path[path.len() - in_proj_len..].to_string());
+                let path_buf = PathBuf::from(path);
+                file = path_buf
+                    .file_name()
+                    .ok_or("no edit name can be retrived")?
+                    .to_string_lossy()
+                    .into_owned();
             }
             Box::new(PageFrag {
                 fragment: PageStuff {
@@ -209,7 +219,14 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         let adata = Arc::new(data);
                         let data_for_1 = Arc::clone(&adata);
                         let data_for_2 = Arc::clone(&adata);
-                        if file_path.extension() == Some(OsStr::new("rs")) {
+                        let ext = if let Some(ext) = file_path.extension()
+                            && ext.len() == 2
+                        {
+                            Some(ext.to_ascii_lowercase())
+                        } else {
+                            None
+                        };
+                        if ext == Some(OsStr::new("rs").into()) {
                             let settings = config.get_config_path(
                                 &params.param("session"),
                                 SETTINGS_PREF,
@@ -1010,6 +1027,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name")
+                    && file.to_ascii_lowercase().ends_with(".rs")
                     && let Some(prog_name) = simjson::get_path_as_text(&json, &"format_src")
                     && !prog_name.is_empty()
                 {

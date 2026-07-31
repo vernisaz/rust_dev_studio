@@ -1540,6 +1540,7 @@
         const selTab = document.querySelector('input[name="tabs"]:checked')
         if (!selTab)
             return
+        const path = getEditPath(selTab)
         const editor = EDITORS[selTab.id]['editor']
         const cursorPosition = editor.selection.getCursor();
         if (!cursorPosition)
@@ -1550,19 +1551,19 @@
         const bookmarks = document.querySelector('#bookmarks')
         var beforeEl
         for (const child of bookmarks.children) {
-            if (child.dataset.src == selTab.id && child.dataset.line == currentRow + 1) {
+            if (child.dataset.src == path && child.dataset.line == currentRow + 1) {
                 child.remove()
                 return
             }
-            if (!beforeEl && (child.dataset.src == selTab.id && child.dataset.line > currentRow + 1 || child.dataset.src > selTab.id))
+            if (!beforeEl && (child.dataset.src == path && child.dataset.line > currentRow + 1 || child.dataset.src > path))
                 beforeEl = child
         }
         const bookmark = document.createElement("LI");
         bookmark.dataset.line = currentRow + 1
-        bookmark.dataset.src = selTab.id
+        bookmark.dataset.src = path
         bookmark.dataset.snip = currentLineText
         bookmark.dataset.note = 'no note'
-        bookmark.textContent = selTab.id.split('/').pop() + ':' + bookmark.dataset.line + ' - ' + trimAndEllipsize(currentLineText, 34)
+        bookmark.textContent = path.split('/').pop() + ':' + bookmark.dataset.line + ' - ' + trimAndEllipsize(currentLineText, 34)
         bookmark.addEventListener("click", () => {
             // TODO add code which check if the file can't be loaded, then remove the bookmark 
             moveToLineInFile(bookmark.dataset.src, bookmark.dataset.line, 0)

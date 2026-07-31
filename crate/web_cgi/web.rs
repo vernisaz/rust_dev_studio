@@ -280,7 +280,7 @@ pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> 
         }
     } else if path.extension().is_some()
         && let Some(name) = path.file_name().unwrap().to_str()
-        && str_ext.contains(&name[name.rfind('.').unwrap()..])
+        && str_ext.contains(&name[name.rfind('.').unwrap()..].to_ascii_lowercase())
     {
         res.push(path.display().to_string())
     }

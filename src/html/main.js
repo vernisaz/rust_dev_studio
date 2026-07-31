@@ -200,7 +200,8 @@ function render_editor(edittab, path) { // path is already normalized to OS styl
     if (THEME == '')
         THEME = 'light'
     editor.setTheme("ace/theme/"+EDITOR_THEME[THEME])
-    const ext = path.split('.').pop()
+    let ext = path.split('.').pop()
+    ext = ext.toLowerCase()
     if (EDITOR_MODE[ext])
         editor.session.setMode("ace/mode/"+EDITOR_MODE[ext])
     editor.setAutoScrollEditorIntoView(false)

@@ -711,7 +711,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 if t.is_empty() {
                                     None
                                 } else {
-                                    Some(format!(r#""{}""#, &json_encode(t)))
+                                    Some(format!(r#""{}""#, json_encode(t)))
                                 }
                             })
                             .collect::<Vec<_>>()
@@ -876,7 +876,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                #[cfg(target_os = "windows")]
                                let path = param::to_web_separator(file [dir_len+1..].to_owned());
                                json_res.push_str(&format!{r#"{{"path":"{}","line":{line},"col":{col},"name":"{}"}}"#,
-                                  &json_encode(&path), &json_encode(&name)})
+                                  json_encode(&path), json_encode(&name)})
                         }
                     );
                 }
@@ -1327,7 +1327,7 @@ impl PageOps for JsonSettings {
             "projectnp":"{projectnp}", "user":"{2}", "persist_tabs":"{persist_tabs}",
             "home_len":{home_len}, "proj_conf":{proj_conf}, "ai_server_url":"{}",
             "colapsed_dirs":"{}", "src_dir":"{3}", "ed_font":"{ed_font}", "format_on_save":{format_on_save}}}"#,
-            &json_encode(ai_url), &json_encode(colapsed_dirs), &json_encode(user), json_encode(src_dir)},
+            json_encode(ai_url), json_encode(colapsed_dirs), json_encode(user), json_encode(src_dir)},
         )
     }
 
@@ -1422,7 +1422,7 @@ impl PageOps for JsonSess {
 impl PageOps for JsonData {
     fn main_load(&self) -> Result<String, Box<dyn Error>> {
         recurse_files(Path::new(&self.file.file_name)).map_err(|err| {
-            format!("Directory {} can't be read: {err}", &self.file.file_name).into()
+            format!("Directory {} can't be read: {err}", self.file.file_name).into()
         })
     }
 

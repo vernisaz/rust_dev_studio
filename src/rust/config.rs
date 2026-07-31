@@ -114,7 +114,7 @@ pub fn read_props(path: &Path) -> HashMap<String, String> {
             if let Some((name, val)) = prop_def.split_once('=') {
                 props.insert(name.to_string(), val.to_string());
             } else {
-                eprintln!("Invalid property definition: {}", &prop_def)
+                eprintln!("Invalid property definition: {}", prop_def)
             }
         }
     } else {

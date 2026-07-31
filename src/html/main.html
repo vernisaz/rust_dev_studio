@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.14.00.164">
+       <input type="hidden" name="version" id="version" value="1.14.01.165">
         <nav class="nav">
             <div class="logo">
                 <span id="proj_name_tit">${session}</span> - <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a>
@@ -455,51 +455,51 @@
       }
       
       function saveCurrentAs() {
-          // check current and then id
-          const saveId = document.querySelector('input[name="tabs"]:checked').id
-          if (saveId) {
-               const pane = document.getElementById("fileForm")
-               const btn = pane.querySelector(".form-container .btn")
-               const lastSlash = saveId.lastIndexOf('/')
-               if (lastSlash > 0) {
-                   document.forms[0].place.value = saveId.substring(0, lastSlash)
-                   document.forms[0].filename.value = saveId.substring(lastSlash+1)
-               } else {
-                   document.forms[0].place.value = ''
-                   document.forms[0].filename.value = saveId
-               }
-               btn.textContent='Save'
-               ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
-                  const projDirs = document.getElementById("places")
-                  projDirs.innerHTML = ''
-                  projDirs.appendChild(new Option('', ''))
-                  for (var optDir of load) {
-                      var opt = document.createElement('option');
-                      opt.textContent = optDir
-                      projDirs.appendChild(opt);
-                  }
-                  projDirs.value = document.forms[0].place.value
-                 // btn.addEventListener("click", function () {
-                  btn.onclick = function() {
-                      var path =  document.forms[0].place.value
-                      if (path)
-                         path += '/'
-                      const pathstr = path + document.forms[0].filename.value
-                      saveData(saveId, pathstr, function () {
-                          document.getElementById("fileForm").style.display = 'none'
-                      
-                          ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(document.forms[0].filename.value)
-                               +"&path="+encodeURIComponent(pathstr) + "&session="+encodeURIComponent(SESSION),
-                               success: function (json) { render_editor_js(json); populateProjectTree()
-                          }})
-                        }
-                      )
-                  }
-                  pane.style.display = "block"
-                  centerElement(pane)
-                  document.forms[0].filename.focus()
-               }})
-          }
+          const currentTab = document.querySelector('input[name="tabs"]:checked')
+          if (!currentTab)
+            return
+           const pane = document.getElementById("fileForm")
+           const btn = pane.querySelector(".form-container .btn")
+           let saveId = getEditPath(currentTab)
+           const lastSlash = saveId.lastIndexOf('/')
+           if (lastSlash > 0) {
+               document.forms[0].place.value = saveId.substring(0, lastSlash)
+               document.forms[0].filename.value = saveId.substring(lastSlash+1)
+           } else {
+               document.forms[0].place.value = ''
+               document.forms[0].filename.value = saveId
+           }
+           btn.textContent='Save'
+           ajax.get({url:"./rustcgi?mode=project-dir-list&name="+encodeURIComponent(PROJECT_HOME) + "&session="+encodeURIComponent(SESSION), success: function(load) {
+              const projDirs = document.getElementById("places")
+              projDirs.innerHTML = ''
+              projDirs.appendChild(new Option('', ''))
+              for (var optDir of load) {
+                  var opt = document.createElement('option');
+                  opt.textContent = optDir
+                  projDirs.appendChild(opt);
+              }
+              projDirs.value = document.forms[0].place.value
+             // btn.addEventListener("click", function () {
+              btn.onclick = function() {
+                  var path =  document.forms[0].place.value
+                  if (path)
+                     path += '/'
+                  const pathstr = path + document.forms[0].filename.value
+                  saveData(currentTab.id, pathstr, function () {
+                      document.getElementById("fileForm").style.display = 'none'
+                  
+                      ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(document.forms[0].filename.value)
+                           +"&path="+encodeURIComponent(pathstr) + "&session="+encodeURIComponent(SESSION),
+                           success: function (json) { render_editor_js(json); populateProjectTree()
+                      }})
+                    }
+                  )
+              }
+              pane.style.display = "block"
+              centerElement(pane)
+              document.forms[0].filename.focus()
+           }})
       }
       
       function submitFile(name, path) {
@@ -748,18 +748,19 @@
       function reloadCurrent(tab,onload) {
          const editor_tab = tab?tab:document.querySelector('input[name="tabs"]:checked')
          if (editor_tab) {
-             const path = editor_tab.id
+             const path = getEditPath(editor_tab)
+             const tabId = editor_tab.id
              const name = path.split('/').pop()
-             const currCur = EDITORS[path].editor.getCursorPosition()
+             const currCur = EDITORS[tabId].editor.getCursorPosition()
              ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+
                 encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
                 success: function (json) {
-                    EDITORS[path].editor.setValue(json.content)
+                    EDITORS[tabId].editor.setValue(json.content)
                     editor_tab.dataset.modified = json.modified
-                    EDITORS[path].size = json.content.length
-                    EDITORS[path].crc = crc32(json.content)
-                    EDITORS[path]['editor'].setReadOnly(false)
-                    EDITORS[path].editor.gotoLine(currCur.row+1, currCur.column, true)
+                    EDITORS[tabId].size = json.content.length
+                    EDITORS[tabId].crc = crc32(json.content)
+                    EDITORS[tabId]['editor'].setReadOnly(false)
+                    EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
                     if (onload && typeof onload === 'function') {
                         onload()
                     }
@@ -828,10 +829,12 @@
     
     function deleteCurrent() {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
-         if (editor_tab && confirm("Are you sure to delete "+editor_tab.id+"?")) {
+        let titleValue = editor_tab?getEditPath(editor_tab):''
+         if (editor_tab && confirm("Are you sure to delete "+titleValue+"?")) {
              const path = editor_tab.id
              closeEditor(path)
              ajax.post({url:"./rustcgi", query: "mode=delete&name="+encodeURIComponent(path)+"&session="+encodeURIComponent(SESSION), success: function (data) { 
+                 // case of a path isn't important for delete
                  if (data.startsWith('Ok')) {
                      populateProjectTree()
                      vcsStatus()
@@ -859,7 +862,7 @@
     function vcsRestore() {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
-             const path = editor_tab.id
+             const path = getEditPath(editor_tab)
              if (confirm('Are you sure to replace the current edited version ' + path + ' with the last committed?')) {
                  ajax.post({url:"./rustcgi", query: "mode=vcs-restore&name="+encodeURIComponent(path)
                      + "&session="+encodeURIComponent(SESSION), success: function (data) { 
@@ -875,7 +878,7 @@
     function vcsStage() {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
-             const path = editor_tab.id
+             const path = getEditPath(editor_tab)
              ajax.post({url:"./rustcgi", query: "mode=vcs-stage&name="+encodeURIComponent(path)
                      + "&session="+encodeURIComponent(SESSION), success: function (data) { 
                      if (data.startsWith('Ok')) {
@@ -964,7 +967,7 @@
     function vcsHistory() {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
-            const path = editor_tab.id
+            const path = getEditPath(editor_tab)
             ajax.get({url:"./rustcgi?mode=vcs-log&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path), success: function(jsonres) {
                 const historyDiv = document.querySelector('dialog div')
                 historyDiv.innerHTML = `<div style="font-weight: bold;"><a href="javascript:vcsDiff('')">Current ${path}</a></div>
@@ -991,7 +994,7 @@
     function vcsDiff(hashid) {
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
-            const path = editor_tab.id
+            const path = getEditPath(editor_tab)
             ajax.get({url:"./rustcgi?mode=vcs-diff&session="+encodeURIComponent(SESSION)+'&name='+encodeURIComponent(path)+'&hash='+hashid,
             success: function(diff) {
                 if (diff.startsWith('Ok ')) {

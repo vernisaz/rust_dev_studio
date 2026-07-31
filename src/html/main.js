@@ -125,7 +125,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.11.03.118'
+    return '1.12.00.121'
 }
 
 function populateProjectTree() {
@@ -188,7 +188,7 @@ function loadSettings() {
           }})
 }
 
-function render_editor(edittab, path) {
+function render_editor(edittab, path) { // path is already normalized to OS style
     const tabs = document.querySelector('.tabs')
     if (tabs.children.length == 0)
        tabs.innerHTML = edittab
@@ -239,13 +239,15 @@ function render_editor(edittab, path) {
 }
 
 function render_editor_js(json) {
-    const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(json.path)}" checked="checked" data-modified="${json.modified}">
-      <label for="${htmlAttrEncode(json.path)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
+    let tabId = getEditTabId(json.path)
+
+    const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(tabId)}" checked="checked" data-modified="${json.modified}">
+      <label for="${htmlAttrEncode(tabId)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
       <div class="tab">
-         <pre id="editor${htmlAttrEncode(json.path)}">
+         <pre id="editor${htmlAttrEncode(tabId)}">
 ${htmlEncode(json.content)}</pre>
       </div>`
-    render_editor(tab, json.path)
+    render_editor(tab, tabId) //json.path)
 }
 
 var lockLoad
@@ -302,7 +304,7 @@ function renderTree(data, parentElement, rootEl) {
         // possibly separate a file and a folder handlers
         if (item.type == 'file') {
             //alert(pathstr+' for '+item.name)
-            const tab_item = document.getElementById(pathstr)
+            const tab_item = document.getElementById(getEditTabId(pathstr))
             if (tab_item) {
                 tab_item.checked = true
             } else if (!lockLoad) {
@@ -339,15 +341,13 @@ function renderTree(data, parentElement, rootEl) {
 }
 
 function moveToLineInFile(path, line, col, failHandler, openFind) {
-    // normalize path slashes
-    if (WIN_SERVER)
-        path = path.replaceAll('\\', '/')
-    const tab_item = document.getElementById(path)
+    const tabId = getEditTabId(path)
+    const tab_item = document.getElementById(tabId)
     
     // TODO make it a function
     if (tab_item) {
         tab_item.checked = true
-        EDITORS[path].editor.gotoLine(line, col, true)
+        EDITORS[tabId].editor.gotoLine(line, col, true)
         if (openFind) {
             ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[path].editor); EDITORS[path].editor.searchBox.show(openFind)});
         }
@@ -356,9 +356,10 @@ function moveToLineInFile(path, line, col, failHandler, openFind) {
         const name = path.split('/').pop()
         ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
              "&session="+encodeURIComponent(SESSION), success: function (json) { lockLoad = false; render_editor_js(json)
-                 EDITORS[path].editor.gotoLine(line, col, true)
+                const editor =  EDITORS[tabId].editor
+                 editor.gotoLine(line, col, true)
                  if (openFind && openFind != '') {
-                    ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[path].editor); EDITORS[path].editor.searchBox.show(openFind)});
+                    ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(editor); editor.searchBox.show(openFind)});
                  }
              },
              fail: function(ecode, etext) {lockLoad = false; if (failHandler && failHandler instanceof Function) failHandler(path, line, col)}})
@@ -457,12 +458,14 @@ function saveData(path, newpath, onsave) {
 }
 
 function newFileTab(name, path) {
-    const tab = '<input type="radio" name="tabs" id="'+htmlAttrEncode(path)+'" checked="checked" data-modified="0">' +
-    '<label for="'+htmlAttrEncode(path)+'" title="'+htmlAttrEncode(path)+'">'+htmlEncode(name)+'</label>' +
+    let tabId = getEditTabId(path)
+
+    const tab = '<input type="radio" name="tabs" id="'+htmlAttrEncode(tabId)+'" checked="checked" data-modified="0">' +
+    '<label for="'+htmlAttrEncode(tabId)+'" title="'+htmlAttrEncode(path)+'">'+htmlEncode(name)+'</label>' +
    ' <div class="tab">' +
-      '<pre id="editor'+htmlAttrEncode(path)+'">new</pre>' +
+      '<pre id="editor'+htmlAttrEncode(tabId)+'">new</pre>' +
     '</div>'
-    render_editor(tab, path)
+    render_editor(tab, tabId)
 }
 
 function storeBookmarks() {
@@ -599,6 +602,26 @@ function showErrorMessage(msg) {
     content.textContent = msg
     preventAutoSave = true
     bar.show()
+}
+
+function getEditTabId(path) {
+    // normalize path slashes
+    if (WIN_SERVER) {
+        path = path.replaceAll('\\', '/')
+        // and path to upper case 
+        path = path.toUpperCase()
+    }
+    return path
+}
+
+function getEditPath(editTab) {
+    if (WIN_SERVER) {
+       const nextSiblingEl = editTab.nextElementSibling;
+        if (nextSiblingEl) {
+            return nextSiblingEl.getAttribute('title');
+        }
+    }
+    return editTab.id
 }
 
 // terminal specific

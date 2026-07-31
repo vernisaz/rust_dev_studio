@@ -96,7 +96,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("project path misconfiguration")?,
             );
             let modified = get_file_modified(&file_path);
-            let edit: String = read_to_string(&file_path)?;
+            let mut edit_file = File::open(&file_path)?;
+            let mut edit = String::new();
+            edit_file.read_to_string(&mut edit)?;
+
             Box::new(PageFrag {
                 fragment: PageStuff {
                     content: format!(

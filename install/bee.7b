@@ -50,8 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A'the file reflects the latest changes' ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Improved the terminal functionality on Windows
-- Added a lookup functionality to get a reference to the documentaion",
+- Improved a functionality on Windows primary a case insensitive of file system
+- Added a lookup functionality to get a reference to a documentaion",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,
@@ -62,7 +62,7 @@ HOME=${HOME}",
     install${~/~}bee.7b,
     -B ${rds},
     install${~/~}env.tmpl,
-    -B ${rds}/bin,
+    -B'RustBee' ${rds}/bin,
     ..${~/~}rust_bee${~/~}rb${ext},
     -B ${rds}/bin,
     ${simhttp HOME}${~/~}simhttp${ext},

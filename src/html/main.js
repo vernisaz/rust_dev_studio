@@ -413,6 +413,7 @@ function saveData(path, newpath, onsave) {
     const data = EDITORS[path]['editor'].getValue()
     const dataSize = data.length
     const crc = crc32(data)
+    const docTab = document.getElementById(path)
     if (newpath)
         path = newpath
     else { // check if file changed
@@ -424,8 +425,9 @@ function saveData(path, newpath, onsave) {
                 return false
             }
         }
+        path = getEditPath(docTab)
     }
-    const docTab =    document.getElementById(path)
+    
     const modified = docTab? docTab.dataset.modified:0
     const payload = 'mode=save&name='+encodeURIComponent(path)+'&data='+encodeURIComponent(data)+'&modified='+modified
         +"&session="+encodeURIComponent(SESSION)

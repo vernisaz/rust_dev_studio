@@ -149,8 +149,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let project_home = config
                 .get_project_home(&params.param("session"))
                 .ok_or("project path misconfiguration")?;
+            #[allow(unused_mut)]
             let mut in_project_path = params.param("path").ok_or("no parameter 'path'")?;
             sanitize_path(&in_project_path)?;
+            #[allow(unused_mut)]
             let mut file = params.param("name").ok_or("no parameter 'name'")?;
             sanitize_path(&file)?;
             let file_path = PathBuf::from(
@@ -226,7 +228,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         } else {
                             None
                         };
-                        if ext == Some(OsStr::new("rs").into()) {
+                        if ext == Some(OsStr::new("rs").into()) { // TODO configurable on RDS supporting language
                             let settings = config.get_config_path(
                                 &params.param("session"),
                                 SETTINGS_PREF,
@@ -1027,7 +1029,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name")
-                    && file.to_ascii_lowercase().ends_with(".rs")
+                    && file.to_ascii_lowercase().ends_with(".rs") // TODO configurable on RDS supporting language
                     && let Some(prog_name) = simjson::get_path_as_text(&json, &"format_src")
                     && !prog_name.is_empty()
                 {

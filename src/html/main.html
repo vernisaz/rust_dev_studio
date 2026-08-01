@@ -1613,7 +1613,7 @@
     function lastEdit() {
         if (lastFileId) {
             //const editor = EDITORS[lastFileId].editor
-            moveToLineInFile(lastFileId, lastCursor.row, lastCursor.column)
+            moveToLineInFile(lastFileId, lastCursor.row+1, lastCursor.column)
         }
     }
     

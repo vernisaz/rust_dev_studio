@@ -50,7 +50,7 @@ zip [${~cwd~}]?",${~cwd~})
 	-A'the file reflects the latest changes' ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Improved a functionality on Windows primary a case insensitive of file system
+- Improved a functionality on Windows primary a case insensitive support for a file system
 - Added a lookup functionality to get a reference to a documentaion",
 	-E ${rds}/rds${script ext},
 	script,

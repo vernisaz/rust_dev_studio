@@ -537,7 +537,7 @@
           const currentTab = document.querySelector('input[name="tabs"]:checked')
           if (currentTab) {
               if (isDataChanged(currentTab.id)) {
-                  if (confirm(`Data of ${currentTab.id} have been changed, save them?`)) {
+                  if (confirm(`The content of ${getEditPath(currentTab)} has been changed, do you want to save it?`)) {
                       saveData(currentTab.id)
                   }
               }

@@ -588,13 +588,17 @@ function closeEditor(path) {
 }
 
 function closeAll() {
-    const tabs = document.querySelector('.tabs')
-    if (tabs.children.length > 0)
-       tabs.innerHTML =   ''
-    for (var key in EDITORS) {
-        EDITORS[key].editor.destroy();
-        EDITORS[key].editor.container.remove();
-        delete EDITORS[key];
+    //const tabs = document.querySelector('.tabs')
+    for (editorId in EDITORS) {
+        const tab = document.getElementById(editorId)
+        if (tab) {
+            if (isDataChanged(tab.id)) {
+                if (confirm(`The content of ${getEditPath(tab)} has been changed, do you want to save it?`)) {
+                   saveData(tab.id)
+                }
+            }
+            closeEditor(tab.id)
+        }
     }
 }
 

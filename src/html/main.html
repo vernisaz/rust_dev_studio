@@ -820,10 +820,9 @@
     function saveNotepad() {
         ajax.post({url:"./rustcgi", query: "mode=savenp&name="+encodeURIComponent(document.getElementById("notepad").value)
            +"&session="+encodeURIComponent(SESSION), success: function (data) { 
-                 if (data.startsWith('Ok')) {
-
-                 } else
+                 if (!data.startsWith('Ok')) {
                     showErrorMessage('A problem in saving notepad')
+                 }
              }, respType:"html"})
     }
     

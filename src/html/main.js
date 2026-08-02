@@ -1,7 +1,7 @@
 function main() {
    // main app functionality
     document.addEventListener('keydown', e => {
-      if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+      if (e.ctrlKey && e.code == 'KeyS') {
         e.preventDefault()
         saveCurrent()
       }

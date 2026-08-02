@@ -1901,7 +1901,7 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
 fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
     //eprintln! {"called with parent {:?}", parent};
     let meta = path.metadata()?;
-    let mut buf = JsonStr::from("");
+    let mut buf = JsonStr::with_capacity(256);
     if meta.is_dir() && path.file_name().unwrap().to_str() != Some(".git") {
         let dirs: Vec<_> = read_dir(path)?
             .filter_map(|f| match f {

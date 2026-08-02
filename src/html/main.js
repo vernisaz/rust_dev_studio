@@ -434,12 +434,13 @@ function saveData(path, newpath, onsave) {
         +"&session="+encodeURIComponent(SESSION)
     ajax.post({url:"./rustcgi", query: payload,
         success: function (resp) {
+              let editId = getEditTabId (path) 
               if (resp.startsWith('Ok')) {
                  if (docTab)
                      docTab.dataset.modified = resp.substring(3)
-                 if (EDITORS[path]) {
-                     EDITORS[path]['size'] = dataSize
-                     EDITORS[path]['crc'] = crc
+                 if (EDITORS[editId]) {
+                     EDITORS[editId]['size'] = dataSize
+                     EDITORS[editId]['crc'] = crc
                  } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
                  if (onsave && typeof onsave === "function")
@@ -448,8 +449,8 @@ function saveData(path, newpath, onsave) {
                     refresh()
              } else {
                 showErrorMessage('File '+path+' can\'t be saved, see the log for details: '+ resp)    
-                if (EDITORS[path]) {
-                    EDITORS[path]['editor'].setReadOnly(true)
+                if (EDITORS[editId]) {
+                    EDITORS[editId]['editor'].setReadOnly(true)
                 } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
              }

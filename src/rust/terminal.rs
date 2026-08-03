@@ -100,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
         _ => (None, ""),
     };
-    let env_ver = web.param("version").unwrap_or_else(String::new);
+    let env_ver = web.param("version").unwrap_or_default();
     let config = config::Config::new();
     let version = format!("{VERSION}-{}/{env_ver}", simterm::VERSION);
     let project_path = config.get_project_home(&project_name).unwrap_or_else(|| {
@@ -254,6 +254,7 @@ fn read_aliases(
             if let Some((name, value)) = line.split_once('=')
                 && let Some(name) = name.strip_prefix("alias ")
             {
+                #[allow(unused_mut)]
                 let mut name = name.trim().to_string();
                 #[cfg(target_os = "windows")]
                 name.make_ascii_uppercase();

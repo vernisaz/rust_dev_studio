@@ -974,7 +974,8 @@
                 if (jsonres.status == 'Success' && jsonres.entries.length > 0)
                     for (e of jsonres.entries) {
                         historyDiv.innerHTML += `<div><a target="rds_email" href="mailto:${e.email}?subject=Re:%20${e.message}">${e.author}</a> on <i>${e.date}</i></div>
-                              <div style="font-weight: bold;"><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a></div>
+                              <div style="font-weight: bold;"><a href="javascript:vcsDiff('${e.commit_hash}')">${e.message}</a>
+                              <button style="float: right;" onclick="vcsRevision('${e.commit_hash}','${path}')">Replace</button></div>
                               <pre id="${e.commit_hash}"></pre><hr>`
                     }
                 else {
@@ -1087,6 +1088,24 @@
                 hashPre.innerHTML = res
                 
             }, respType:"html"})
+        }
+    }
+    
+    function vcsRevision(hash) {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+             const path = getEditPath(editor_tab)
+             const first5 = hash.slice(0, 5);
+             const last5 = hash.slice(-5);
+             if (confirm(`Are you sure to replace the current edited version ${path} with the ${first5}...${last5}?`)) {
+                 ajax.post({url:"./rustcgi", query: "mode=vcs-revision&name="+encodeURIComponent(path)
+                     + "&session="+encodeURIComponent(SESSION) + '&hash='+hash, success: function (data) { 
+                    if (data.startsWith('Ok')) {
+                        reloadCurrent(editor_tab,vcsStatus)
+                    } else
+                        showErrorMessage(`A problem in getting the revision ${first5}...${last5}`)
+                }, respType:"html"})
+             }
         }
     }
     

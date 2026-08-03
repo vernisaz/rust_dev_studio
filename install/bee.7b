@@ -51,6 +51,7 @@ zip [${~cwd~}]?",${~cwd~})
     "What's New in ${version}
 
 - Improved a functionality on Windows primary a case insensitive support for a file system
+- Added a possibility to retrieve a specified revision from VCS
 - Added a lookup functionality to get a reference to a documentaion",
 	-E ${rds}/rds${script ext},
 	script,

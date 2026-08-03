@@ -1278,6 +1278,52 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 })
             }
         }
+        Some("vcs-revision") => {
+            // git checkout -- <file>
+            if let Ok(met) = env::var("REQUEST_METHOD")
+                && met == "POST"
+            {
+                // TODO make it the fn exec_git(git_act: impl AsRef<str>)) -> Result<(), String>
+                let dir = config
+                    .to_real_path(
+                        config
+                            .get_project_home(&params.param("session"))
+                            .ok_or("project path misconfiguration")?,
+                        None,
+                    )
+                    .ok_or("project path misconfiguration")?;
+                if let Some(file) = params.param("name") && let Some(hash) = params.param("hash") {
+                    let output = Command::new("git")
+                        .arg("checkout")
+                        .arg(hash)
+                        .arg("--")
+                        .arg(file)
+                        .current_dir(&dir)
+                        .output()?;
+
+                    if output.status.success() {
+                        Box::new(PageStuff {
+                            content: "Ok".to_string(),
+                        })
+                    } else {
+                        #[allow(unused)]
+                        let stderr = String::from_utf8(output.stderr)?;
+                        eprintln! {"git checkout executing err for {:?}: {stderr}", output.status};
+                        Box::new(PageStuff {
+                            content: format! {"Err: restore {stderr}"}.to_string(),
+                        })
+                    }
+                } else {
+                    Box::new(PageStuff {
+                        content: "Err: no file or hash".to_string(),
+                    })
+                }
+            } else {
+                Box::new(PageStuff {
+                    content: "Err: not a POST".to_string(),
+                })
+            }
+        }
         Some("lookup") => {
             if let Some(word) = params.param("word") {
                 if let Some(sub_sys) = lookup(&word) {

@@ -350,7 +350,7 @@ function moveToLineInFile(path, line, col, failHandler, openFind) {
         tab_item.checked = true
         EDITORS[tabId].editor.gotoLine(line, col, true)
         if (openFind) {
-            ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[path].editor); EDITORS[path].editor.searchBox.show(openFind)});
+            ace.config.loadModule("ace/ext/searchbox", function(e) {e.Search(EDITORS[tabId].editor); EDITORS[tabId].editor.searchBox.show(openFind)});
         }
     } else if (!lockLoad) {
         lockLoad = true

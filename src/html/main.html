@@ -1643,8 +1643,12 @@
       function verStyle() {
          var rules = document.styleSheets[0].rules || document.styleSheets[0].cssRules;
         for(var x=0;x<rules.length;x++) {
-            if (rules[x].selectorText /*cssText*/.startsWith('.rds-') ) {
-                return rules[x].selectorText.substring(13)
+            try {
+                if (rules[x].selectorText /*cssText*/.startsWith('.rds-') ) {
+                    return rules[x].selectorText.substring(13)
+                }
+            } catch(e) {
+                // currently ignore
             }
         }
         return 'CSS cached'

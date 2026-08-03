@@ -109,7 +109,8 @@
             <pre>alias ls='ls --color'</pre>
             <p>Any name found in the file, will be replaced accordingly the specified value. It can be useful not only for colorizing
             program output, but for other all time used options.</p>
-            <p><b>Note:</b> that alias extending process is recursive, and an alias can content can be extended by other alias.</p>
+            <p><b>Note:</b> that alias extending process is recursive, and after an extending an alias, the command again will be searhed for 
+            another alias, until no more aliases found or number of extending reaches the limit.</p>
         </section>
         <section>
             <h2>Colorized output in the terminal</h2>

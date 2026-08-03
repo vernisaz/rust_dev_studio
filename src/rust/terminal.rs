@@ -254,7 +254,9 @@ fn read_aliases(
             if let Some((name, value)) = line.split_once('=')
                 && let Some(name) = name.strip_prefix("alias ")
             {
-                let name = name.trim();
+                let mut name = name.trim().to_string();
+                #[cfg(target_os = "windows")]
+                name.make_ascii_uppercase();
                 let value = value.trim();
                 let value = if value.starts_with("\"") || value.starts_with("'") {
                     &value[1..value.len() - 1]

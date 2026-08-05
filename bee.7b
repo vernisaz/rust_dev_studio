@@ -8,10 +8,10 @@ doc_dir=..${~/~}docs
 simhttp proj=..${~/~}simhttp
 comp opts=[]
 
-version="1.24.03:207"
+version="1.24.04:208"
 set_env(VERSION,version)
 
-extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go
+extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go.ruby
 set_env(SEARCH_EXTS,extensions)
 
 mode=mode:prop

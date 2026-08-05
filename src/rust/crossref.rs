@@ -442,6 +442,14 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     InForName => {
                         scope.name_for = Some(name.to_owned());
                         scope.type_of_scope = ScopeType::TraitFor;
+                        res.push(Reference {
+                            name: scope.name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Impl,
+                            scope: Some(scope.clone()),
+                        });
                         state = StartInScope
                     }
                     InTraitName => {

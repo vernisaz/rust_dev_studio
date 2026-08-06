@@ -208,6 +208,10 @@ If you plan to use the IDE on a Cloud in the multi users environment, then you n
 For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://internalhost:3000/`,
 the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed.
 
+Note also that the terminal runs on the account the web server runs from. Therefore the web server can be easily killed from 
+the terminal by the user of IDE. If a user can accidently terminate the server, make sure it is started from an auto restarting script
+and protect the script by using a differnt user or a group account.
+
 ## Browser Compatibility
 
 **RDS** uses HTML 5 features presented in popular browsers today. 

@@ -7,7 +7,7 @@ It can be accessed from any device having an HTML5 capable browser. It's perfect
 The approach of a web based IDE becomes popular nowadays, for example - _Code anywhere with Android Studio Cloud_.
 
 ## Features
-- multi windows editor with syntax highlighting
+- multi windows editor with syntax highlighting and over dozen themes
 - a notepad with two ways copying
 - source code bookmarking
 - identifier case conversion, as camel, snake and so on
@@ -15,13 +15,14 @@ The approach of a web based IDE becomes popular nowadays, for example - _Code an
 - search across all project files
 - full Unix terminal for all supported platforms
 - integration with Rust toolchain as a compiler, Rustfmt, Clippy, Rustdoc, and Cargo
-- seamless access to error lines in the editor from the terminal error reporting content
-- possibility to use with any other programming language(s)
-- full *git* integration
+- seamless access of error lines in the editor from the terminal error reporting content
+- a possibility to use with any other programming language(s)
+- full **git** integration
 - mobile and desktop browsers support
 - scalable, multi megabytes projects can be easily handled
+- customizable integration with AI coding arguments
 - includes all required components as a web server, a scripting tool, and a terminal for all supported platforms (Windows, Linux, Mac)
-- blazing fast and safe Rust implementation with no bloat components from crates.io
+- blazing fast and safe Rust implementation with no bloat components from *crates.io*
 
 ## Architecture
 The client part is quite obvious and utilizes HTML 5, CSS and JavaScript. But the server part resurrects the forgotten CGI technology which is
@@ -35,7 +36,7 @@ a websocket endpoint utilizing the WS-CGI technology.
 ## Quick start
 If you plan to give the project a try, just go to [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
 download *zip* file for your platform. Unzip the file in a command window and type `./rds.sh` (`.\rds` on Windows) in the unzipped directory. 
-You're ready to go after answering a couple questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
+You're ready to go after answering few questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
 and start using the **RDS**. Check [Usage tips](#usage-tips).
 
 ## Config
@@ -121,11 +122,11 @@ the [Simple Color](https://github.com/vernisaz/simcolor) which should be built e
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
-there is the predefined packaging.
+there is a predefined packaging.
 
 The packaging can be created by running a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b).
-The created zip file can be unzipped in any desired location and then launch `./rds.sh` or `.\rds.bat` on _Windows_
-and start using the **RDS**. The access URL's stored in `rds.url`.
+The created zip file can be unzipped in any desired location and then launched `./rds.sh` or `.\rds.bat` on _Windows_
+to start using the **RDS**. The access URL's stored in `rds.url`.
 
 ## Usage tips
 
@@ -160,7 +161,7 @@ a visible state of the project and the actual state can go out of the sync. Ther
 do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all
 changes done in the tab, you may save the tab content first to a new file.
 
-### Running Rustfmt and other Rust formatters from RDS
+### Running Rustfmt and other source formatters from RDS
 Since RDS is a new IDE, it isn't covered in this [document](https://github.com/rust-lang/rustfmt?tab=readme-ov-file#running-rustfmt-from-your-editor).
 RDS allows to run Rustfmt explicitly selecting it from menu _Source/Format_, or implicitly checking off _Format on save_ in **Settings**.
 In both cases, Rustfmt has to be configured in _Project/Config..._ . You can specify a formatting program, e.g. rustfmt, and
@@ -173,12 +174,13 @@ remains in a web server log, therefore you can temporaly disable a format on sav
 and do it explicitly to see formatting errors in the IDE. If more than one file
 is autosaved with formatting, some files can be not updated in the RDS UI in Safari, so do it manually using menu _Edit/Reload_.
 
-You are not limited to using _Rustfmt_, and you can use other Rust formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
+You are not limited to using _Rustfmt_, and you can use other formatters, for example [Rustidy](https://github.com/zenithsiz/rustidy). 
 Just specify it in the configuration as
 
 > rustidy
 
-An absolute path to the program can be required, unless it's accessible from PATH.
+An absolute path to the program can be required, unless it's accessible from PATH. Currently only formatting of files
+with extension `.rs` is allowed, however a formatting of any source will be available in the future. 
 
 ### Documenting a project
 

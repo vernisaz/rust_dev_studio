@@ -208,11 +208,11 @@ If you plan to use the IDE on a Cloud in the multi users environment, then you n
 For example, a Cloud URL in the form - `https://ide.cloud.com/user-name` gets translated to `http://internalhost:3000/`,
 the IDE uses only URLs in a relative form and doesn't need to know how an actual URL looks when it got accessed.
 
-Note also that the terminal runs on the account the web server runs from by default.
+**Note** also that the terminal runs on the account the web server runs from by default.
 Therefore the web server can be easily killed from 
 the terminal by the user of the IDE. If a user can accidently terminate the server,
 make sure that it's started from an auto restarting script. The terminal can also be started from
-a script switchng a user account or reducing privileges on Windows. Such approach
+a script switching a user account or reducing privileges on Windows. Such approach
 is more preferable in a Cloud environment.
 
 ## Browser Compatibility

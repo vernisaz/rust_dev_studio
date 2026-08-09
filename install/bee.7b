@@ -221,6 +221,8 @@ kill ${pid}
 rm stopserver")
 		} else {
 			display("Use \033[91mtaskkill /F /PID ${pid}\033[0m to stop the server")
+			write(stopserver.bat,"taskkill /F /PID ${pid}
+del stopserver.bat")
 		}
 	}
 }

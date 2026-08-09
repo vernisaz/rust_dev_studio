@@ -181,7 +181,7 @@ function loadSettings() {
               ws_setup()
               ws_term_connect()
               if (!load.project_home)
-                newProject()
+                 showSettings()
           }, fail: function(cc, err) {
               ws_setup()
               ws_term_connect()

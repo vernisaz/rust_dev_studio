@@ -21,7 +21,7 @@
 ## cmp
 
 ## collections
-hashset hasmap vec vector vecdeque linkedlist btreemap treeset binaryheap
+hashset hasmap vec vector vecdeque linkedlist btreemap treeset binaryheap contains insert
 ## convert
 asref asmut from into
 ## default
@@ -39,7 +39,7 @@ osstring osstr
 ## fmt
 
 ## fs
-read_dir metadata
+read_dir metadata read_to_string
 ## future
 
 ## hash
@@ -49,7 +49,7 @@ read_dir metadata
 ## io
 
 ## iter
-
+iterator next rev
 ## marker
 
 ## mem
@@ -67,7 +67,7 @@ windows
 ## panic
 
 ## path
-pathbuf
+pathbuf extension
 ## pin
 
 ## prelude
@@ -89,9 +89,9 @@ pathbuf
 ## str
 
 ## string
-strip_prefix strip_sufix
+strip_prefix to_ascii_lowercase split_terminator strip_suffix trim_end trim_start split push_str
 ## sync
-
+rwlock
 ## task
 
 ## thread

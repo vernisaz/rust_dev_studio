@@ -81,7 +81,7 @@ HOME=${HOME}",
     ACE editor,
     -B ${rds}/cgi/resource/terminal,
     ..${~/~}simterminal${~/~}src${~/~}js${~/~}terminal.js,
-    -B ${rds}/kb,
+    -B ${rds}/cgi/kb,
     kb${~/~}rust subs.md,
     -B ${rds}/doc,
     README.md)

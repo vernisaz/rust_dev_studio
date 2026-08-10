@@ -45,67 +45,8 @@ const VERSION: &str = env!("VERSION");
 const DEFAULT_NAME: &str = "-default-";
 
 #[cfg(target_os = "windows")]
-mod windows {
-    use std::ffi::OsString;
-    use std::fs::File;
-    use std::os::windows::ffi::OsStringExt;
-    use std::os::windows::io::AsRawHandle;
-    use std::ptr::null_mut;
-
-    #[link(name = "kernel32")]
-    unsafe extern "system" {
-        fn GetFinalPathNameByHandleW(
-            hFile: *mut std::ffi::c_void,
-            lpszFilePath: *mut u16,
-            cchFilePath: u32,
-            dwFlags: u32,
-        ) -> u32;
-    }
-
-    const FILE_NAME_NORMALIZED: u32 = 0x0;
-
-    pub fn get_canonical_path_without_prefix(file: &File) -> Option<String> {
-        let handle = file.as_raw_handle();
-
-        // First call: get required buffer size
-        let size = unsafe {
-            GetFinalPathNameByHandleW(handle as *mut _, null_mut(), 0, FILE_NAME_NORMALIZED)
-        };
-
-        if size == 0 {
-            return None;
-        }
-
-        let mut buffer = vec![0u16; size as usize];
-
-        // Second call: retrieve actual path
-        let written = unsafe {
-            GetFinalPathNameByHandleW(
-                handle as *mut _,
-                buffer.as_mut_ptr(),
-                size,
-                FILE_NAME_NORMALIZED,
-            )
-        };
-
-        if written == 0 {
-            return None;
-        }
-
-        // Convert UTF‑16 → Rust String
-        let mut path = OsString::from_wide(&buffer[..written as usize])
-            .to_string_lossy()
-            .into_owned();
-
-        // Strip the \\?\ prefix if present
-        const PREFIX: &str = r"\\?\";
-        if path.starts_with(PREFIX) {
-            path = path[PREFIX.len()..].to_string();
-        }
-
-        Some(path)
-    }
-}
+#[path = "../../../simincmod/real_path_win.rs"]
+mod windows;
 
 fn main() {
     if let Err(e) = inner_main() {

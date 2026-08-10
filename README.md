@@ -109,7 +109,8 @@ The following crates are required for building the product:
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 - The [Simple JSON](https://github.com/vernisaz/simjson)
-- The [Common shared modules](https://github.com/vernisaz/simincmod) (the repository should be just checked out, nothing to build there is required)
+- The [Common shared modules](https://github.com/vernisaz/simincmod) (the repository should be just checked out on Windows,
+nothing to build there is required)
 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
 already there. Run **rb** in each crate repository. 
@@ -238,7 +239,7 @@ var fileNameReg
 around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.53.02](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.53.02). 
+The current version is [1.53.04](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.53.04). 
 You can also check out the current development code, however it can be not stable.
 
 ## Known problems

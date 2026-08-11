@@ -110,7 +110,7 @@ The following crates are required for building the product:
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 - The [Simple JSON](https://github.com/vernisaz/simjson)
 - The [Common shared modules](https://github.com/vernisaz/simincmod) (the repository should be just checked out on Windows,
-nothing to build there is required)
+nothing is required to build there)
 
 The **crates** directory on the level of repository directories has to be created prior building unless it's
 already there. Run **rb** in each crate repository. 
@@ -127,22 +127,22 @@ Although you can configure the development studio yourself accordingly to a web 
 there is a predefined packaging.
 
 The packaging can be created by running a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b).
-The created zip file can be unzipped in any desired location and then launched `./rds.sh` or `.\rds.bat` on _Windows_
-to start using the **RDS**. The access URL's stored in `rds.url`.
+The created zip file can be unzipped in any desired location and then `./rds.sh` or `.\rds.bat` on _Windows_
+can be launched to start using the **RDS**. The access URL's stored in `rds.url`.
 
 ## Usage tips
 
-You will see an empty page when first time pointed a browser to the **RDS** URL. Select menu *File/Project/New...*.
-Navigate to a project directory and then *Apply* for the new project.
-Open the just created project from menu *File/Project/\<name\>* then. You can start to
+You will see an empty page when first time pointed a browser to the **RDS** URL. The *Settings* dialog will be opened
+where you can specify a directory of your first project. If the directory doesn't exist, then intead, select menu *File/Project/New...*.
+Specify a project name and a directory (and optionally _GIT_ repository URL), hit *Apply*.
+Open the just created project from menu *File/Project/\<name\>*. You can start to
 navigate over the project tree, open and edit files, build its components and so on.
 
-If you do not have a project checked out or created yet, then you can use the terminal panel and execute 
-underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin`. Note, that creating a project in RDS 
-will create a project directory, unless it exists. You can always correct the project root directory 
-in the *Settings*. Note that **RDS** starting from version _1.52_ is capable to checkout a project from _GIT_ repository
-as a part of its creation.  
-You can also delete any undesired projects in *Settings*. However it deletes only references to the project
+Alternatively you can use the terminal panel and execute 
+underline OS commands as `mkdir`, `git clone`, or `cargo new my_rds_project --bin` to create a project directory structure.
+You can always correct the project root directory 
+in the *Settings*.  
+You can delete any undesired project in *Settings*. However it deletes only references to the project from the IDE
 and you will need to delete project files  manually using the terminal panel when it's required.
 
 **RDS** text editor operates with files in UTF-8 encoding, therefore, if you migrate some project

@@ -181,7 +181,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 && let Some(json) = props.get("proj_conf")
                                 && let json = simjson::parse(json)
                                 && let Some(format_src) =
-                                    simjson::get_path_as_text(&json, &"format_src")
+                                    simjson::get_path_as_text(&json, "format_src")
                                 && !format_src.is_empty()
                             {
                                 let dir = config
@@ -971,7 +971,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name")
                     && file.to_ascii_lowercase().ends_with(".rs") // TODO configurable on RDS supporting language
-                    && let Some(prog_name) = simjson::get_path_as_text(&json, &"format_src")
+                    && let Some(prog_name) = simjson::get_path_as_text(&json, "format_src")
                     && !prog_name.is_empty()
                 {
                     let mut parameters = prog_name.split_whitespace();
@@ -1016,7 +1016,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let mut formatted = false;
                 let json =
                     simjson::parse(props.get("proj_conf").ok_or("not configured formatting")?);
-                if let Some(format_src) = simjson::get_path_as_text(&json, &"format_src")
+                if let Some(format_src) = simjson::get_path_as_text(&json, "format_src")
                     && !format_src.is_empty()
                 {
                     let mut parameters = format_src.split_whitespace();

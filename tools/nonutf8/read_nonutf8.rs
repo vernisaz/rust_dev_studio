@@ -1,15 +1,27 @@
 extern crate simcli;
 extern crate simcolor;
-use crate::simcli::CLI;
+#[cfg(target_os = "windows")]
+use crate::simcli::WildCardExpansion;
+use crate::simcli::{CLI, OptTyp};
 use simcolor::Colorized;
-use std::fs::{self, File};
-use std::io::{Error, Read};
-use std::path::PathBuf;
-#[allow(unused)]
+use std::{
+    fs::{self, File},
+    io::{Error, Read},
+    path::PathBuf,
+};
+
 const VERSION: &str = env!("VERSION");
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut cli = CLI::new();
-    cli.description("Usage: nonutf8 <file name>...");
+    cli.description("Usage: nonutf8 <file name>...")
+        .opt("v", OptTyp::None)
+        .unwrap();
+    #[cfg(target_os = "windows")]
+    cli.process_wildcard(WildCardExpansion::All);
+    if cli.get_opt("v").unwrap().is_some() {
+        println!("nonutf8 v{VERSION}");
+        return Ok(());
+    }
     if cli.args().is_empty() {
         return Err(Box::new(cli.get_description().unwrap().bright().blue()));
     }

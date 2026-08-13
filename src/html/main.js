@@ -125,7 +125,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.12.00.121'
+    return '1.12.00.122'
 }
 
 function populateProjectTree() {
@@ -647,6 +647,7 @@ function extendURL(lineStr) {
             var path = matches[0].groups.path
              if (WIN_SERVER)
                 path = path.replaceAll('\\', '/') // to unified look 
+            path = normalizePath(path)
             if (path.startsWith('/') || path.indexOf(':/') == 1 || path.indexOf(':\\') == 1) { // current OS root
                 const projHomePos = path.indexOf(WIN_SERVER?PROJECT_HOME.replaceAll('\\', '/'):PROJECT_HOME)
                 if (projHomePos == HOME_LEN)
@@ -655,7 +656,6 @@ function extendURL(lineStr) {
                     return `<a href="/rustcgi/showsrc?src=${encodeURIComponent(path)}${encodeURIComponent(file)}&line=${line}&pos=${col}&theme=${EDITOR_THEME[THEME]}" target="${escape(file)}">${fileName}</a>`
                 }
             }
-             path = normalizePath(path)
            /* path = normalizePath(path, WIN_SERVER?'\\':'/')
             if (WIN_SERVER)
                 path = path.replaceAll('\\', '\\\\') // to prevent escape */

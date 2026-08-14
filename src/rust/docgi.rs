@@ -970,7 +970,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .ok_or("project path misconfiguration")?;
                 if let Some(file) = params.param("name")
-                    && file.to_ascii_lowercase().ends_with(".rs") // TODO configurable on RDS supporting language
+                    && ends_with_ignore_ascii_case(&file, ".rs") // TODO configurable on RDS supporting language
                     && let Some(prog_name) = simjson::get_path_as_text(&json, "format_src")
                     && !prog_name.is_empty()
                 {
@@ -1955,4 +1955,17 @@ fn truncate_to_bytes(s: &str, max_bytes: usize) -> &str {
         end -= 1;
     }
     &s[..end]
+}
+
+fn ends_with_ignore_ascii_case(s: &str, suffix: &str) -> bool {
+    // Early return if suffix is longer than s
+    if suffix.len() > s.len() {
+        return false;
+    }
+
+    // Get the ending slice of `s` with the same length as `suffix`
+    let end_slice = &s[s.len() - suffix.len()..];
+
+    // Compare both in lowercase ASCII
+    end_slice.eq_ignore_ascii_case(suffix)
 }

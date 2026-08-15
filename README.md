@@ -217,6 +217,10 @@ make sure that it's started from an auto restarting script. The terminal can als
 a script switching a user account or reducing privileges on Windows. Such approach
 is more preferable in a Cloud environment.
 
+**Note** that although RDS provides a very convenient feature as clickable links from the terminal content, The links can be maliciously
+crafted and used both to trigger remote code execution and to expose internal information to an intruder. If you see such posibility,
+then just disable the mechanism of generation such links.
+
 ## Browser Compatibility
 
 **RDS** uses HTML 5 features presented in popular browsers today. 

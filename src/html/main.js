@@ -273,14 +273,17 @@ ${htmlEncode(json.content)}</pre></div></div>
     render_editor(tab, tabId)
     add_editor(tabId, horiz)
     document.getElementById("editor"+tabId).addEventListener("focusout", function(e) {
-        //console.log(`Field top/left ${e.target.name} lost focus`);
+        console.log(`Field top/left ${e.target.name} lost focus`);
+        const currCur = EDITORS[tabId].editor2.getCursorPosition()
         EDITORS[tabId]['editor2'].setValue( EDITORS[tabId]['editor'].getValue())
-        EDITORS[tabId]['editor2'].selection.clearSelection();
+        EDITORS[tabId].editor2.gotoLine(currCur.row+1, currCur.column, true)
     });
     document.getElementById("mir-editor"+tabId).addEventListener("focusout", function(e) {
-        //console.log(`Field bottom/right ${e.target.name} lost focus`);
+        console.log(`Field bottom/right ${e.target.name} lost focus`);
+        const currCur = EDITORS[tabId].editor.getCursorPosition()
         EDITORS[tabId]['editor'].setValue( EDITORS[tabId]['editor2'].getValue())
-        EDITORS[tabId]['editor'].selection.clearSelection()
+        EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
+        //EDITORS[tabId]['editor'].selection.clearSelection()
     });
     
     if (horiz) {
@@ -532,8 +535,10 @@ function isDataChanged(path) {
 function saveData(path, newpath, onsave) { // path is already in platform specific shape
     if (EDITORS[path]['editor2']) {
         if (document.getElementById("mir-editor"+path).contains(document.activeElement)) {
+            const currCur = EDITORS[path].editor.getCursorPosition()
             EDITORS[path]['editor'].setValue( EDITORS[path]['editor2'].getValue())
-            EDITORS[path]['editor'].selection.clearSelection();
+            EDITORS[path].editor.gotoLine(currCur.row+1, currCur.column, true)
+            //EDITORS[path]['editor'].selection.clearSelection();
         }
     }
     const data = EDITORS[path]['editor'].getValue()
@@ -576,6 +581,8 @@ function saveData(path, newpath, onsave) { // path is already in platform specif
                 showErrorMessage('File '+path+' can\'t be saved, see the log for details: '+ resp)    
                 if (EDITORS[editId]) {
                     EDITORS[editId]['editor'].setReadOnly(true)
+                    if (EDITORS[editId]['editor2'])
+                        EDITORS[editId]['editor2'].setReadOnly(true)
                 } else
                     console.log('an editor for ' + path + ' isn\'t set yet')
              }

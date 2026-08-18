@@ -752,18 +752,24 @@
              const tabId = editor_tab.id
              const name = path.split('/').pop()
              const currCur = EDITORS[tabId].editor.getCursorPosition()
+             var currCur2
+             if (EDITORS[tabId].editor2) {
+                 currCur2 = EDITORS[tabId].editor2.getCursorPosition()
+             }
              ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+
                 encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
                 success: function (json) {
                     EDITORS[tabId].editor.setValue(json.content)
-                    if (EDITORS[tabId].editor2) {
-                        EDITORS[tabId].editor2.setValue(json.content)
-                    }
                     editor_tab.dataset.modified = json.modified
                     EDITORS[tabId].size = json.content.length
                     EDITORS[tabId].crc = crc32(json.content)
                     EDITORS[tabId]['editor'].setReadOnly(false)
                     EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
+                    if (EDITORS[tabId].editor2) {
+                        EDITORS[tabId].editor2.setReadOnly(false)
+                        EDITORS[tabId].editor2.setValue(json.content)
+                        EDITORS[tabId].editor2.gotoLine(currCur2.row+1, currCur2.column, true)
+                    }
                     if (onload && typeof onload === 'function') {
                         onload()
                     }

@@ -4,7 +4,7 @@ home=HOME:env
 winhome=USERPROFILE:env
 #windrive=HOMEDRIVE:env
 
-version=1.53.04
+version=1.55.00
 
 include(cfg.7b) # created by the install
 
@@ -50,9 +50,8 @@ zip [${~cwd~}]?",${~cwd~})
 	-A'the file reflects the latest changes' ${rds}/What's New.txt,
     "What's New in ${version}
 
-- Improved a functionality on Windows primary a case insensitive support for a file system
-- Added a possibility to retrieve a specified revision from VCS
-- Added a lookup functionality to get a reference to a documentaion",
+- Added a possibility to split editor window
+- ",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

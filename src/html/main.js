@@ -125,7 +125,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.12.00.122'
+    return '1.13.01.125'
 }
 
 function populateProjectTree() {
@@ -231,7 +231,6 @@ function render_editor(edittab, path) { // path is already normalized to OS styl
         lines = 3
     }
     editor.setOption('maxLines', lines) // was Infinity)
-
     const data = editor.getValue()
     const dataSize = data.length
     const crc = crc32(data)
@@ -250,6 +249,83 @@ ${htmlEncode(json.content)}</pre>
       </div>`
     render_editor(tab, tabId) //json.path)
 }
+
+function render_editor_js_split(json,horiz) {
+    let tabId = getEditTabId(json.path)
+    const spliDir = horiz?'column':'row'
+    const spliDim = horiz?'height:100%':'width:100%'
+    const spliIniDim = horiz?'':'style="width: 50%;"'
+    const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(tabId)}" checked="checked" data-modified="${json.modified}">
+      <label for="${htmlAttrEncode(tabId)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
+      <div class="tab">
+      <div style="flex-direction: ${spliDir};display: flex;${spliDim};">
+      <div class="pane" ${spliIniDim}>
+         <pre id="editor${htmlAttrEncode(tabId)}">
+${htmlEncode(json.content)}</pre></div>
+      <div id="divider"></div>
+      <div class="pane" style="flex: 1;">
+         <pre id="mir-editor${htmlAttrEncode(tabId)}">
+${htmlEncode(json.content)}</pre></div></div>
+      </div>`
+    render_editor(tab, tabId)
+    add_editor(tabId, horiz)
+    document.getElementById("editor"+tabId).addEventListener("focusout", function(e) {
+        //console.log(`Field top/left ${e.target.name} lost focus`);
+        EDITORS[tabId]['editor2'].setValue( EDITORS[tabId]['editor'].getValue())
+        EDITORS[tabId]['editor2'].selection.clearSelection();
+    });
+    document.getElementById("mir-editor"+tabId).addEventListener("focusout", function(e) {
+        //console.log(`Field bottom/right ${e.target.name} lost focus`);
+        EDITORS[tabId]['editor'].setValue( EDITORS[tabId]['editor2'].getValue())
+        EDITORS[tabId]['editor'].selection.clearSelection()
+    });
+}
+
+function add_editor(path,horiz) { // path is already normalized to OS style
+    var editor = ace.edit("mir-editor"+path)
+    if (THEME == '')
+        THEME = 'light'
+    editor.setTheme("ace/theme/"+EDITOR_THEME[THEME])
+    let ext = path.split('.').pop()
+    ext = ext.toLowerCase()
+    if (EDITOR_MODE[ext])
+        editor.session.setMode("ace/mode/"+EDITOR_MODE[ext])
+    editor.setAutoScrollEditorIntoView(false)
+    if (ext == 'txt' || ext == 'md')
+        editor.setOption("spellcheck", true)
+    //editor.setFontSize(16)
+    let options = {
+        fontSize: "12pt",
+        enableBasicAutocompletion: true, // Enables basic autocompletion
+        enableSnippets: true,            // Enables code snippets
+        enableLiveAutocompletion: true
+    }
+    if (ED_FONT && ED_FONT != '') {
+        const FontAndSize = ED_FONT.split(":", 2)
+        options.fontFamily = FontAndSize[0]
+        if (FontAndSize.length == 2 && FontAndSize[1] != '')
+            options.fontSize = FontAndSize[1]
+    }
+    editor.setOptions(options)
+    editor.resize()
+    const editorArea = document.querySelector('div.center-pane');
+    const viewportHeight = editorArea.getBoundingClientRect().height
+    var lines = viewportHeight / editor.renderer.lineHeight
+    if (lines > 4) {
+        lines = lines - 2
+    } else if (lines == 0) {
+        lines = 3
+    }
+    if (horiz) {
+        lines /= 2
+    }
+    //console.log('lines:'+lines)
+    editor.setOption('maxLines', lines) // was Infinity)
+    EDITORS[path]['editor'].setOption('maxLines', lines)
+
+    EDITORS[path]['editor2'] = editor
+}
+
 
 var lockLoad
 
@@ -410,7 +486,13 @@ function isDataChanged(path) {
     }
 }
 
-function saveData(path, newpath, onsave) {
+function saveData(path, newpath, onsave) { // path is already in platform specific shape
+    if (EDITORS[path]['editor2']) {
+        if (document.getElementById("mir-editor"+path).contains(document.activeElement)) {
+            EDITORS[path]['editor'].setValue( EDITORS[path]['editor2'].getValue())
+            EDITORS[path]['editor'].selection.clearSelection();
+        }
+    }
     const data = EDITORS[path]['editor'].getValue()
     const dataSize = data.length
     const crc = crc32(data)
@@ -571,6 +653,10 @@ function storeTabs() {
 function closeEditor(path) {
     EDITORS[path].editor.destroy();
     EDITORS[path].editor.container.remove();
+    if (EDITORS[path].editor2) {
+        EDITORS[path].editor2.destroy();
+        EDITORS[path].editor2.container.remove();
+    }
     delete  EDITORS[path]
     const r = document.getElementById(path)
     var removing_elements = [r]

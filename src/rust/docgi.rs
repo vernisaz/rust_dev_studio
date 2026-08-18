@@ -93,7 +93,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             #[allow(unused_mut)]
             let mut in_project_path = params.param("path").ok_or("no parameter 'path'")?;
             sanitize_path(&in_project_path)?;
-            #[allow(unused_mut)]
             let mut file = params.param("name").ok_or("no parameter 'name'")?;
             sanitize_path(&file)?;
             let file_path = PathBuf::from(
@@ -118,6 +117,15 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("no edit name can be retrived")?
                     .to_string_lossy()
                     .into_owned();
+            }
+            #[cfg(any(unix, target_os = "redox"))]
+            {
+                file = file_path
+                    .file_name()
+                    .ok_or("file name couldn't be retrieved")?
+                    .to_str()
+                    .ok_or("file name couldn't be presented as UTF8")?
+                    .to_owned();
             }
             Box::new(PageFrag {
                 fragment: PageStuff {
@@ -169,7 +177,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         } else {
                             None
                         };
-                        if ext == Some(OsStr::new("rs").into()) { // TODO configurable on RDS supporting language
+                        if ext == Some(OsStr::new("rs").into()) {
+                            // TODO configurable on RDS supporting language
                             let settings = config.get_config_path(
                                 &params.param("session"),
                                 SETTINGS_PREF,
@@ -818,7 +827,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .push(entry.clone());
                             continue;
                         }
-                        RefType::Function | RefType::Data | RefType::Impl => total_refs.push(entry.clone()),
+                        RefType::Function | RefType::Data | RefType::Impl => {
+                            total_refs.push(entry.clone())
+                        }
                         _ => continue,
                     }
                 }
@@ -1233,7 +1244,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         None,
                     )
                     .ok_or("project path misconfiguration")?;
-                if let Some(file) = params.param("name") && let Some(hash) = params.param("hash") {
+                if let Some(file) = params.param("name")
+                    && let Some(hash) = params.param("hash")
+                {
                     let output = Command::new("git")
                         .arg("checkout")
                         .arg(hash)
@@ -1681,9 +1694,15 @@ impl PageOps for PageFile {
            web::Menu::MenuItem{title:"Reload".to_string(), link:"javascript:reloadCurrent()".to_string(), hint:Some("Drop changes and Reload the currently edited file"), icon:None,short:Some("^R")},
            web::Menu::MenuItem{title:"Refresh Proj".to_string(), link:"javascript:refresh()".to_string(), hint:Some("Refresh the list of the project files"), icon:None,short:None},
         web::Menu::MenuEnd,
- 
          web::Menu::MenuBox{title:"Source", hint:Some("The source navigation, compose and refactoring"), icon:None}, 
            Menu::MenuItem{title:"⏼ bookmark".to_string(), link:"javascript:toggleBookmark()".to_string(), hint:Some("Bookmark currently editing line"), icon:None,short:Some("^B")},
+           Menu::Separator,
+            web::Menu::MenuBox{title:"Split", hint:None, icon:None},
+                Menu::MenuItem{title:"Vertically".to_string(), link:"javascript:splitVert()".to_string(),
+                  hint:Some("Split the edit area on two panels vertically"), icon:None,short:None},
+                Menu::MenuItem{title:"Horizontally".to_string(), link:"javascript:splitHoriz()".to_string(),
+                  hint:Some("Split the edit area on two panels Horizontally"), icon:None,short:None},
+             web::Menu::MenuEnd,
            Menu::Separator,
               Menu::MenuItem{title:"Format".to_string(), link:"javascript:formatSrc()".to_string(), hint:Some("Format source of the current file using configured formatter"), icon:None,short:None},
            Menu::Separator,

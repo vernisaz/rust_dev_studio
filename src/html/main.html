@@ -23,7 +23,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.14.01.165">
+       <input type="hidden" name="version" id="version" value="1.15.01.168">
         <nav class="nav">
             <div class="logo">
                 <span id="proj_name_tit">${session}</span> - <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a>
@@ -756,6 +756,9 @@
                 encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
                 success: function (json) {
                     EDITORS[tabId].editor.setValue(json.content)
+                    if (EDITORS[tabId].editor2) {
+                        EDITORS[tabId].editor2.setValue(json.content)
+                    }
                     editor_tab.dataset.modified = json.modified
                     EDITORS[tabId].size = json.content.length
                     EDITORS[tabId].crc = crc32(json.content)
@@ -1642,6 +1645,32 @@
         lastFileId = id
         lastSelection = session.getSelection();
         lastCursor = editor.selection.getCursor();
+    }
+    
+    function splitVert(horiz) {
+        const editor_tab = document.querySelector('input[name="tabs"]:checked')
+        if (editor_tab) {
+            const path = getEditPath(editor_tab)
+            const tabId = editor_tab.id
+            const reopenAsSingle = false || EDITORS[tabId].editor2
+            closeEditor(tabId)
+            if (!reopenAsSingle) {
+                 ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
+                           success: function (json) { render_editor_js_split(json, horiz);
+                      }})
+            } else {
+                ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path)+
+                     "&session="+encodeURIComponent(SESSION), success: function (json) { render_editor_js(json)
+                         EDITORS[path].editor.gotoLine(line, col, true)
+                         loadFileStack(stack)
+                     },
+                     fail: function(ecode, etext) { lockLoad = false }})
+                }
+        }
+    }
+    
+    function splitHoriz() {
+        splitVert(true)
     }
       
       function about() {

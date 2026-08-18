@@ -449,6 +449,17 @@ dt > span:hover {
   text-decoration: underline;
 }
 
+ /* The draggable divider */
+  #divider {
+    width: 6px;
+    background: #ccc;
+    cursor: col-resize;
+  }
+  
+     .pane {
+         overflow-y: auto;
+     }
+
 @media (prefers-color-scheme: dark) {
   /* Dark theme styles go here */
    :root {

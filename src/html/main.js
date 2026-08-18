@@ -250,19 +250,22 @@ ${htmlEncode(json.content)}</pre>
     render_editor(tab, tabId) //json.path)
 }
 
+let dragging = false;
+
 function render_editor_js_split(json,horiz) {
     let tabId = getEditTabId(json.path)
     const spliDir = horiz?'column':'row'
     const spliDim = horiz?'height:100%':'width:100%'
     const spliIniDim = horiz?'':'style="width: 50%;"'
+    const spliDiv = horiz?'-horiz':''
     const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(tabId)}" checked="checked" data-modified="${json.modified}">
       <label for="${htmlAttrEncode(tabId)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
       <div class="tab">
       <div style="flex-direction: ${spliDir};display: flex;${spliDim};">
-      <div class="pane" ${spliIniDim}>
+      <div class="pane" id="top" ${spliIniDim}>
          <pre id="editor${htmlAttrEncode(tabId)}">
 ${htmlEncode(json.content)}</pre></div>
-      <div id="divider"></div>
+      <div id="divider${spliDiv}"></div>
       <div class="pane" style="flex: 1;">
          <pre id="mir-editor${htmlAttrEncode(tabId)}">
 ${htmlEncode(json.content)}</pre></div></div>
@@ -279,6 +282,46 @@ ${htmlEncode(json.content)}</pre></div></div>
         EDITORS[tabId]['editor'].setValue( EDITORS[tabId]['editor2'].getValue())
         EDITORS[tabId]['editor'].selection.clearSelection()
     });
+    
+    if (horiz) {
+        const divider = document.getElementById("divider-horiz");
+          const topPane = document.getElementById("top");
+        
+          var lines
+        
+          divider.addEventListener("mousedown", () => {
+            dragging = true;
+            const editorArea = document.querySelector('div.center-pane');
+            const viewportHeight = editorArea.getBoundingClientRect().height - 32
+            lines = viewportHeight / EDITORS[tabId]['editor'].renderer.lineHeight
+            if (lines > 4) {
+                lines = lines - 2
+            } else if (lines == 0) {
+                lines = 3
+            }
+            document.body.style.cursor = "row-resize";
+          });
+        
+          document.addEventListener("mouseup", () => {
+            dragging = false;
+            document.body.style.cursor = "default";
+          });
+        
+          document.addEventListener("mousemove", (e) => {
+            if (!dragging) return;
+        
+            const newHeight = e.clientY;
+            topPane.style.height = newHeight + "px";
+            // adjust editor maxlines for both
+            
+            const topLines = (newHeight - 32) / EDITORS[tabId]['editor'].renderer.lineHeight
+            //console.log("top:"+topLines+ " of "+lines)
+            if (lines > topLines) {
+                EDITORS[tabId]['editor'].setOption('maxLines', topLines)
+                EDITORS[tabId]['editor2'].setOption('maxLines', lines - topLines - 2)
+            }
+          });
+    }
 }
 
 function add_editor(path,horiz) { // path is already normalized to OS style

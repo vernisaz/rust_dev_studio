@@ -455,6 +455,11 @@ dt > span:hover {
     background: #ccc;
     cursor: col-resize;
   }
+  #divider-horiz {
+    height: 6px;
+    background: #ccc;
+    cursor: row-resize;
+  }
   
      .pane {
          overflow-y: auto;

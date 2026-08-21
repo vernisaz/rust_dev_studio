@@ -1609,7 +1609,12 @@
         const editor_tab = document.querySelector('input[name="tabs"]:checked')
         if (editor_tab) {
             const editor = EDITORS[editor_tab.id].editor
-            const selectedContent = editor.getSelectedText()
+            let selectedContent = editor.getSelectedText()
+            if (selectedContent == '') { // try other view (actually focused)
+                if (EDITORS[editor_tab.id].editor2) {
+                    selectedContent = EDITORS[editor_tab.id].editor2.getSelectedText()
+                }
+            }
             // TODO lookup can differ based on file extension
             if (selectedContent != '') {
                 if (!xrefCache) {
@@ -1659,16 +1664,18 @@
             const path = getEditPath(editor_tab)
             const tabId = editor_tab.id
             const reopenAsSingle = false || EDITORS[tabId].editor2
+            const currCur = EDITORS[tabId].editor.getCursorPosition()
             closeEditor(tabId)
             if (!reopenAsSingle) {
                  ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
                            success: function (json) { render_editor_js_split(json, horiz);
+                           EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
+                           EDITORS[tabId].editor2.gotoLine(currCur.row+1, currCur.column, true)
                       }})
             } else {
                 ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path)+
                      "&session="+encodeURIComponent(SESSION), success: function (json) { render_editor_js(json)
-                         EDITORS[path].editor.gotoLine(line, col, true)
-                         loadFileStack(stack)
+                         EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
                      },
                      fail: function(ecode, etext) { lockLoad = false }})
                 }

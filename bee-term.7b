@@ -8,6 +8,7 @@ crate_dir=..${~/~}crates
 # authors = ["D Rogatkin <javaarchitect@msn.com>"]
 # repository = "https://github.com/vernisaz/rust_dev_studio/tree/master"
 comp opts=[]
+dep_crates=[]
 
 version="1.25:054"
 set_env(VERSION,version)

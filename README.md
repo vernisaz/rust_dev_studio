@@ -20,7 +20,7 @@ The approach of a web based IDE becomes popular nowadays, for example - _Code an
 - full **git** integration
 - mobile and desktop browsers support
 - scalable, multi megabytes projects can be easily handled
-- customizable integration with AI coding arguments
+- customizable integration with AI coding agents
 - includes all required components as a web server, a scripting tool, and a terminal for all supported platforms (Windows, Linux, Mac)
 - blazing fast and safe Rust implementation with no bloat components from *crates.io*
 
@@ -110,24 +110,24 @@ The following crates are required for building the product:
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 - The [Simple JSON](https://github.com/vernisaz/simjson)
 - The [Common shared modules](https://github.com/vernisaz/simincmod) (the repository should be just checked out on Windows,
-nothing is required to build there)
+nothing is required to build there though)
 
-The **crates** directory on the level of repository directories has to be created prior building unless it's
+The **crates** directory has to be created on the level of other repository directories prior building unless it's
 already there. Run **rb** in each crate repository. 
 
 Finally
 [bee.7b](./bee.7b) script used for building **RDS**, and [bee-term.7b](./bee-term.7b) script used to build the **terminal**.
 
 The terminal functionality is separated in the crate [SimTerminal](https://github.com/vernisaz/simterminal), therefore build it before
-building the terminal and then build the terminal. Note that the crate has one extra dependency 
-the [Simple Color](https://github.com/vernisaz/simcolor) which should be built earlier.
+building the terminal. Note that the crate has one extra dependency 
+the [Simple Color](https://github.com/vernisaz/simcolor) which should be built also first.
 
 ## Packaging
 Although you can configure the development studio yourself accordingly to a web server and other components location,
 there is a predefined packaging.
 
 The packaging can be created by running a RustBee [script](https://github.com/vernisaz/rust_dev_studio/blob/master/install/bee.7b).
-The created zip file can be unzipped in any desired location and then `./rds.sh` or `.\rds.bat` on _Windows_
+A created zip file can be unzipped in any desired location and then `./rds.sh` or `.\rds.bat` on _Windows_
 can be launched to start using the **RDS**. The access URL's stored in `rds.url`.
 
 ## Usage tips

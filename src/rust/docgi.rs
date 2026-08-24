@@ -106,7 +106,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             edit_file.read_to_string(&mut edit)?;
             #[cfg(target_os = "windows")]
             {
-                let path = crate::windows::get_canonical_path_without_prefix(&file_path.to_string_lossy())
+                let path = crate::windows::get_canonical_path_without_prefix(&file_path)
                     .ok_or("Can't get canonical Windows path")?;
                 let in_proj_len = in_project_path.len();
                 in_project_path =

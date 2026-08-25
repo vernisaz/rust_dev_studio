@@ -12,7 +12,7 @@ use crate::crossref::LexState::{
     ExpImplName, ExpInCallName, ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName,
     InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl,
     InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams,
-    InStarComment, InStruct, InTraitName, Start, StartInScope,
+    InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,
 };
 
 const BUF_SIZE: usize = 1024;
@@ -160,6 +160,7 @@ enum LexState {
     InForKW,
     ExpInForName,
     InExpOpenImpl,
+    InStrParam,
 
     ExpInTraitName,
     InTraitName,
@@ -189,6 +190,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
     let mut scope: Scope = Default::default();
     let mut cbracket_cnt: u16 = Default::default();
     let mut is_path = false;
+    let mut is_include = false;
     let mut prev_state: Vec<(_, _)> = Vec::new();
     while let Some(c) = co {
         match c {
@@ -206,34 +208,12 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         name.clear()
                     }
                     DirectVal => {
-                        let path = if !PathBuf::from(&name).is_absolute() {
-                            let path_abs = absolute(PathBuf::from(&reader.path)).unwrap();
-                            path_abs.parent().unwrap().to_string_lossy().to_string()
-                                + MAIN_SEPARATOR_STR
-                                + &name
-                        } else {
-                            name.to_owned()
-                        };
-                        #[cfg(any(unix, target_os = "redox"))]
-                        let path = if let Ok(can_path) = std::fs::canonicalize(&path) {
-                            can_path.to_string_lossy().to_string()
-                        } else {
-                            path
-                        };
-                        #[cfg(target_os = "windows")]
-                        let path = if let Some(path) =
-                            crate::windows::get_canonical_path_without_prefix(&path)
-                        {
-                            path
-                        } else {
-                            path
-                        };
                         //eprintln! {"path {is_path} val {name} from {} -> {path}", reader.path}
                         state = Direct;
                         if is_path {
                             is_path = false;
                             res.push(Reference {
-                                name: path,
+                                name: val_to_path(reader, &name),
                                 src: reader.path.to_owned(),
                                 line: reader.line,
                                 column: reader.line_offset,
@@ -243,10 +223,27 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             name.clear()
                         }
                     }
+                    InParams => state = InStrParam,
+                    InStrParam => {
+                        if is_include {
+                            res.push(Reference {
+                                name: val_to_path(reader, &name),
+                                src: reader.path.to_owned(),
+                                line: reader.line,
+                                column: reader.line_offset,
+                                type_of_use: RefType::Path,
+                                scope: None,
+                            });
+                            is_include = false
+                        }
+                        name.clear();
+                        state = InParams
+                    }
                     _ => (),
                 }
             } // TODO add processing
-            'a'..='z' | 'A'..='Z' | '_' => {
+            'a'..='z' | 'A'..='Z' | '_' | '!' => {
+                // TODO separate '!' in an individual branch
                 //eprintln!{"state in curr {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
@@ -292,7 +289,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InForName;
                         name.push(c)
                     }
-                    Direct | DirectVal => name.push(c),
+                    Direct | DirectVal | InStrParam => name.push(c),
                     _ => (),
                 }
             }
@@ -308,7 +305,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     }
                     ExPNamSep | InColSep => state = InNum,
                     InName | InKW | InCallName | InStruct | InEnum | InImplName | InForKW
-                    | InForName | InTraitName | Direct | DirectVal => name.push(c),
+                    | InForName | InTraitName | Direct | DirectVal | InStrParam => name.push(c),
                     _ => (),
                 }
             }
@@ -319,19 +316,23 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 }
                 match state {
                     InName => {
-                        let fn_def = Reference {
-                            name: name.to_owned(),
-                            src: reader.path.to_owned(),
-                            line: reader.line,
-                            column: reader.line_offset,
-                            type_of_use: RefType::Function,
-                            scope: if scope.name.is_empty() {
-                                None
-                            } else {
-                                Some(scope.clone())
-                            },
-                        };
-                        res.push(fn_def);
+                        if name == "include!" {
+                            is_include = true;
+                        } else {
+                            let fn_def = Reference {
+                                name: name.to_owned(),
+                                src: reader.path.to_owned(),
+                                line: reader.line,
+                                column: reader.line_offset,
+                                type_of_use: RefType::Function,
+                                scope: if scope.name.is_empty() {
+                                    None
+                                } else {
+                                    Some(scope.clone())
+                                },
+                            };
+                            res.push(fn_def);
+                        }
                         state = InParams
                     }
                     InCallName | InKW => {
@@ -681,13 +682,34 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 _ => (),
             },
             _ => match state {
-                Direct | DirectVal => name.push(c),
+                Direct | DirectVal | InStrParam => name.push(c),
                 _ => (),
             },
         }
         co = reader.next()
     }
     res
+}
+
+fn val_to_path(reader: &mut Reader, val: &str) -> String {
+    let path = if !PathBuf::from(&val).is_absolute() {
+        let path_abs = absolute(PathBuf::from(&reader.path)).unwrap();
+        path_abs.parent().unwrap().to_string_lossy().to_string() + MAIN_SEPARATOR_STR + &val
+    } else {
+        val.to_owned()
+    };
+    #[cfg(any(unix, target_os = "redox"))]
+    let path = if let Ok(can_path) = std::fs::canonicalize(&path) {
+        can_path.to_string_lossy().to_string()
+    } else {
+        path
+    };
+    #[cfg(target_os = "windows")]
+    if let Some(path) = crate::windows::get_canonical_path_without_prefix(&path) {
+        path
+    } else {
+        path
+    }
 }
 
 #[cfg(win)]

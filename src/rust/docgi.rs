@@ -2003,12 +2003,12 @@ fn refs_to_json(refs: &[Reference], home_dir: &str) -> String {
     let ser_ref = |current: &Reference| {
         #[cfg(any(unix, target_os = "redox"))]
         let ref_path = if current.src.starts_with(home_dir) {
-            current.src[home_dir.len() + 1..]
+            current.src[home_dir.len() + 1..].to_string()
         } else {
-            current.src
+            current.src.clone()
         };
         format! {r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
-        json_encode(&current.name), json_encode(&), current.line, current.column}
+        json_encode(&current.name), json_encode(&ref_path), current.line, current.column}
     };
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| {

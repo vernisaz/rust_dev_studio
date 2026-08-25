@@ -215,7 +215,11 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             name.to_owned()
                         };
                         #[cfg(any(unix, target_os = "redox"))]
-                        let path = fs::canonicalize(path);
+                        let path = if let Ok(can_path) = std::fs::canonicalize(&path) {
+                            can_path.to_string_lossy().to_string()
+                        } else {
+                            path
+                        };
                         #[cfg(target_os = "windows")]
                         let path = if let Some(path) =
                             crate::windows::get_canonical_path_without_prefix(&path)

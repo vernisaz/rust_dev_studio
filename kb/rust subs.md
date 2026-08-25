@@ -89,7 +89,7 @@ pathbuf extension
 ## str
 
 ## string
-strip_prefix to_ascii_lowercase split_terminator strip_suffix trim_end trim_start split push_str
+strip_prefix to_ascii_lowercase split_terminator strip_suffix trim_end trim_start split push_str eq_ignore_ascii_case
 ## sync
 rwlock
 ## task

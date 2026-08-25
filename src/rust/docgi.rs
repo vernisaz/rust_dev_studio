@@ -804,13 +804,17 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             #[cfg(feature = "quiet")]
             let mut total_fun = 0;
             let mut json_res = String::from("[");
+            let mut inc_files = vec![];
             for file in rs_files {
                 #[cfg(dbg_ref)]
                 if !&file.ends_with("test.rs") {
                     // put actuall testing file name
                     continue;
                 }
-                let xrefs = crossref::scan_file(&file);
+                // TODO use thread pool
+                let Ok(xrefs) = crossref::scan_file(&file) else {
+                    continue;
+                };
                 #[cfg(feature = "quiet")]
                 {
                     total_fun += &xrefs.len()
@@ -830,13 +834,49 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         RefType::Function | RefType::Data | RefType::Impl => {
                             total_refs.push(entry.clone())
                         }
+                        RefType::Path => {
+                            inc_files.push(entry.name.clone());
+                            eprintln!("scan extra {}", entry.name)
+                        }
+                        _ => continue,
+                    }
+                }
+            }
+            // it should be recursive
+            for file in inc_files {
+                let Ok(xrefs) = crossref::scan_file(&file) else {
+                    eprintln!("couldn't process {file}");
+                    continue;
+                };
+                //eprintln! {"XRef of {file}: {xrefs:?}"}
+                for entry in &xrefs {
+                    match entry.type_of_use {
+                        // pass entire codebase to build use points and then second pass to fill json data
+                        RefType::Access => {
+                            // eprintln!{"added access to {}",&entry.name}
+                            use_pnts
+                                .entry(entry.name.clone())
+                                .or_insert(vec![])
+                                .push(entry.clone());
+                            continue;
+                        }
+                        RefType::Function | RefType::Data | RefType::Impl => {
+                            // eprintln!{"added func  {}",&entry.name}
+                            total_refs.push(entry.clone())
+                        }
+                        RefType::Path => {
+                            //inc_files.push(entry.path.clone());
+                            eprintln!("scan extra {}", entry.name)
+                        }
                         _ => continue,
                     }
                 }
             }
             // fill json now
             for entry in total_refs {
-                if !entry.src.starts_with(&dir) || entry.name.is_empty() {
+                if
+                /* !entry.src.starts_with(&dir) ||*/
+                entry.name.is_empty() {
                     continue;
                 }
                 if json_res.len() > 1 {
@@ -846,9 +886,13 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 fn_ref.push_str(&json_encode(&entry.name));
                 fn_ref.push_str("\",\"path\":\"");
                 #[cfg(any(unix, target_os = "redox"))]
-                let rel_loc = entry.src[dir_len + 1..].to_owned();
+                let rel_loc = if entry.src.starts_with(&dir) { entry.src[dir_len + 1..].to_owned() } else {entry.src};
                 #[cfg(target_os = "windows")]
-                let rel_loc = param::to_web_separator(entry.src[dir_len + 1..].to_owned());
+                let rel_loc = if entry.src.starts_with(&dir) {
+                    param::to_web_separator(entry.src[dir_len + 1..].to_owned())
+                } else {
+                    param::to_web_separator(entry.src)
+                };
                 fn_ref.push_str(&json_encode(&rel_loc));
                 fn_ref.push('"');
                 if let Some(scope) = &entry.scope {
@@ -860,7 +904,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
                     None => String::new(),
-                    Some(vec_val) => refs_to_json(vec_val, dir_len),
+                    Some(vec_val) => refs_to_json(vec_val, &dir),
                 };
                 fn_ref.push_str(
                     &format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
@@ -1954,16 +1998,28 @@ fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
     Ok(buf)
 }
 
-fn refs_to_json(refs: &[Reference], exemp_len: usize) -> String {
+fn refs_to_json(refs: &[Reference], home_dir: &str) -> String {
     #[cfg(any(unix, target_os = "redox"))]
     let ser_ref = |current: &Reference| {
+        #[cfg(any(unix, target_os = "redox"))]
+        let ref_path = if current.src.starts_with(home_dir) {
+            current.src[home_dir.len() + 1..]
+        } else {
+            current.src
+        };
         format! {r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
-        json_encode(&current.name), json_encode(&current.src[exemp_len+1..]), current.line, current.column}
+        json_encode(&current.name), json_encode(&), current.line, current.column}
     };
     #[cfg(target_os = "windows")]
     let ser_ref = |current: &Reference| {
+        #[cfg(target_os = "windows")]
+        let ref_path = if current.src.starts_with(home_dir) {
+            param::to_web_separator(current.src[home_dir.len() + 1..].to_owned())
+        } else {
+            param::to_web_separator(current.src.clone())
+        };
         format! {r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
-        json_encode(&current.name), json_encode(&param::to_web_separator(current.src[exemp_len+1..].to_owned())), current.line, current.column}
+        json_encode(&current.name), json_encode(&ref_path), current.line, current.column}
     };
     refs.iter().map(ser_ref).collect::<Vec<_>>().join(",")
 }

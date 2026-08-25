@@ -1,13 +1,18 @@
 #![allow(clippy::single_match)]
 #![allow(clippy::match_single_binding)]
-use std::{fs::File, io::prelude::*};
+use std::{
+    fs::File,
+    io,
+    io::prelude::*,
+    path::{MAIN_SEPARATOR_STR, PathBuf, absolute},
+};
 
 use crate::crossref::LexState::{
-    Direct, ExPNamSep, ExpComment, ExpDirect, ExpEndComment, ExpFnBody, ExpImplName, ExpInCallName,
-    ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName, InCallName, InCallParams,
-    InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl, InFnBody, InForKW, InForName,
-    InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams, InStarComment, InStruct,
-    InTraitName, Start, StartInScope,
+    Direct, DirectExpVal, DirectVal, ExPNamSep, ExpComment, ExpDirect, ExpEndComment, ExpFnBody,
+    ExpImplName, ExpInCallName, ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName,
+    InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl,
+    InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams,
+    InStarComment, InStruct, InTraitName, Start, StartInScope,
 };
 
 const BUF_SIZE: usize = 1024;
@@ -21,6 +26,7 @@ pub enum RefType {
     Data, // like struct or type
     Impl, // impl something for something
     Access,
+    Path,
     /*Struct,
     Enum,
     Type,*/
@@ -115,10 +121,10 @@ impl Reader {
     }
 }
 
-pub fn scan_file(file: &impl AsRef<str>) -> Vec<Reference> {
+pub fn scan_file(file: &impl AsRef<str>) -> io::Result<Vec<Reference>> {
     let path = file.as_ref();
     let mut r = Reader {
-        file: File::open(path).unwrap(),
+        file: File::open(path)?,
         path: path.to_string(),
         line: 1,
         buf: [0; 1024],
@@ -126,7 +132,7 @@ pub fn scan_file(file: &impl AsRef<str>) -> Vec<Reference> {
         end: 0,
         line_offset: 0,
     };
-    scan(&mut r)
+    Ok(scan(&mut r))
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -163,6 +169,8 @@ enum LexState {
     StartInScope,
     ExpDirect,
     Direct,
+    DirectExpVal,
+    DirectVal,
 
     ExpComment,
     InStarComment,
@@ -180,10 +188,60 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
     let mut name = String::with_capacity(64);
     let mut scope: Scope = Default::default();
     let mut cbracket_cnt: u16 = Default::default();
+    let mut is_path = false;
     let mut prev_state: Vec<(_, _)> = Vec::new();
     while let Some(c) = co {
         match c {
-            '"' => {} // TODO add processing
+            '"' => {
+                //eprintln!{"state in curr {state:?}"}
+                if state == ExpComment {
+                    state = prev_state.pop().unwrap().0
+                }
+                match state {
+                    DirectExpVal => {
+                        state = DirectVal;
+                        if name == "path" {
+                            is_path = true
+                        }
+                        name.clear()
+                    }
+                    DirectVal => {
+                        let path = if !PathBuf::from(&name).is_absolute() {
+                            let path_abs = absolute(PathBuf::from(&reader.path)).unwrap();
+                            path_abs.parent().unwrap().to_string_lossy().to_string()
+                                + MAIN_SEPARATOR_STR
+                                + &name
+                        } else {
+                            name.to_owned()
+                        };
+                        #[cfg(any(unix, target_os = "redox"))]
+                        let path = fs::canonicalize(path);
+                        #[cfg(target_os = "windows")]
+                        let path = if let Some(path) =
+                            crate::windows::get_canonical_path_without_prefix(&path)
+                        {
+                            path
+                        } else {
+                            path
+                        };
+                        //eprintln! {"path {is_path} val {name} from {} -> {path}", reader.path}
+                        state = Direct;
+                        if is_path {
+                            is_path = false;
+                            res.push(Reference {
+                                name: path,
+                                src: reader.path.to_owned(),
+                                line: reader.line,
+                                column: reader.line_offset,
+                                type_of_use: RefType::Path,
+                                scope: None,
+                            });
+                            name.clear()
+                        }
+                    }
+                    _ => (),
+                }
+            } // TODO add processing
             'a'..='z' | 'A'..='Z' | '_' => {
                 //eprintln!{"state in curr {state:?}"}
                 if state == ExpComment {
@@ -230,7 +288,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InForName;
                         name.push(c)
                     }
-
+                    Direct | DirectVal => name.push(c),
                     _ => (),
                 }
             }
@@ -246,7 +304,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     }
                     ExPNamSep | InColSep => state = InNum,
                     InName | InKW | InCallName | InStruct | InEnum | InImplName | InForKW
-                    | InForName | InTraitName => name.push(c),
+                    | InForName | InTraitName | Direct | DirectVal => name.push(c),
                     _ => (),
                 }
             }
@@ -359,6 +417,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InCallName;
                     }
                     ExpInCallName => name.clear(),
+                    Direct | DirectVal => name.push(c),
                     _ => (),
                 }
             }
@@ -540,10 +599,15 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 match state {
                     ExpEndComment => state = InStarComment,
                     //InCallName => state = ExpDirect,
-                    Direct | InComment => (),
+                    Direct => {
+                        state = DirectExpVal;
+                    }
+                    InComment => (),
                     _ => state = InCallName,
                 }
-                name.clear();
+                if state != DirectExpVal {
+                    name.clear();
+                }
             }
             /*'&' | '|' => {
                 if state == ExpComment {
@@ -580,7 +644,10 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    ExpDirect => state = Direct,
+                    ExpDirect => {
+                        state = Direct;
+                        name.clear()
+                    }
                     _ => (),
                 }
             }
@@ -598,6 +665,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 ExpComment => state = InComment,
                 ExpEndComment => state = prev_state.pop().unwrap().0,
                 InComment => (),
+                Direct | DirectVal => name.push(c),
                 _ => {
                     prev_state.push((state, name.clone()));
                     state = ExpComment;
@@ -609,6 +677,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 _ => (),
             },
             _ => match state {
+                Direct | DirectVal => name.push(c),
                 _ => (),
             },
         }

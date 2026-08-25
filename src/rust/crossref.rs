@@ -195,7 +195,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
     while let Some(c) = co {
         match c {
             '"' => {
-                //eprintln!{"state in curr {state:?}"}
+                //eprintln!{"\" state in curr {state:?}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
@@ -223,8 +223,9 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             name.clear()
                         }
                     }
-                    InParams => state = InStrParam,
+                    InCallParams => state = InStrParam,
                     InStrParam => {
+                        //eprintln! {"inc {is_include} val {name} from {}", reader.path}
                         if is_include {
                             res.push(Reference {
                                 name: val_to_path(reader, &name),
@@ -310,41 +311,42 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 }
             }
             '(' => {
-                //eprintln!{"state ( {state:?}, name={name}"}
+                //eprintln! {"( state - {state:?}, name={name}"}
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
                     InName => {
-                        if name == "include!" {
-                            is_include = true;
-                        } else {
-                            let fn_def = Reference {
-                                name: name.to_owned(),
-                                src: reader.path.to_owned(),
-                                line: reader.line,
-                                column: reader.line_offset,
-                                type_of_use: RefType::Function,
-                                scope: if scope.name.is_empty() {
-                                    None
-                                } else {
-                                    Some(scope.clone())
-                                },
-                            };
-                            res.push(fn_def);
-                        }
-                        state = InParams
-                    }
-                    InCallName | InKW => {
-                        let fn_cal = Reference {
+                        let fn_def = Reference {
                             name: name.to_owned(),
                             src: reader.path.to_owned(),
                             line: reader.line,
                             column: reader.line_offset,
-                            type_of_use: RefType::Access,
-                            scope: None, // it needs to be quilified
+                            type_of_use: RefType::Function,
+                            scope: if scope.name.is_empty() {
+                                None
+                            } else {
+                                Some(scope.clone())
+                            },
                         };
-                        res.push(fn_cal);
+                        res.push(fn_def);
+                        state = InParams
+                    }
+                    InCallName | InKW => {
+                        //eprintln! {"{state:?} name={name}"}
+                        if name == "include!" {
+                            is_include = true;
+                        } else {
+                            let fn_cal = Reference {
+                                name: name.to_owned(),
+                                src: reader.path.to_owned(),
+                                line: reader.line,
+                                column: reader.line_offset,
+                                type_of_use: RefType::Access,
+                                scope: None, // it needs to be quilified
+                            };
+                            res.push(fn_cal);
+                        }
                         state = InCallParams
                     }
                     /* InKW => {
@@ -422,7 +424,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InCallName;
                     }
                     ExpInCallName => name.clear(),
-                    Direct | DirectVal => name.push(c),
+                    Direct | DirectVal | InStrParam => name.push(c),
                     _ => (),
                 }
             }
@@ -570,7 +572,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = Start
                     }
                     InFnBody | ExPNamSep | InCallName | InNum | ExpDirect | ExpInCallName
-                    | InEnum | InStruct => {
+                    | InEnum | InStruct | ExpFnBody => {
                         if cbracket_cnt > 0 {
                             state = StartInScope;
                             cbracket_cnt -= 1
@@ -670,7 +672,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 ExpComment => state = InComment,
                 ExpEndComment => state = prev_state.pop().unwrap().0,
                 InComment => (),
-                Direct | DirectVal => name.push(c),
+                Direct | DirectVal | InStrParam => name.push(c),
                 _ => {
                     prev_state.push((state, name.clone()));
                     state = ExpComment;
@@ -699,11 +701,11 @@ fn val_to_path(reader: &mut Reader, val: &str) -> String {
         val.to_owned()
     };
     #[cfg(any(unix, target_os = "redox"))]
-    let path = if let Ok(can_path) = std::fs::canonicalize(&path) {
+    if let Ok(can_path) = std::fs::canonicalize(&path) {
         can_path.to_string_lossy().to_string()
     } else {
         path
-    };
+    }
     #[cfg(target_os = "windows")]
     if let Some(path) = crate::windows::get_canonical_path_without_prefix(&path) {
         path

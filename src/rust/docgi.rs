@@ -834,7 +834,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         RefType::Function | RefType::Data | RefType::Impl => {
                             total_refs.push(entry.clone())
                         }
-                        RefType::Path => {
+                        RefType::Path if !entry.name.starts_with(&dir) => {
                             inc_files.push(entry.name.clone());
                             eprintln!("scan extra {}", entry.name)
                         }

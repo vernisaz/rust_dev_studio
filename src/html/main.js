@@ -491,6 +491,8 @@ function moveToLineInFile(path, line, col, failHandler, openFind) {
     
     // TODO make it a function
     if (tab_item) {
+        if (!EDITORS[tabId].editor2)
+            saveEdit(tabId, EDITORS[tabId].editor)
         tab_item.checked = true
         EDITORS[tabId].editor.gotoLine(line, col, true)
         if (openFind) {

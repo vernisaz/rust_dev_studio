@@ -238,7 +238,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             is_include = false
                         }
                         name.clear();
-                        state = InParams
+                        state = InCallParams
                     }
                     _ => (),
                 }
@@ -439,7 +439,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 } else {
                     state = StartInScope
                 }
-                // eprintln!{"state befor semi {temp:?} after {state:?} at {}:{}", reader.line, reader.line_offset}
+                //eprintln!{"state befor semi {temp:?} after {state:?} at {}:{}", reader.line, reader.line_offset}
             }
             ':' => {
                 if state == ExpComment {
@@ -467,7 +467,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 if state == ExpComment {
                     state = prev_state.pop().unwrap().0
                 }
-                // eprintln!{"state before comma {state:?} at {}:{}", reader.line, reader.line_offset}
+                //eprintln!{"state before comma {state:?} at {}:{}", reader.line, reader.line_offset}
                 match state {
                     InDataDef | Start | Direct | ExpDirect | InGenTypeOrComp => (),
                     InCallName => name.clear(),

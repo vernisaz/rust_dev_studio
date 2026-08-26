@@ -696,7 +696,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
 fn val_to_path(reader: &mut Reader, val: &str) -> String {
     let path = if !PathBuf::from(&val).is_absolute() {
         let path_abs = absolute(PathBuf::from(&reader.path)).unwrap();
-        path_abs.parent().unwrap().to_string_lossy().to_string() + MAIN_SEPARATOR_STR + &val
+        path_abs.parent().unwrap().to_string_lossy().to_string() + MAIN_SEPARATOR_STR + val
     } else {
         val.to_owned()
     };

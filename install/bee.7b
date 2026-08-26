@@ -52,7 +52,7 @@ zip [${~cwd~}]?",${~cwd~})
 
 - Added a possibility to split editor window
 - Added an ability to see cross references to elements of files out of the project tree
-- The terminal improvements to make it act as a real Unix shell",
+- Several terminal improvements making it acting as a real Unix shell",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

@@ -300,11 +300,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    Start | StartInScope => state = InNum,
-                    ExpInName => {
-                        state = InNum;
-                    }
-                    ExPNamSep | InColSep => state = InNum,
+                    Start | StartInScope | ExpInName | ExPNamSep | InColSep => state = InNum,
                     InName | InKW | InCallName | InStruct | InEnum | InImplName | InForKW
                     | InForName | InTraitName | Direct | DirectVal | InStrParam => name.push(c),
                     _ => (),

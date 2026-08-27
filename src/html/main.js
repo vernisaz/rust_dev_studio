@@ -275,13 +275,13 @@ ${htmlEncode(json.content)}</pre></div></div>
     render_editor(tab, tabId)
     add_editor(tabId, horiz)
     document.getElementById("editor"+tabId).addEventListener("focusout", function(e) {
-        console.log(`Field top/left ${e.target.name} lost focus`);
+        //console.log(`Field top/left ${e.target.name} lost focus`);
         const currCur = EDITORS[tabId].editor2.getCursorPosition()
         EDITORS[tabId]['editor2'].setValue( EDITORS[tabId]['editor'].getValue())
         EDITORS[tabId].editor2.gotoLine(currCur.row+1, currCur.column, true)
     });
     document.getElementById("mir-editor"+tabId).addEventListener("focusout", function(e) {
-        console.log(`Field bottom/right ${e.target.name} lost focus`);
+        //console.log(`Field bottom/right ${e.target.name} lost focus`);
         const currCur = EDITORS[tabId].editor.getCursorPosition()
         EDITORS[tabId]['editor'].setValue( EDITORS[tabId]['editor2'].getValue())
         EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
@@ -298,7 +298,7 @@ ${htmlEncode(json.content)}</pre></div></div>
           divider.addEventListener("mousedown", () => {
             dragging = true;
             const editorArea = document.querySelector('div.center-pane');
-            const viewportHeight = editorArea.getBoundingClientRect().height - 32
+            const viewportHeight = editorArea.getBoundingClientRect().height
             lines = viewportHeight / EDITORS[tabId]['editor'].renderer.lineHeight
             if (lines > 4) {
                 lines = lines - 2
@@ -317,10 +317,11 @@ ${htmlEncode(json.content)}</pre></div></div>
             if (!dragging) return;
         
             const newHeight = e.clientY;
-            topPane.style.height = newHeight + "px";
+            const topOffset = topPane.getBoundingClientRect().top
+            topPane.style.height = (newHeight-topOffset) + "px";
             // adjust editor maxlines for both
             
-            const topLines = (newHeight - 32) / EDITORS[tabId]['editor'].renderer.lineHeight
+            const topLines = (newHeight-topOffset-8) / EDITORS[tabId]['editor'].renderer.lineHeight
             //console.log("top:"+topLines+ " of "+lines)
             if (lines > topLines) {
                 EDITORS[tabId]['editor'].setOption('maxLines', topLines)
@@ -344,7 +345,8 @@ ${htmlEncode(json.content)}</pre></div></div>
           if (!dragging) return;
     
           const newWidth = e.clientX;
-          leftPane.style.width = newWidth + "px";
+          const leftOffset = leftPane.getBoundingClientRect().left
+          leftPane.style.width = (newWidth-leftOffset) + "px";
        });
     }
 }

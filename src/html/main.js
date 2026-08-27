@@ -122,10 +122,56 @@ function main() {
         }
     };
     langTools.addCompleter(customCompleter);
+    
+    document.addEventListener("mouseup", draggingEnd)
+    document.addEventListener("mousemove", draggingAct)
 }
 
 function getVersion() {
-    return '1.13.01.125'
+    return '1.14.00.127'
+}
+
+let dragging = false;
+var lines
+
+function draggingEnd() {
+    if (dragging) {
+        dragging = false;
+        document.body.style.cursor = "default";
+    }
+}
+
+function draggingAct(e) {
+    if (!dragging) return;
+    const editor_tab = document.querySelector('input[name="tabs"]:checked')
+    if (editor_tab) {
+        const tabId = editor_tab.id
+        const divider = document.getElementById("divider-horiz"+tabId);
+        if (divider) { // horizontal splet
+           const topPane = document.getElementById("top"+tabId);
+        
+            //var lines 
+            const newHeight = e.clientY;
+            const topOffset = topPane.getBoundingClientRect().top
+            topPane.style.height = (newHeight-topOffset) + "px";
+            // adjust editor maxlines for both
+            
+            const topLines = (newHeight-topOffset-6) / EDITORS[tabId]['editor'].renderer.lineHeight
+            //console.log("top:"+topLines+ " of "+lines)
+            if (lines > topLines) {
+                EDITORS[tabId]['editor'].setOption('maxLines', topLines)
+                EDITORS[tabId]['editor2'].setOption('maxLines', lines - topLines)
+            }
+        } else {
+            const splitter = document.getElementById("divider"+tabId);
+            if (splitter) {
+                const leftPane = document.getElementById("top"+tabId);
+                const newWidth = e.clientX;
+                const leftOffset = leftPane.getBoundingClientRect().left
+                leftPane.style.width = (newWidth-leftOffset) + "px";
+            }
+        }
+    }
 }
 
 function populateProjectTree() {
@@ -250,8 +296,6 @@ ${htmlEncode(json.content)}</pre>
     render_editor(tab, tabId) //json.path)
 }
 
-let dragging = false;
-
 function render_editor_js_split(json,horiz) {
     let tabId = getEditTabId(json.path)
     const spliDir = horiz?'column':'row'
@@ -294,7 +338,7 @@ ${htmlEncode(json.content)}</pre></div></div>
         const divider = document.getElementById("divider-horiz"+tabId);
           const topPane = document.getElementById("top"+tabId);
         
-          var lines
+          //var lines
         
           divider.addEventListener("mousedown", () => {
             dragging = true;
@@ -308,27 +352,6 @@ ${htmlEncode(json.content)}</pre></div></div>
             }
             document.body.style.cursor = "row-resize";
           });
-        
-          document.addEventListener("mouseup", () => {
-            dragging = false;
-            document.body.style.cursor = "default";
-          });
-        
-          document.addEventListener("mousemove", (e) => {
-            if (!dragging) return;
-        
-            const newHeight = e.clientY;
-            const topOffset = topPane.getBoundingClientRect().top
-            topPane.style.height = (newHeight-topOffset) + "px";
-            // adjust editor maxlines for both
-            
-            const topLines = (newHeight-topOffset-8) / EDITORS[tabId]['editor'].renderer.lineHeight
-            //console.log("top:"+topLines+ " of "+lines)
-            if (lines > topLines) {
-                EDITORS[tabId]['editor'].setOption('maxLines', topLines)
-                EDITORS[tabId]['editor2'].setOption('maxLines', lines - topLines - 2)
-            }
-          });
     } else {
         const splitter = document.getElementById("divider"+tabId);
         const leftPane = document.getElementById("top"+tabId);
@@ -336,19 +359,6 @@ ${htmlEncode(json.content)}</pre></div></div>
             dragging = true;
             document.body.style.cursor = "col-resize";
         });
-
-        document.addEventListener("mouseup", () => {
-          dragging = false;
-          document.body.style.cursor = "default";
-        });
-
-       document.addEventListener("mousemove", (e) => {
-          if (!dragging) return;
-    
-          const newWidth = e.clientX;
-          const leftOffset = leftPane.getBoundingClientRect().left
-          leftPane.style.width = (newWidth-leftOffset) + "px";
-       });
     }
 }
 

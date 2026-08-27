@@ -4,6 +4,7 @@ extern crate simran;
 extern crate simtime;
 extern crate simtpool;
 extern crate simweb;
+#[cfg(target_os = "windows")]
 extern crate rslash;
 extern crate web_cgi as web;
 

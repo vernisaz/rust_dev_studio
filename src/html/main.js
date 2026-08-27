@@ -267,7 +267,7 @@ function render_editor_js_split(json,horiz) {
       <div class="pane" id="top${htmlAttrEncode(tabId)}" ${spliIniDim}>
          <pre id="editor${htmlAttrEncode(tabId)}" ${spliMar}>
 ${htmlEncode(json.content)}</pre></div>
-      <div class="divider${spliDiv}" id="divider${htmlAttrEncode(tabId)}"></div>
+      <div class="divider${spliDiv}" id="divider${spliDiv}${htmlAttrEncode(tabId)}"></div>
       <div class="pane" style="flex: 1;">
          <pre id="mir-editor${htmlAttrEncode(tabId)}" ${spliMar2}>
 ${htmlEncode(json.content)}</pre></div></div>
@@ -290,7 +290,7 @@ ${htmlEncode(json.content)}</pre></div></div>
     
     // think if duplicate listeners can be introduced and how to avoid that
     if (horiz) {
-        const divider = document.getElementById("divider"+tabId);
+        const divider = document.getElementById("divider-horiz"+tabId);
           const topPane = document.getElementById("top"+tabId);
         
           var lines

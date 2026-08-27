@@ -1665,21 +1665,22 @@
             const tabId = editor_tab.id
             const reopenAsSingle = false || EDITORS[tabId].editor2
             const currCur = EDITORS[tabId].editor.getCursorPosition()
-            saveCurrent()
-            closeEditor(tabId)
-            if (!reopenAsSingle) {
-                 ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
-                           success: function (json) { render_editor_js_split(json, horiz);
-                           EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
-                           EDITORS[tabId].editor2.gotoLine(currCur.row+1, currCur.column, true)
-                      }})
-            } else {
-                ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path)+
-                     "&session="+encodeURIComponent(SESSION), success: function (json) { render_editor_js(json)
-                         EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
-                     },
-                     fail: function(ecode, etext) { lockLoad = false }})
+            saveData(tabId, null, () => {
+                closeEditor(tabId)
+                if (!reopenAsSingle) {
+                     ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),
+                               success: function (json) { render_editor_js_split(json, horiz);
+                               EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
+                               EDITORS[tabId].editor2.gotoLine(currCur.row+1, currCur.column, true)
+                          }})
+                } else {
+                    ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path)+
+                         "&session="+encodeURIComponent(SESSION), success: function (json) { render_editor_js(json)
+                             EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
+                         },
+                         fail: function(ecode, etext) { lockLoad = false }})
                 }
+            })
         }
     }
     

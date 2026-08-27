@@ -1665,6 +1665,7 @@
             const tabId = editor_tab.id
             const reopenAsSingle = false || EDITORS[tabId].editor2
             const currCur = EDITORS[tabId].editor.getCursorPosition()
+            saveCurrent()
             closeEditor(tabId)
             if (!reopenAsSingle) {
                  ajax.get({url:"./rustcgi?mode=editor-file&name=to-be-updated&path="+encodeURIComponent(path) + "&session="+encodeURIComponent(SESSION),

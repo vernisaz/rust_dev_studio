@@ -258,16 +258,16 @@ function render_editor_js_split(json,horiz) {
     const spliDim = horiz?'height:100%':'width:100%'
     const spliIniDim = horiz?'':'style="width: 50%;"'
     const spliDiv = horiz?'-horiz':''
-    const spliMar = horiz?'style="margin-bottom:0"':''
+    const spliMar = horiz?'style="margin-bottom:0;"':''
     const spliMar2 = horiz?'style="margin-top:0;"':''
     const tab = `<input type="radio" name="tabs" id="${htmlAttrEncode(tabId)}" checked="checked" data-modified="${json.modified}">
       <label for="${htmlAttrEncode(tabId)}" title="${htmlAttrEncode(json.path)}">${htmlEncode(json.name)}</label>
       <div class="tab">
       <div style="flex-direction: ${spliDir};display: flex;${spliDim};">
-      <div class="pane" id="top" ${spliIniDim}>
+      <div class="pane" id="top${htmlAttrEncode(tabId)}" ${spliIniDim}>
          <pre id="editor${htmlAttrEncode(tabId)}" ${spliMar}>
 ${htmlEncode(json.content)}</pre></div>
-      <div id="divider${spliDiv}"></div>
+      <div class="divider${spliDiv}" id="divider${htmlAttrEncode(tabId)}"></div>
       <div class="pane" style="flex: 1;">
          <pre id="mir-editor${htmlAttrEncode(tabId)}" ${spliMar2}>
 ${htmlEncode(json.content)}</pre></div></div>
@@ -290,8 +290,8 @@ ${htmlEncode(json.content)}</pre></div></div>
     
     // think if duplicate listeners can be introduced and how to avoid that
     if (horiz) {
-        const divider = document.getElementById("divider-horiz");
-          const topPane = document.getElementById("top");
+        const divider = document.getElementById("divider"+tabId);
+          const topPane = document.getElementById("top"+tabId);
         
           var lines
         
@@ -328,8 +328,8 @@ ${htmlEncode(json.content)}</pre></div></div>
             }
           });
     } else {
-        const splitter = document.getElementById("divider");
-        const leftPane = document.getElementById("top");
+        const splitter = document.getElementById("divider"+tabId);
+        const leftPane = document.getElementById("top"+tabId);
         splitter.addEventListener("mousedown", () => {
             dragging = true;
             document.body.style.cursor = "col-resize";

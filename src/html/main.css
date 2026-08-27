@@ -450,12 +450,12 @@ dt > span:hover {
 }
 
  /* The draggable divider */
-  #divider {
+  .divider {
     width: 6px;
     background: #ccc;
     cursor: col-resize;
   }
-  #divider-horiz {
+  .divider-horiz {
     height: 6px;
     background: #ccc;
     cursor: row-resize;

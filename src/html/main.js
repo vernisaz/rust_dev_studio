@@ -287,8 +287,9 @@ ${htmlEncode(json.content)}</pre></div></div>
         EDITORS[tabId].editor.gotoLine(currCur.row+1, currCur.column, true)
         //EDITORS[tabId]['editor'].selection.clearSelection()
     });
+    // TODO only one mouse handler is set
+    // it works with current tab accordingly its orientation set
     
-    // think if duplicate listeners can be introduced and how to avoid that
     if (horiz) {
         const divider = document.getElementById("divider-horiz"+tabId);
           const topPane = document.getElementById("top"+tabId);

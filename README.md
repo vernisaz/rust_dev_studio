@@ -109,6 +109,7 @@ The following crates are required for building the product:
 - The [Simple Thread Pool](https://github.com/vernisaz/simtpool)
 - The [Simple Config](https://github.com/vernisaz/simconfig)
 - The [Simple JSON](https://github.com/vernisaz/simjson)
+- The [Right Slash](https://github.com/vernisaz/right_slash)
 - The [Common shared modules](https://github.com/vernisaz/simincmod) (the repository should be just checked out on Windows,
 nothing is required to build there though)
 

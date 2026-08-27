@@ -4,6 +4,7 @@ extern crate simran;
 extern crate simtime;
 extern crate simtpool;
 extern crate simweb;
+extern crate rslash;
 extern crate web_cgi as web;
 
 use std::{
@@ -798,6 +799,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     None,
                 )
                 .ok_or("project path misconfiguration")?;
+            #[cfg(target_os = "windows")]
+            let dir = rslash::adjust_separator(dir);
             let dir_len = dir.len();
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
@@ -836,7 +839,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                         RefType::Path if !entry.name.starts_with(&dir) => {
                             inc_files.push(entry.name.clone());
-                            eprintln!("scan extra {}", entry.name)
+                            eprintln!("scan extra {} in {dir}", entry.name)
                         }
                         _ => continue,
                     }

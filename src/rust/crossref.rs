@@ -313,7 +313,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 }
                 match state {
                     InName => {
-                        let fn_def = Reference {
+                        res.push(Reference {
                             name: name.to_owned(),
                             src: reader.path.to_owned(),
                             line: reader.line,
@@ -324,8 +324,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             } else {
                                 Some(scope.clone())
                             },
-                        };
-                        res.push(fn_def);
+                        });
                         state = InParams
                     }
                     InCallName | InKW => {
@@ -333,15 +332,14 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         if name == "include!" {
                             is_include = true;
                         } else {
-                            let fn_cal = Reference {
+                            res.push(Reference {
                                 name: name.to_owned(),
                                 src: reader.path.to_owned(),
                                 line: reader.line,
                                 column: reader.line_offset,
                                 type_of_use: RefType::Access,
                                 scope: None, // it needs to be quilified
-                            };
-                            res.push(fn_cal);
+                            });
                         }
                         state = InCallParams
                     }
@@ -478,27 +476,25 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 }
                 match state {
                     InStruct => {
-                        let struct_def = Reference {
+                        res.push(Reference {
                             name: name.to_owned(),
                             src: reader.path.to_owned(),
                             line: reader.line,
                             column: reader.line_offset,
                             type_of_use: RefType::Data,
                             scope: None,
-                        };
-                        res.push(struct_def);
+                        });
                         state = InDataDef;
                     }
                     InEnum => {
-                        let enum_def = Reference {
+                        res.push(Reference {
                             name: name.to_owned(),
                             src: reader.path.to_owned(),
                             line: reader.line,
                             column: reader.line_offset,
                             type_of_use: RefType::Data,
                             scope: None,
-                        };
-                        res.push(enum_def);
+                        });
                         state = InDataDef;
                     }
                     InForName => {

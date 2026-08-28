@@ -4,7 +4,6 @@ extern crate simran;
 extern crate simtime;
 extern crate simtpool;
 extern crate simweb;
-#[cfg(target_os = "windows")]
 extern crate rslash;
 extern crate web_cgi as web;
 
@@ -112,7 +111,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("Can't get canonical Windows path")?;
                 let in_proj_len = in_project_path.len();
                 in_project_path =
-                    crate::param::to_web_separator(path[path.len() - in_proj_len..].to_string());
+                    crate::rslash::adjust_separator(path[path.len() - in_proj_len..].to_string());
                 let path_buf = PathBuf::from(path);
                 file = path_buf
                     .file_name()
@@ -894,9 +893,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 let rel_loc = if entry.src.starts_with(&dir) { entry.src[dir_len + 1..].to_owned() } else {entry.src};
                 #[cfg(target_os = "windows")]
                 let rel_loc = if entry.src.starts_with(&dir) {
-                    param::to_web_separator(entry.src[dir_len + 1..].to_owned())
+                    rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
                 } else {
-                    param::to_web_separator(entry.src)
+                    rslash::adjust_separator(entry.src)
                 };
                 fn_ref.push_str(&json_encode(&rel_loc));
                 fn_ref.push('"');
@@ -963,7 +962,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                #[cfg(any(unix, target_os = "redox"))]
                                let path = file [dir_len+1..].to_owned();
                                #[cfg(target_os = "windows")]
-                               let path = param::to_web_separator(file [dir_len+1..].to_owned());
+                               let path = rslash::adjust_separator(file [dir_len+1..].to_owned());
                                json_res.push_str(&format!{r#"{{"path":"{}","line":{line},"col":{col},"name":"{}"}}"#,
                                   json_encode(&path), json_encode(&name)})
                         }
@@ -2019,9 +2018,9 @@ fn refs_to_json(refs: &[Reference], home_dir: &str) -> String {
     let ser_ref = |current: &Reference| {
         #[cfg(target_os = "windows")]
         let ref_path = if current.src.starts_with(home_dir) {
-            param::to_web_separator(current.src[home_dir.len() + 1..].to_owned())
+            rslash::adjust_separator(current.src[home_dir.len() + 1..].to_owned())
         } else {
-            param::to_web_separator(current.src.clone())
+            rslash::adjust_separator(current.src.clone())
         };
         format! {r#"{{"name":"{}","path":"{}","line":{},"pos":{}}}"#,
         json_encode(&current.name), json_encode(&ref_path), current.line, current.column}

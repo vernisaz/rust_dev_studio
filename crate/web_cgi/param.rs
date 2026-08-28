@@ -95,16 +95,3 @@ pub fn url_comp_decode(comp: &str) -> Option<String> {
     }
     String::from_utf8(res).ok()
 }
-
-pub fn to_web_separator(mut path: String) -> String {
-    unsafe {
-        let path_vec: &mut [u8] = path.as_bytes_mut();
-
-        for c in path_vec {
-            if *c == b'\\' {
-                *c = b'/';
-            }
-        }
-    }
-    path
-}

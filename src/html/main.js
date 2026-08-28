@@ -536,23 +536,62 @@ function loadFileStack(stack) {
         lockLoad = false
         return
     }
-    const colSep = path.lastIndexOf(':')
+    let colSep = path.lastIndexOf(':')
     var line = 1
     var col = 1
+    var line2
+    var col2
+    let horiz
+    // an entry has format - path[:line:col[(v|h)line2:col2]]
     if (colSep > 0) {
-        // a potential problem if a path looks like dir1/dir2/somechars:somenum1:somenum2 and position info just omitted
+        // a potential problem if a path looks like dir1/dir2/somechars:somenum1:somenum2 and a position info just omitted
         col = Number(path.substring(colSep+1))
         path = path.substring(0, colSep)
-        const lineSep = path.lastIndexOf(':')
+        let lineSep = path.length - 1;
+
+        while (lineSep >= 0 && /\d/.test(path[lineSep])) {
+            lineSep--;
+        }
         if (lineSep > 0) {
             line = Number(path.substring(lineSep+1))
-            path = path.substring(0, lineSep)
+            horiz = true
+            switch (path[lineSep]) {
+                case ':': 
+                    path = path.substring(0, lineSep)
+                    break;
+                case 'v':
+                    horiz = false
+                case 'h':
+                    path = path.substring(0, lineSep)
+                    colSep = path.lastIndexOf(':')
+                    if (colSep > 0) {
+                        col2 = Number(path.substring(colSep+1))
+                        path = path.substring(0, colSep)
+                        lineSep = path.lastIndexOf(':')
+                        if (lineSep > 0) {
+                            line2 = Number(path.substring(lineSep+1))
+                            path = path.substring(0, lineSep)
+                        }
+                    }
+                    break;
+                default: // broken pos info
+                  loadFileStack(stack)
+                  return
+            }
+        } else { // broken entry, skip
+            loadFileStack(stack)
+            return
         }
     }
     const name = path.split('/').pop()
     ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
-         "&session="+encodeURIComponent(SESSION), success: function (json) { render_editor_js(json)
-             EDITORS[path].editor.gotoLine(line, col, true)
+         "&session="+encodeURIComponent(SESSION), success: function (json) { if (line2 && typeof horiz !== "undefined") render_editor_js_split(json, horiz); else render_editor_js(json)
+             if (line2 && col2 && EDITORS[path].editor2) {
+                 EDITORS[path].editor.gotoLine(line2+1, col2, true)
+                 EDITORS[path].editor2.gotoLine(line+1, col, true)
+             } else {
+                 EDITORS[path].editor.gotoLine(line+1, col, true)
+             }
              loadFileStack(stack)
          },
          fail: function(ecode, etext) { lockLoad = false }})
@@ -728,6 +767,15 @@ function storeTabs() {
     for(var key in EDITORS){
         const currCur = EDITORS[key].editor.getCursorPosition()
         tabPaths += '\t' + key + ':' + currCur.row  + ':' + currCur.column
+        if (EDITORS[key].editor2) {
+            if (document.getElementById(`divider-horiz${key}`)) {
+                tabPaths += 'h'
+            } else {
+                tabPaths += 'v'
+            }
+            const currCur2 = EDITORS[key].editor2.getCursorPosition()
+            tabPaths += currCur2.row  + ':' + currCur2.column
+        }
     }
     ajax.post({url:"./rustcgi", query: "mode=persist-tab&session="+encodeURIComponent(SESSION) +
         '&tabs='+encodeURIComponent(tabPaths) , success: function (data) { 

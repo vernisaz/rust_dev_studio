@@ -252,6 +252,7 @@ You can also check out the current development code, however it can be not stabl
 1. files can stop to be opened from the left navigation panel (work around - select
 _Refresh Proj_ from _Edit_ menu or reload the RDS browser window)
 2. A file tab can appear empty after the auto restore tabs in Safari. Just select _Edit/Reload_ to get its content.
+3. If a file name contains 'tab' symbol, then the file tab can't be preserved.
 
 ## Reading about
 

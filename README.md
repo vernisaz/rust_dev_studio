@@ -158,7 +158,11 @@ is controlled also by `term.color` of Cargo settings. For example:
 color=always
 ```
 
-Note that RDS is a web UI, it means that most operations will end at accessing a remote host.
+**RDS** gives a tremendous advantage when used in a multibox environment, because it is easy to install
+on each box and then access from a browser running on your local machine or device. Since the server
+part is Rust‑based, it is very snappy even when running on slow hardware such as a Raspberry Pi 3.
+
+**Note** that RDS is a web UI, it means that most operations will end at accessing a remote host.
 It can take time and be costly, therefore RDS minimizes an ammount of such operations. As result,
 a visible state of the project and the actual state can go out of the sync. Therefore,
 do not hesitate to use _Edit/Reload_ when you have doubts. Since calling _Reload_ will discard all

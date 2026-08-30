@@ -1,10 +1,10 @@
+extern crate rslash;
 extern crate simcfg;
 extern crate simjson;
 extern crate simran;
 extern crate simtime;
 extern crate simtpool;
 extern crate simweb;
-extern crate rslash;
 extern crate web_cgi as web;
 
 use std::{
@@ -807,7 +807,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             #[cfg(feature = "quiet")]
             let mut total_fun = 0;
             let mut json_res = String::from("[");
-            let mut inc_files = vec![];
+            let mut ext_files = vec![];
             for file in rs_files {
                 #[cfg(dbg_ref)]
                 if !&file.ends_with("test.rs") {
@@ -839,7 +839,8 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                         // TODO use eq_str_ascii_ignorecase(&dir, &entry.name[..dir.len()]
                         RefType::Path if !entry.name.starts_with(&dir) => {
-                            inc_files.push(entry.name.clone());
+                            //inc_files.push(entry.name.clone());
+                            add_entry(&mut ext_files, &entry.name);
                             eprintln!("scan extra {} in {dir}", entry.name)
                         }
                         _ => continue,
@@ -847,7 +848,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             // it should be recursive
-            for file in inc_files {
+            for index in 0.. {
+                let Some(file) = ext_files.get(index) else {
+                    break;
+                };
                 let Ok(xrefs) = crossref::scan_file(&file) else {
                     eprintln!("couldn't process {file}");
                     continue;
@@ -868,9 +872,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             // eprintln!{"added func  {}",&entry.name}
                             total_refs.push(entry.clone())
                         }
-                        RefType::Path => {
-                            //inc_files.push(entry.path.clone());
-                            eprintln!("scan extra {}", entry.name)
+                        RefType::Path if !entry.name.starts_with(&dir) => {
+                            add_entry(&mut ext_files, &entry.name);
+                            eprintln!("more scan {}", entry.name)
                         }
                         _ => continue,
                     }
@@ -878,9 +882,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             }
             // fill json now
             for entry in total_refs {
-                if
-                /* !entry.src.starts_with(&dir) ||*/
-                entry.name.is_empty() {
+                if entry.name.is_empty() {
                     continue;
                 }
                 if json_res.len() > 1 {
@@ -890,7 +892,11 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 fn_ref.push_str(&json_encode(&entry.name));
                 fn_ref.push_str("\",\"path\":\"");
                 #[cfg(any(unix, target_os = "redox"))]
-                let rel_loc = if entry.src.starts_with(&dir) { entry.src[dir_len + 1..].to_owned() } else {entry.src};
+                let rel_loc = if entry.src.starts_with(&dir) {
+                    entry.src[dir_len + 1..].to_owned()
+                } else {
+                    entry.src
+                };
                 #[cfg(target_os = "windows")]
                 let rel_loc = if entry.src.starts_with(&dir) {
                     rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
@@ -902,6 +908,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(scope) = &entry.scope {
                     let data_name = match &scope.name_for {
                         None => "".to_string(),
+
                         Some(name) => name.to_string(),
                     };
                     fn_ref.push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})
@@ -2047,4 +2054,15 @@ fn ends_with_ignore_ascii_case(s: &str, suffix: &str) -> bool {
 
     // Compare both in lowercase ASCII
     end_slice.eq_ignore_ascii_case(suffix)
+}
+
+fn add_entry(data: &mut Vec<String>, en: &str) {
+    for index in 0.. {
+        let Some(item) = data.get(index) else { break };
+        if item == en {
+            return;
+        }
+    }
+
+    data.push(en.to_owned())
 }

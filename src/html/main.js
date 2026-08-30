@@ -587,7 +587,7 @@ function loadFileStack(stack) {
     const name = path.split('/').pop()
     ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+encodeURIComponent(path)+
          "&session="+encodeURIComponent(SESSION), success: function (json) { if (line2 && typeof horiz !== "undefined") render_editor_js_split(json, horiz); else render_editor_js(json)
-             if (line2 && col2 && EDITORS[path].editor2) {
+             if (line2 && EDITORS[path].editor2) {
                  EDITORS[path].editor.gotoLine(line2+1, col2, true)
                  EDITORS[path].editor2.gotoLine(line+1, col, true)
              } else {

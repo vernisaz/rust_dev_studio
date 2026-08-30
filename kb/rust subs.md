@@ -47,7 +47,7 @@ read_dir metadata read_to_string
 ## hint
 
 ## io
-file
+file errorkind
 ## iter
 iterator next rev
 ## marker

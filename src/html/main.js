@@ -156,11 +156,11 @@ function draggingAct(e) {
             topPane.style.height = (newHeight-topOffset) + "px";
             // adjust editor maxlines for both
             
-            const topLines = (newHeight-topOffset-6) / EDITORS[tabId]['editor'].renderer.lineHeight
+            const topLines = (newHeight-topOffset) / EDITORS[tabId]['editor'].renderer.lineHeight
             //console.log("top:"+topLines+ " of "+lines)
             if (lines > topLines) {
                 EDITORS[tabId]['editor'].setOption('maxLines', topLines)
-                EDITORS[tabId]['editor2'].setOption('maxLines', lines - topLines)
+                EDITORS[tabId]['editor2'].setOption('maxLines', lines -2 - topLines)
             }
         } else {
             const splitter = document.getElementById("divider"+tabId);
@@ -270,12 +270,13 @@ function render_editor(edittab, path) { // path is already normalized to OS styl
     editor.resize()
     const editorArea = document.querySelector('div.center-pane');
     const viewportHeight = editorArea.getBoundingClientRect().height
-    var lines = viewportHeight / editor.renderer.lineHeight
+    let lines = viewportHeight / editor.renderer.lineHeight
     if (lines > 4) {
         lines = lines - 2
     } else if (lines == 0) {
         lines = 3
     }
+    //console.log("lines calc:"+lines)
     editor.setOption('maxLines', lines) // was Infinity)
     const data = editor.getValue()
     const dataSize = data.length

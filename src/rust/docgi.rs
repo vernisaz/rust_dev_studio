@@ -832,7 +832,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .entry(entry.name.clone())
                                 .or_insert(vec![])
                                 .push(entry.clone());
-                            continue;
                         }
                         RefType::Function | RefType::Data | RefType::Impl => {
                             total_refs.push(entry.clone())
@@ -843,15 +842,15 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             add_entry(&mut ext_files, &entry.name);
                             eprintln!("scan extra {} in {dir}", entry.name)
                         }
-                        _ => continue,
+                        _ => (),
                     }
                 }
             }
-            // it should be recursive
             for index in 0.. {
                 let Some(file) = ext_files.get(index) else {
                     break;
                 };
+                // it isn't require the include file has ext - .rs
                 let Ok(xrefs) = crossref::scan_file(&file) else {
                     eprintln!("couldn't process {file}");
                     continue;
@@ -866,7 +865,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                 .entry(entry.name.clone())
                                 .or_insert(vec![])
                                 .push(entry.clone());
-                            continue;
                         }
                         RefType::Function | RefType::Data | RefType::Impl => {
                             // eprintln!{"added func  {}",&entry.name}
@@ -876,7 +874,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                             add_entry(&mut ext_files, &entry.name);
                             eprintln!("more scan {}", entry.name)
                         }
-                        _ => continue,
+                        _ => (),
                     }
                 }
             }
@@ -908,7 +906,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(scope) = &entry.scope {
                     let data_name = match &scope.name_for {
                         None => "".to_string(),
-
                         Some(name) => name.to_string(),
                     };
                     fn_ref.push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})

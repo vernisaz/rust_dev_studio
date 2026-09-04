@@ -8,7 +8,7 @@ extern crate simweb;
 extern crate web_cgi as web;
 
 #[cfg(feature = "quiet")]
-use std::atomic::{AtomicU16, Ordering};
+use std::sync::atomic::{AtomicU16, Ordering};
 use std::{
     collections::HashMap,
     env,
@@ -919,10 +919,10 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     fn_ref.push_str(&json_encode(&entry.name));
                     fn_ref.push_str("\",\"path\":\"");
                     #[cfg(any(unix, target_os = "redox"))]
-                    let rel_loc = if entry.src.starts_with(&dir) {
+                    let rel_loc = if entry.src.starts_with(&*dir) {
                         entry.src[dir_len + 1..].to_owned()
                     } else {
-                        entry.src
+                        entry.src.to_owned()
                     };
                     #[cfg(target_os = "windows")]
                     let rel_loc = if entry.src.starts_with(&*dir) {

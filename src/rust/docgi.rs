@@ -7,6 +7,8 @@ extern crate simtpool;
 extern crate simweb;
 extern crate web_cgi as web;
 
+#[cfg(feature = "quiet")]
+use std::atomic::{AtomicU16, Ordering};
 use std::{
     collections::HashMap,
     env,
@@ -21,7 +23,6 @@ use std::{
     thread,
     time::UNIX_EPOCH,
 };
-
 mod config;
 mod crossref;
 mod search;
@@ -788,9 +789,9 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some("crossref-list") => {
             // get list of all .rs files of the project
-            let mut use_pnts = HashMap::new();
-            let mut total_refs = vec![];
-
+            let use_pnts_a = Arc::new(Mutex::new(HashMap::new()));
+            let total_refs_a = Arc::new(Mutex::new(Vec::<Reference>::new()));
+            let tp = ThreadPool::new(3);
             let dir = config
                 .to_real_path(
                     config
@@ -805,128 +806,161 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let rs_files = web::list_files(&dir, &".rs");
             //eprintln! {".rs: {rs_files:?}"}
             #[cfg(feature = "quiet")]
-            let mut total_fun = 0;
+            let total_fun = Arc::new(AtomicU16::new(0));
             let mut json_res = String::from("[");
-            let mut ext_files = vec![];
+            let ext_files_a = Arc::new(Mutex::new(vec![]));
+            let dir_a = Arc::new(Mutex::new(dir.clone()));
             for file in rs_files {
                 #[cfg(dbg_ref)]
                 if !&file.ends_with("test.rs") {
                     // put actuall testing file name
                     continue;
                 }
-                // TODO use thread pool
-                let Ok(xrefs) = crossref::scan_file(&file) else {
-                    continue;
-                };
+                let dir_cl = Arc::clone(&dir_a);
+                let ext_files_cl = Arc::clone(&ext_files_a);
+                let use_pnts_cl = Arc::clone(&use_pnts_a);
+                let total_refs = Arc::clone(&total_refs_a);
                 #[cfg(feature = "quiet")]
-                {
-                    total_fun += &xrefs.len()
-                }
-                //eprintln! {"XRef of {file}: {xrefs:?}"}
-                for entry in &xrefs {
-                    match entry.type_of_use {
-                        // pass entire codebase to build use points and then second pass to fill json data
-                        RefType::Access => {
-                            // eprintln!{"added access to {}",&entry.name}
-                            use_pnts
-                                .entry(entry.name.clone())
-                                .or_insert(vec![])
-                                .push(entry.clone());
-                        }
-                        RefType::Function | RefType::Data | RefType::Impl => {
-                            total_refs.push(entry.clone())
-                        }
-                        // TODO use eq_str_ascii_ignorecase(&dir, &entry.name[..dir.len()]
-                        RefType::Path if !entry.name.starts_with(&dir) => {
-                            //inc_files.push(entry.name.clone());
-                            add_entry(&mut ext_files, &entry.name);
-                            eprintln!("scan extra {} in {dir}", entry.name)
-                        }
-                        _ => (),
-                    }
-                }
-            }
-            for index in 0.. {
-                let Some(file) = ext_files.get(index) else {
-                    break;
-                };
-                // it isn't require the include file has ext - .rs
-                let Ok(xrefs) = crossref::scan_file(&file) else {
-                    eprintln!("couldn't process {file}");
-                    continue;
-                };
-                //eprintln! {"XRef of {file}: {xrefs:?}"}
-                for entry in &xrefs {
-                    match entry.type_of_use {
-                        // pass entire codebase to build use points and then second pass to fill json data
-                        RefType::Access => {
-                            // eprintln!{"added access to {}",&entry.name}
-                            use_pnts
-                                .entry(entry.name.clone())
-                                .or_insert(vec![])
-                                .push(entry.clone());
-                        }
-                        RefType::Function | RefType::Data | RefType::Impl => {
-                            // eprintln!{"added func  {}",&entry.name}
-                            total_refs.push(entry.clone())
-                        }
-                        RefType::Path if !entry.name.starts_with(&dir) => {
-                            add_entry(&mut ext_files, &entry.name);
-                            eprintln!("more scan {}", entry.name)
-                        }
-                        _ => (),
-                    }
-                }
-            }
-            // fill json now
-            for entry in total_refs {
-                if entry.name.is_empty() {
-                    continue;
-                }
-                if json_res.len() > 1 {
-                    json_res.push(',')
-                }
-                let mut fn_ref = String::from("{\"name\":\"");
-                fn_ref.push_str(&json_encode(&entry.name));
-                fn_ref.push_str("\",\"path\":\"");
-                #[cfg(any(unix, target_os = "redox"))]
-                let rel_loc = if entry.src.starts_with(&dir) {
-                    entry.src[dir_len + 1..].to_owned()
-                } else {
-                    entry.src
-                };
-                #[cfg(target_os = "windows")]
-                let rel_loc = if entry.src.starts_with(&dir) {
-                    rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
-                } else {
-                    rslash::adjust_separator(entry.src)
-                };
-                fn_ref.push_str(&json_encode(&rel_loc));
-                fn_ref.push('"');
-                if let Some(scope) = &entry.scope {
-                    let data_name = match &scope.name_for {
-                        None => "".to_string(),
-                        Some(name) => name.to_string(),
+                let total_fun_clone = Arc::clone(&total_fun);
+                tp.execute(move || {
+                    let Ok(xrefs) = crossref::scan_file(&file) else {
+                        return;
                     };
-                    fn_ref.push_str(&format! {r#","trait":"{}","data":"{data_name}""#, scope.name})
+                    #[cfg(feature = "quiet")]
+                    {
+                        total_fun_clone.fetch_add(xrefs.len() as u16, Ordering::SeqCst);
+                    }
+                    //eprintln! {"XRef of {file}: {xrefs:?}"}
+                    let dir = dir_cl.lock().unwrap();
+                    for entry in &xrefs {
+                        match entry.type_of_use {
+                            // pass entire codebase to build use points and then second pass to fill json data
+                            RefType::Access => {
+                                // eprintln!{"added access to {}",&entry.name}
+
+                                if let Ok(mut use_pnts) = use_pnts_cl.lock() {
+                                    use_pnts
+                                        .entry(entry.name.clone())
+                                        .or_insert(vec![])
+                                        .push(entry.clone());
+                                }
+                            }
+                            RefType::Function | RefType::Data | RefType::Impl => {
+                                if let Ok(mut total_refs) = total_refs.lock() {
+                                    total_refs.push(entry.clone())
+                                }
+                            }
+                            // TODO use eq_str_ascii_ignorecase(&dir, &entry.name[..dir.len()]
+                            RefType::Path if !entry.name.starts_with(&*dir) => {
+                                //inc_files.push(entry.name.clone());
+                                if let Ok(mut ext_files) = ext_files_cl.lock() {
+                                    add_entry(&mut ext_files, &entry.name);
+                                    eprintln!("scan extra {} in {dir}", entry.name)
+                                }
+                            }
+                            _ => (),
+                        }
+                    }
+                });
+            }
+            drop(tp);
+            let ext_files_cl = Arc::clone(&ext_files_a);
+            let use_pnts_cl = Arc::clone(&use_pnts_a);
+            let total_refs_cl = Arc::clone(&total_refs_a);
+            let dir_cl = Arc::clone(&dir_a);
+
+            if let Ok(mut ext_files) = ext_files_cl.lock()
+                && let Ok(mut use_pnts) = use_pnts_cl.lock()
+                && let Ok(mut total_refs) = total_refs_cl.lock()
+            {
+                let dir = dir_cl.lock().unwrap();
+                for index in 0.. {
+                    let Some(file) = ext_files.get(index) else {
+                        break;
+                    };
+                    // it isn't require the include file has ext - .rs
+                    let Ok(xrefs) = crossref::scan_file(&file) else {
+                        eprintln!("couldn't process {file}");
+                        continue;
+                    };
+                    //eprintln! {"XRef of {file}: {xrefs:?}"}
+                    for entry in &xrefs {
+                        match entry.type_of_use {
+                            // pass entire codebase to build use points and then second pass to fill json data
+                            RefType::Access => {
+                                // eprintln!{"added access to {}",&entry.name}
+                                use_pnts
+                                    .entry(entry.name.clone())
+                                    .or_insert(vec![])
+                                    .push(entry.clone());
+                            }
+                            RefType::Function | RefType::Data | RefType::Impl => {
+                                // eprintln!{"added func  {}",&entry.name}
+                                total_refs.push(entry.clone())
+                            }
+                            RefType::Path if !entry.name.starts_with(&*dir) => {
+                                add_entry(&mut ext_files, &entry.name);
+                                eprintln!("more scan {}", entry.name)
+                            }
+                            _ => (),
+                        }
+                    }
                 }
-                let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
-                    None => String::new(),
-                    Some(vec_val) => refs_to_json(vec_val, &dir),
-                };
-                fn_ref.push_str(
-                    &format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
-                    entry.line, entry.column,refs_to,match entry.type_of_use {
-                                   RefType::Function  => "fn",
-                                   RefType::Data => "dat",
-                                   _ => "ref"
-                                }},
-                ); // probably format an entire entry
-                json_res.push_str(&fn_ref)
+                //let mut total_refs = total_refs_a.lock().unwrap();
+                // fill json now
+                for entry in &*total_refs {
+                    if entry.name.is_empty() {
+                        continue;
+                    }
+                    if json_res.len() > 1 {
+                        json_res.push(',')
+                    }
+                    let mut fn_ref = String::from("{\"name\":\"");
+                    fn_ref.push_str(&json_encode(&entry.name));
+                    fn_ref.push_str("\",\"path\":\"");
+                    #[cfg(any(unix, target_os = "redox"))]
+                    let rel_loc = if entry.src.starts_with(&dir) {
+                        entry.src[dir_len + 1..].to_owned()
+                    } else {
+                        entry.src
+                    };
+                    #[cfg(target_os = "windows")]
+                    let rel_loc = if entry.src.starts_with(&*dir) {
+                        rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
+                    } else {
+                        rslash::adjust_separator(entry.src.clone())
+                    };
+                    fn_ref.push_str(&json_encode(&rel_loc));
+                    fn_ref.push('"');
+                    if let Some(scope) = &entry.scope {
+                        let data_name = match &scope.name_for {
+                            None => "".to_string(),
+                            Some(name) => name.to_string(),
+                        };
+                        fn_ref.push_str(
+                            &format! {r#","trait":"{}","data":"{data_name}""#, scope.name},
+                        )
+                    }
+                    let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
+                        None => String::new(),
+                        Some(vec_val) => refs_to_json(vec_val, &dir),
+                    };
+                    fn_ref.push_str(
+                        &format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
+                        entry.line, entry.column,refs_to,match entry.type_of_use {
+                                       RefType::Function  => "fn",
+                                       RefType::Data => "dat",
+                                       _ => "ref"
+                                    }},
+                    ); // probably format an entire entry
+                    json_res.push_str(&fn_ref)
+                }
             }
 
             json_res.push(']');
-            eprintln! {"Xrefs JSON: {json_res} entries {total_fun}"}
+            #[cfg(feature = "quiet")]
+            let val = total_fun.load(Ordering::SeqCst);
+            eprintln! {"Xrefs JSON: {json_res} entries {val}"}
             Box::new(JsonStuff {
                 json: json_res,
                 name: "references".to_string(),

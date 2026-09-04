@@ -836,8 +836,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         match entry.type_of_use {
                             // pass entire codebase to build use points and then second pass to fill json data
                             RefType::Access => {
-                                // eprintln!{"added access to {}",&entry.name}
-
                                 if let Ok(mut use_pnts) = use_pnts_cl.lock() {
                                     use_pnts
                                         .entry(entry.name.clone())
@@ -850,9 +848,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                     total_refs.push(entry.clone())
                                 }
                             }
-                            // TODO use eq_str_ascii_ignorecase(&dir, &entry.name[..dir.len()]
                             RefType::Path if !entry.name.starts_with(&*dir) => {
-                                //inc_files.push(entry.name.clone());
                                 if let Ok(mut ext_files) = ext_files_cl.lock() {
                                     add_entry(&mut ext_files, &entry.name);
                                     eprintln!("scan extra {} in {dir}", entry.name)
@@ -906,7 +902,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
                 }
-                //let mut total_refs = total_refs_a.lock().unwrap();
                 // fill json now
                 for entry in &*total_refs {
                     if entry.name.is_empty() {
@@ -934,7 +929,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     fn_ref.push('"');
                     if let Some(scope) = &entry.scope {
                         let data_name = match &scope.name_for {
-                            None => "".to_string(),
+                            None => String::new(),
                             Some(name) => name.to_string(),
                         };
                         fn_ref.push_str(

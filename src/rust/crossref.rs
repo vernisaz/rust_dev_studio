@@ -12,7 +12,7 @@ use crate::crossref::LexState::{
     ExpImplName, ExpInCallName, ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName,
     InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl,
     InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams,
-    InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,
+    InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,InExpEsc
 };
 
 const BUF_SIZE: usize = 1024;
@@ -177,6 +177,7 @@ enum LexState {
     InStarComment,
     ExpEndComment,
     InComment,
+    InExpEsc,
 
     InGenTypeOrComp,
     //VarOrFn,
@@ -239,6 +240,10 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         }
                         name.clear();
                         state = InCallParams
+                    }
+                    InExpEsc => {
+                        state = InStrParam;
+                        name.push(c)
                     }
                     _ => (),
                 }
@@ -542,7 +547,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InParams | InStrParam => { // the former is vague decision, since ')' can be a part of string
+                    InParams  => { // the former is vague decision, since ')' can be a part of string
                         state = ExpFnBody;
                     }
                     InCallParams => {
@@ -675,6 +680,17 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 InStarComment => state = ExpEndComment,
                 _ => (),
             },
+            '\\' => {
+                if state == ExpComment {
+                    state = prev_state.pop().unwrap().0;
+                }
+                match state {
+                    InExpEsc => state = InStrParam, //prev_state.pop().unwrap(),
+                    InStrParam => state = InExpEsc,
+                    
+                    _ => ()
+                }
+            }
             _ => match state {
                 Direct | DirectVal | InStrParam => name.push(c),
                 _ => (),

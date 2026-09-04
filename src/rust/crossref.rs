@@ -542,7 +542,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InParams => {
+                    InParams | InStrParam => { // the former is vague decision, since ')' can be a part of string
                         state = ExpFnBody;
                     }
                     InCallParams => {
@@ -686,15 +686,15 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
 }
 
 fn val_to_path(reader: &mut Reader, val: &str) -> String {
-    let path = if !PathBuf::from(&val).is_absolute() {
+    let path = if !PathBuf::from(val).is_absolute() {
         let path_abs = absolute(PathBuf::from(&reader.path)).unwrap();
         path_abs.parent().unwrap().to_string_lossy().to_string() + MAIN_SEPARATOR_STR + val
     } else {
         val.to_owned()
     };
     #[cfg(any(unix, target_os = "redox"))]
-    if let Ok(can_path) = std::fs::canonicalize(&path) {
-        can_path.to_string_lossy().to_string()
+    if let Ok(path) = std::fs::canonicalize(&path) {
+        path.to_string_lossy().to_string()
     } else {
         path
     }

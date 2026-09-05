@@ -51,8 +51,8 @@ zip [${~cwd~}]?",${~cwd~})
     "What's New in ${version}
 
 - Added a possibility to split editor window
-- Added an ability to see cross references to elements of files out of the project tree
-- Several terminal improvements making it acting as a real Unix shell",
+- Added an ability to see cross references to elements of files out of a project tree
+- Further terminal improvements making it more consistent with a real terminal",
 	-E ${rds}/rds${script ext},
 	script,
     -A ${rds}/cfg.7b,

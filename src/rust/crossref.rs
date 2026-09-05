@@ -10,9 +10,9 @@ use std::{
 use crate::crossref::LexState::{
     Direct, DirectExpVal, DirectVal, ExPNamSep, ExpComment, ExpDirect, ExpEndComment, ExpFnBody,
     ExpImplName, ExpInCallName, ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName,
-    InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpFor, InExpOpenImpl,
-    InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum, InParams,
-    InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,InExpEsc
+    InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpEsc, InExpFor,
+    InExpOpenImpl, InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum,
+    InParams, InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,
 };
 
 const BUF_SIZE: usize = 1024;
@@ -547,7 +547,8 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InParams  => { // the former is vague decision, since ')' can be a part of string
+                    InParams => {
+                        // the former is vague decision, since ')' can be a part of string
                         state = ExpFnBody;
                     }
                     InCallParams => {
@@ -687,8 +688,8 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 match state {
                     InExpEsc => state = InStrParam, //prev_state.pop().unwrap(),
                     InStrParam => state = InExpEsc,
-                    
-                    _ => ()
+
+                    _ => (),
                 }
             }
             _ => match state {

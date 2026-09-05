@@ -807,7 +807,6 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             //eprintln! {".rs: {rs_files:?}"}
             #[cfg(feature = "quiet")]
             let total_fun = Arc::new(AtomicU16::new(0));
-            let mut json_res = String::from("[");
             let ext_files_a = Arc::new(Mutex::new(vec![]));
             let dir_a = Arc::new(Mutex::new(dir.clone()));
             for file in rs_files {
@@ -864,7 +863,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
             let use_pnts_cl = Arc::clone(&use_pnts_a);
             let total_refs_cl = Arc::clone(&total_refs_a);
             let dir_cl = Arc::clone(&dir_a);
-
+            let mut json_res = String::from("[");
             if let Ok(mut ext_files) = ext_files_cl.lock()
                 && let Ok(mut use_pnts) = use_pnts_cl.lock()
                 && let Ok(mut total_refs) = total_refs_cl.lock()
@@ -903,59 +902,62 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
                 // fill json now
-                for entry in &*total_refs {
-                    if entry.name.is_empty() {
-                        continue;
-                    }
-                    if json_res.len() > 1 {
-                        json_res.push(',')
-                    }
-                    let mut fn_ref = String::from("{\"name\":\"");
-                    fn_ref.push_str(&json_encode(&entry.name));
-                    fn_ref.push_str("\",\"path\":\"");
-                    #[cfg(any(unix, target_os = "redox"))]
-                    let rel_loc = if entry.src.starts_with(&*dir) {
-                        entry.src[dir_len + 1..].to_owned()
-                    } else {
-                        entry.src.to_owned()
-                    };
-                    #[cfg(target_os = "windows")]
-                    let rel_loc = if entry.src.starts_with(&*dir) {
-                        rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
-                    } else {
-                        rslash::adjust_separator(entry.src.clone())
-                    };
-                    fn_ref.push_str(&json_encode(&rel_loc));
-                    fn_ref.push('"');
-                    if let Some(scope) = &entry.scope {
-                        let data_name = match &scope.name_for {
-                            None => String::new(),
-                            Some(name) => name.to_string(),
-                        };
-                        fn_ref.push_str(
+                json_res.push_str(
+                    &total_refs
+                        .iter()
+                        .filter_map(|entry| {
+                            if entry.name.is_empty() {
+                                None
+                            } else {
+                                let mut fn_ref = String::from("{\"name\":\"");
+                                fn_ref.push_str(&json_encode(&entry.name));
+                                fn_ref.push_str("\",\"path\":\"");
+                                #[cfg(any(unix, target_os = "redox"))]
+                                let rel_loc = if entry.src.starts_with(&*dir) {
+                                    entry.src[dir_len + 1..].to_owned()
+                                } else {
+                                    entry.src.to_owned()
+                                };
+                                #[cfg(target_os = "windows")]
+                                let rel_loc = if entry.src.starts_with(&*dir) {
+                                    rslash::adjust_separator(entry.src[dir_len + 1..].to_owned())
+                                } else {
+                                    rslash::adjust_separator(entry.src.clone())
+                                };
+                                fn_ref.push_str(&json_encode(&rel_loc));
+                                fn_ref.push('"');
+                                if let Some(scope) = &entry.scope {
+                                    let data_name = match &scope.name_for {
+                                        None => String::new(),
+                                        Some(name) => name.to_string(),
+                                    };
+                                    fn_ref.push_str(
                             &format! {r#","trait":"{}","data":"{data_name}""#, scope.name},
                         )
-                    }
-                    let refs_to = match use_pnts.get(&json_encode(&entry.name).to_string()) {
-                        None => String::new(),
-                        Some(vec_val) => refs_to_json(vec_val, &dir),
-                    };
-                    fn_ref.push_str(
+                                }
+                                let refs_to =
+                                    match use_pnts.get(&json_encode(&entry.name).to_string()) {
+                                        None => String::new(),
+                                        Some(vec_val) => refs_to_json(vec_val, &dir),
+                                    };
+                                fn_ref.push_str(
                         &format! {r#","line":{}, "col":{}, "use":[{}],"type":"{}","crate":""}}"#,
                         entry.line, entry.column,refs_to,match entry.type_of_use {
                                        RefType::Function  => "fn",
                                        RefType::Data => "dat",
                                        _ => "ref"
                                     }},
-                    ); // probably format an entire entry
-                    json_res.push_str(&fn_ref)
-                }
+                    );
+                                Some(fn_ref)
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                        .join(","),
+                );
             }
-
             json_res.push(']');
             #[cfg(feature = "quiet")]
-            let val = total_fun.load(Ordering::SeqCst);
-            eprintln! {"Xrefs JSON: {json_res} entries {val}"}
+            eprintln! {"Xrefs JSON: {json_res} entries {}", total_fun.load(Ordering::SeqCst)}
             Box::new(JsonStuff {
                 json: json_res,
                 name: "references".to_string(),

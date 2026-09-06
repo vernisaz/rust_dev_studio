@@ -32,7 +32,7 @@ use {
     config::{SETTINGS_PREF, read_props},
     crossref::{RefType, Reference},
     simtpool::ThreadPool,
-    simweb::{json_encode, url_encode},
+    simweb::{enclose, json_encode, url_encode},
     web::{Menu, PageOps, get_file_modified, param, sanitize_path, save_props},
 };
 macro_rules! eprintln {
@@ -1988,53 +1988,45 @@ fn recurse_files(path: &Path) -> Result<JsonStr, Box<dyn Error>> {
 }
 
 fn recurse_dirs(path: &Path, parent: Option<&String>) -> io::Result<JsonStr> {
-    //eprintln! {"called with parent {:?}", parent};
-    let meta = path.metadata()?;
-    let mut buf = JsonStr::with_capacity(256);
-    if meta.is_dir() && path.file_name().unwrap().to_str() != Some(".git") {
-        let dirs: Vec<_> = read_dir(path)?
-            .filter_map(|f| match f {
-                Ok(f)
-                    if f.file_type().map(|t| t.is_dir()).unwrap_or_default()
-                        && f.file_name().to_str() != Some(".git") =>
+    Ok(dir_list(
+        path,
+        if let Some(parent) = parent {
+            parent
+        } else {
+            ""
+        },
+        ".git",
+    )
+    .join(","))
+}
+fn dir_list(dir: &Path, anchor: &str, exclude: &str) -> Vec<String> {
+    let dirs = if let Ok(dirs) = fs::read_dir(dir) {
+        dirs.flatten()
+            .filter_map(|entry| {
+                if let Ok(ftype) = entry.file_type()
+                    && ftype.is_dir()
+                    && entry.file_name() != exclude
                 {
-                    Some(f)
+                    Some(entry.file_name().display().to_string())
+                } else {
+                    None
                 }
-                _ => None,
             })
-            // .sort_by_key(|dir| dir.path())
-            .collect();
-        let mut dirs_pick = dirs.iter().peekable();
-        while let Some(entry) = dirs_pick.next() {
-            buf.push('"');
-            if let Some(parent) = parent {
-                buf.push_str(parent);
-                buf.push('/')
-            }
-            let file_name = entry
-                .file_name()
-                .into_string()
-                .unwrap_or_default()
-                .to_string();
-            buf.push_str(&json_encode(&file_name));
-            buf.push('"');
-            let mut parent_str = String::new();
-            if let Some(parent) = parent {
-                parent_str.push_str(parent);
-                parent_str.push('/')
-            }
-            parent_str.push_str(&file_name);
-            let child_dirs = recurse_dirs(entry.path().as_path(), Some(&parent_str))?;
-            if !child_dirs.is_empty() {
-                buf.push(',');
-                buf.push_str(&child_dirs)
-            }
-            if dirs_pick.peek().is_some() {
-                buf.push(',')
-            }
-        }
+            .collect::<Vec<_>>()
+    } else {
+        vec![]
+    };
+    let mut res = vec![];
+    for name in dirs {
+        let dir_name = if anchor.is_empty() {
+            name.clone()
+        } else {
+            anchor.to_owned() + "/" + &name
+        };
+        res.push(enclose(&json_encode(&dir_name), "\"", "\""));
+        res.extend(dir_list(&dir.join(&name), &dir_name, exclude));
     }
-    Ok(buf)
+    res
 }
 
 fn refs_to_json(refs: &[Reference], home_dir: &str) -> String {

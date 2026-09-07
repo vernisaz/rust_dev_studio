@@ -112,7 +112,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("Can't get canonical Windows path")?;
                 let in_proj_len = in_project_path.len();
                 in_project_path =
-                    crate::rslash::adjust_separator(path[path.len() - in_proj_len..].to_string());
+                    crate::rslash::to_unix_separator(path[path.len() - in_proj_len..].to_string());
                 let path_buf = PathBuf::from(path);
                 file = path_buf
                     .file_name()

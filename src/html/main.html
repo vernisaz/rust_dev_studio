@@ -1569,7 +1569,7 @@
         const selTab = document.querySelector('input[name="tabs"]:checked')
         if (!selTab)
             return
-        const path = getEditPath(selTab)
+        const path = WIN_SERVER?getEditPath(selTab).replaceAll('\\', '/'):getEditPath(selTab)
         const editor = EDITORS[selTab.id]['editor']
         const cursorPosition = editor.selection.getCursor();
         if (!cursorPosition)

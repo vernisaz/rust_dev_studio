@@ -8,7 +8,6 @@
       <meta charset="UTF-8">
       <title>${name} - RDS</title>
       <link rel="stylesheet" href="/cgires/resource/main.css">
-     
         <script src="/cgires/resource/ace/ace.js" type="text/javascript" charset="utf-8"></script>
         <script src="/cgires/resource/ace/ext-spellcheck.js" type="text/javascript" charset="utf-8"></script>
         <script src="/cgires/resource/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
@@ -23,7 +22,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.15.01.168">
+       <input type="hidden" name="version" id="version" value="1.16.00.172">
         <nav class="nav">
             <div class="logo">
                 <span id="proj_name_tit">${session}</span> - <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a>
@@ -1570,7 +1569,9 @@
         if (!selTab)
             return
         const path = getEditPath(selTab)
-        const editor = EDITORS[selTab.id]['editor']
+        const mirEditor = document.getElementById("mir-editor"+selTab.id)
+        const editorEl = mirEditor && mirEditor.contains(document.activeElement)?'editor2':'editor'
+        const editor = EDITORS[selTab.id][editorEl]
         const cursorPosition = editor.selection.getCursor();
         if (!cursorPosition)
             return

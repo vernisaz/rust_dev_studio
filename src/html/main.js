@@ -128,7 +128,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.14.00.127'
+    return '1.14.00.128'
 }
 
 let dragging = false;
@@ -156,7 +156,7 @@ function draggingAct(e) {
             topPane.style.height = (newHeight-topOffset) + "px";
             // adjust editor maxlines for both
             
-            const topLines = (newHeight-topOffset) / EDITORS[tabId]['editor'].renderer.lineHeight
+            const topLines = (newHeight-topOffset-32) / EDITORS[tabId]['editor'].renderer.lineHeight
             //console.log("top:"+topLines+ " of "+lines)
             if (lines > topLines) {
                 EDITORS[tabId]['editor'].setOption('maxLines', topLines)

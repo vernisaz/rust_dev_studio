@@ -25,6 +25,10 @@ function main() {
         e.preventDefault()
         build_debug()
       }
+      if (e.code == 'F8' && !(event.shiftKey || e.altKey || e.ctrlKey)) {
+        e.preventDefault()
+        test_app()
+      }
     })
     
     window.onbeforeunload = function(e) {

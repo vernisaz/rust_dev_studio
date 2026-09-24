@@ -1811,7 +1811,7 @@ impl PageOps for PageFile {
                 Menu::MenuItem{title:"Clippy".to_string(), link:"javascript:clippy_build()".to_string(),
                   hint:Some("Run the Clippy to get a report of possible code improvements"), icon:None,short:None},
                 Menu::MenuItem{title:"Test".to_string(), link:"javascript:test_app()".to_string(),
-                  hint:Some("Run unit tests for the project"), icon:None,short:None},
+                  hint:Some("Run a unit test for the project"), icon:None,short:Some("F8")},
            web::Menu::MenuEnd,
            Menu::Separator,
            Menu::MenuItem{title:"Package".to_string(), link:"javascript:package()".to_string(), hint:None, icon:None,short:None},

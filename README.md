@@ -7,15 +7,15 @@ It can be accessed from any device having an HTML5 capable browser. It's perfect
 The approach of a web based IDE becomes popular nowadays, for example - _Code anywhere with Android Studio Cloud_.
 
 ## Features
-- multi windows editor with syntax highlighting and over dozen themes
+- multi windows editor with split feature and syntax highlighting over dozen themes
 - a notepad with two ways copying
 - source code bookmarking
-- identifier case conversion, as camel, snake and so on
-- code analyzer with function names, usage points, and autocomplete
+- identifier case conversion, as the camel, the snake and so on
+- code analyzer with function and structure names, usage points, and autocomplete
 - search across all project files
-- full Unix terminal for all supported platforms
+- Unix shell terminal for all supported platforms
 - integration with Rust toolchain as a compiler, Rustfmt, Clippy, Rustdoc, and Cargo
-- seamless access of error lines in the editor from the terminal error reporting content
+- seamless access of error lines in the editor from a terminal error reporting content
 - a possibility to use with any other programming language(s)
 - full **git** integration
 - mobile and desktop browsers support
@@ -35,8 +35,8 @@ a websocket endpoint utilizing the WS-CGI technology.
 
 ## Quick start
 If you plan to give the project a try, just go to [releases](https://github.com/vernisaz/rust_dev_studio/releases) section on GitHub and
-download *zip* file for your platform. Unzip the file in a command window and type `./rds.sh` (`.\rds` on Windows) in the unzipped directory. 
-You're ready to go after answering few questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
+download a *zip* file for your platform. Unzip the file in a command window and type `./rds.sh` (`.\rds` on Windows) in the unzipped directory. 
+You're ready to use the IDE after answering few questions. File `rds.url` contains the access URL. Just copy it in your browser address bar
 and start using the **RDS**. Check [Usage tips](#usage-tips).
 
 ## Config
@@ -248,7 +248,7 @@ var fileNameReg
 around line 398. Add a desired language file extension in the regular expression definition in the context `(rs|swift|java|7b)`.
 
 ## Version
-The current version is [1.55.00](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.55.00). 
+The current version is [1.55.03](https://github.com/vernisaz/rust_dev_studio/releases/tag/1.55.03). 
 You can also check out the current development code, however it can be not stable.
 
 ## Known problems

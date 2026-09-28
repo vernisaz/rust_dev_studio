@@ -22,7 +22,7 @@
         </script>
    </head>
    <body onload="runapp()">
-       <input type="hidden" name="version" id="version" value="1.16.00.172">
+       <input type="hidden" name="version" id="version" value="1.16.01.173">
         <nav class="nav">
             <div class="logo">
                 <span id="proj_name_tit">${session}</span> - <a href="https://github.com/vernisaz/rust_dev_studio" target="_blank">RDS</a>
@@ -711,6 +711,7 @@
                         if (updateTheme)
                             for (var key in EDITORS) {
                                 EDITORS[key].editor.setTheme("ace/theme/"+EDITOR_THEME[THEME])
+                                if (EDITORS[key].editor2) EDITORS[key].editor2.setTheme("ace/theme/"+EDITOR_THEME[THEME])
                             }
                         jump('')
                     }

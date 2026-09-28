@@ -132,7 +132,7 @@ function main() {
 }
 
 function getVersion() {
-    return '1.14.00.128'
+    return '1.14.01.129'
 }
 
 let dragging = false;
@@ -323,6 +323,7 @@ ${htmlEncode(json.content)}</pre></div></div>
       </div>`
     render_editor(tab, tabId)
     add_editor(tabId, horiz)
+    // probably store in lastActive (document.activeElement) and then use in a decision which split pane use for bookmarking
     document.getElementById("editor"+tabId).addEventListener("focusout", function(e) {
         //console.log(`Field top/left ${e.target.name} lost focus`);
         const currCur = EDITORS[tabId].editor2.getCursorPosition()

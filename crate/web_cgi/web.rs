@@ -9,7 +9,7 @@ use std::{
     fs::{self},
     io,
     path::{Component, Path},
-    time::SystemTime,
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use simtime::{DAYS_OF_WEEK, get_datetime, get_local_timezone_offset};
@@ -211,17 +211,14 @@ pub fn save_props(path: &Path, props: &HashMap<String, String>) -> io::Result<()
 
 pub fn get_file_modified<P: AsRef<Path>>(path: P) -> u64 {
     // in seconds
-    match fs::metadata(path) {
-        Ok(metadata) => {
-            if let Ok(time) = metadata.modified() {
-                time.duration_since(SystemTime::UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs()
-            } else {
-                0
-            }
-        }
-        _ => 0,
+    if let Ok(metadata) = fs::metadata(path)
+        && let Ok(time) = metadata.modified()
+    {
+        time.duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs()
+    } else {
+        0
     }
 }
 
@@ -239,7 +236,7 @@ pub fn format_system_time_secs(time_secs: u64) -> String {
 
 pub fn format_system_time(time: SystemTime) -> String {
     format_system_time_secs(
-        time.duration_since(SystemTime::UNIX_EPOCH)
+        time.duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs(),
     )
@@ -247,7 +244,7 @@ pub fn format_system_time(time: SystemTime) -> String {
 
 pub fn http_format_time(time: SystemTime) -> String {
     let dur = time
-        .duration_since(SystemTime::UNIX_EPOCH)
+        .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
     let (y, m, d, h, min, s, w) = get_datetime(1970, dur);

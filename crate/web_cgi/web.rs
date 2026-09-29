@@ -199,7 +199,7 @@ pub fn sanitize_path(path: &impl AsRef<Path>) -> Result<&Path, Box<dyn Error>> {
 }
 
 pub fn save_props(path: &Path, props: &HashMap<String, String>) -> io::Result<()> {
-    let mut data = format! {"# property file on {}\n", &format_system_time(SystemTime::now())};
+    let mut data = format! {"# property file on {}\n", format_system_time(SystemTime::now())};
     for (key, value) in props {
         data.push_str(&format! {"{}={}\n", key, value})
     }
@@ -263,7 +263,7 @@ pub fn http_format_time(time: SystemTime) -> String {
 /// *Note:* ext is just a string where will be a real file extension searched in,
 /// for example: ".rs.toml"
 pub fn list_files(path: impl AsRef<Path>, ext: &impl AsRef<str>) -> Vec<String> {
-    // TODO possibly returm Vec<Path> to reduce unneccesary conversions
+    // TODO possibly return Vec<Path> to reduce unneccesary conversions
     let mut res: Vec<String> = Vec::new();
     let str_ext = ext.as_ref();
     let path = path.as_ref();

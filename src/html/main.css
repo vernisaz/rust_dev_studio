@@ -502,6 +502,11 @@ dt > span:hover {
         color: #e9ebf2;
     }
     
+    #commandarea:focus {
+        border:1px solid #DDD;
+        outline: transparent;
+    }
+    
     .small_tabs .tab_content {
         background-color: #111417;
     }

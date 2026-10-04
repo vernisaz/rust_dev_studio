@@ -1,4 +1,4 @@
-.rds-version-1_12-05 { /* version 1.12.05 */
+.rds-version-1_14-01 { /* version 1.12.05 */
     display: block;
 }
 
@@ -503,7 +503,7 @@ dt > span:hover {
     }
     
     #commandarea:focus {
-        border:1px solid #DDD;
+        border:1px solid #AAA;
         outline: transparent;
     }
     

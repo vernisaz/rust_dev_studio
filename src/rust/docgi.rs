@@ -842,7 +842,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                         .push(entry.clone());
                                 }
                             }
-                            RefType::Function | RefType::Data | RefType::Impl => {
+                            RefType::Function | RefType::Data | RefType::Impl | RefType::Variable => {
                                 if let Ok(mut total_refs) = total_refs.lock() {
                                     total_refs.push(entry.clone())
                                 }
@@ -889,7 +889,7 @@ fn inner_main() -> Result<(), Box<dyn std::error::Error>> {
                                     .or_insert(vec![])
                                     .push(entry.clone());
                             }
-                            RefType::Function | RefType::Data | RefType::Impl => {
+                            RefType::Function | RefType::Data | RefType::Impl | RefType::Variable => {
                                 // eprintln!{"added func  {}",&entry.name}
                                 total_refs.push(entry.clone())
                             }

@@ -12,7 +12,7 @@ use crate::crossref::LexState::{
     ExpImplName, ExpInCallName, ExpInEnum, ExpInForName, ExpInName, ExpInStruct, ExpInTraitName,
     InCallName, InCallParams, InColSep, InComment, InDataDef, InEnum, InExpEsc, InExpFor,
     InExpOpenImpl, InFnBody, InForKW, InForName, InGenTypeOrComp, InImplName, InKW, InName, InNum,
-    InParams, InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope,
+    InParams, InStarComment, InStrParam, InStruct, InTraitName, Start, StartInScope, InConst, ExpInConst
 };
 
 const BUF_SIZE: usize = 1024;
@@ -161,6 +161,8 @@ enum LexState {
     ExpInForName,
     InExpOpenImpl,
     InStrParam,
+    ExpInConst,
+    InConst,
 
     ExpInTraitName,
     InTraitName,
@@ -276,7 +278,11 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                         state = InStruct;
                         name.push(c)
                     }
-                    InName | InKW | InCallName | InImplName | InTraitName | InForKW | InForName => {
+                    ExpInConst => {
+                        state = InConst;
+                        name.push(c)
+                    }
+                    InName | InKW | InCallName | InImplName | InTraitName | InForKW | InForName | InConst => {
                         name.push(c)
                     }
                     ExpImplName => {
@@ -307,7 +313,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                 match state {
                     Start | StartInScope | ExpInName | ExPNamSep | InColSep => state = InNum,
                     InName | InKW | InCallName | InStruct | InEnum | InImplName | InForKW
-                    | InForName | InTraitName | Direct | DirectVal | InStrParam => name.push(c),
+                    | InForName | InTraitName | Direct | DirectVal | InStrParam | InConst => name.push(c),
                     _ => (),
                 }
             }
@@ -387,6 +393,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                             "trait" => state = ExpInTraitName,
                             "impl" => state = ExpImplName,
                             "pub" => (), // quilifier
+                            "const" | "static" => state = ExpInConst,
                             // eventually all reserved words from https://doc.rust-lang.org/reference/keywords.html
                             _ => state = Start,
                         }
@@ -457,6 +464,17 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     InColSep => {
                         name.clear();
                         state = ExpInCallName
+                    }
+                    InConst => {
+                        res.push(Reference {
+                            name: name.to_owned(),
+                            src: reader.path.to_owned(),
+                            line: reader.line,
+                            column: reader.line_offset,
+                            type_of_use: RefType::Variable, // better Constant
+                            scope: None, // it needs to be quilified
+                        });
+                        state = Start; // can be state - sink until ;
                     }
                     _ => (),
                 }

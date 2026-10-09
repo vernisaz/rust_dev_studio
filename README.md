@@ -253,10 +253,11 @@ You can also check out the current development code, however it can be not stabl
 
 ## Known problems
 
-1. files can stop to be opened from the left navigation panel (work around - select
-_Refresh Proj_ from _Edit_ menu or reload the RDS browser window)
-2. A file tab can appear empty after the auto restore tabs in Safari. Just select _Edit/Reload_ to get its content.
-3. If a file name contains 'tab' symbol, then the file tab can't be preserved.
+1. Files can stop to be opened from the left navigation panel (work around - select
+_Refresh Proj_ from _Edit_ menu or reload the RDS browser tab/window)
+2. A file tab can appear empty after the auto restore tabs in Safari and Edge. Just select _Edit/Reload_ to get its content.
+3. If a file name contains 'tab' symbol, then the file's tab can't be preserved.
+4. Silk browser version 152.4.10.0.7977.140.10 doesn't work with RDS. There is no work around currently.
 
 ## Reading about
 
@@ -266,8 +267,4 @@ _Refresh Proj_ from _Edit_ menu or reload the RDS browser window)
 ## Help wanted
 
 If you like the IDE and want to contribute to its development, please contact me using the standard
-github communication way. Entry level people are welcome, because you will use the vibe programming.
-
-Current tasks:
-
-1. Build AI engine on different principles than ChatGPT
+github communication way. No special skills are required.

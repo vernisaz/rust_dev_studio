@@ -257,7 +257,7 @@ You can also check out the current development code, however it can be not stabl
 _Refresh Proj_ from _Edit_ menu or reload the RDS browser tab/window)
 2. A file tab can appear empty after the auto restore tabs in Safari and Edge. Just select _Edit/Reload_ to get its content.
 3. If a file name contains 'tab' symbol, then the file's tab can't be preserved.
-4. Silk browser version 152.4.10.0.7977.140.10 doesn't work with RDS. There is no work around currently.
+4. Silk browser version 152.4.10.0.7977.140.10 incorrectly interacts with the keyboard touchpad. There is no work around currently.
 
 ## Reading about
 

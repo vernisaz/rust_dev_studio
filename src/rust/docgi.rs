@@ -1791,7 +1791,7 @@ impl PageOps for PageFile {
            Menu::Separator,
               Menu::MenuItem{title:"Lookup".to_string(), link:"javascript:lookup()".to_string(), hint:Some("Lookup for the current selection in the Rust documentation"), icon:None,short:None},
            Menu::Separator,
-              Menu::MenuItem{title:"Prompt AI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
+              Menu::MenuItem{title:"Prompt SI".to_string(), link:"javascript:promptAI()".to_string(), hint:Some("Use the current selection as a prompt"), icon:None,short:None},
         web::Menu::MenuEnd,
           
         web::Menu::MenuBox{title:"Project", hint:None, icon:None},

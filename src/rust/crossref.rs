@@ -368,7 +368,7 @@ pub fn scan(reader: &mut Reader) -> Vec<Reference> {
                     state = prev_state.pop().unwrap().0
                 }
                 match state {
-                    InName | InCallName | InImplName | InStruct => {
+                    InName | InCallName | InImplName | InStruct | InEnum => {
                         prev_state.push((state, name.clone()));
                         state = InGenTypeOrComp
                     }

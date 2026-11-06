@@ -1775,6 +1775,8 @@ impl PageOps for PageFile {
            Menu::MenuItem{title:"Save Notepad".to_string(), link:"javascript:saveNotepad()".to_string(), hint:None, icon:None,short:None},
            Menu::Separator,
            web::Menu::MenuItem{title:"Reload".to_string(), link:"javascript:reloadCurrent()".to_string(), hint:Some("Drop changes and Reload the currently edited file"), icon:None,short:Some("^R")},
+           web::Menu::MenuItem{title:"Reload all".to_string(), link:"javascript:reloadAll()".to_string(), hint:Some("Drop changes and Reload the content of all tabs"), icon:None,short:None},
+           Menu::Separator,
            web::Menu::MenuItem{title:"Refresh Proj".to_string(), link:"javascript:refresh()".to_string(), hint:Some("Refresh the list of the project files"), icon:None,short:None},
         web::Menu::MenuEnd,
          web::Menu::MenuBox{title:"Source", hint:Some("The source navigation, compose and refactoring"), icon:None}, 

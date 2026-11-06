@@ -777,6 +777,38 @@
          }
       }
       
+      function reloadAll() {
+          for(var tabId in EDITORS){
+             const currCur = EDITORS[tabId].editor.getCursorPosition()
+             var currCur2
+             if (EDITORS[tabId].editor2) {
+                 currCur2 = EDITORS[tabId].editor2.getCursorPosition()
+             }
+             const name = tabId.split('/').pop()
+             ajax.get({url:"./rustcgi?mode=editor-file&name="+encodeURIComponent(name)+"&path="+
+                encodeURIComponent(tabId) + "&session="+encodeURIComponent(SESSION),
+                success: function (json) {
+                    let pathId
+                    if (WIN_SERVER) {
+                        pathId = json.path.toUpperCase()
+                    } else
+                        pathId = json.path
+                    const editor_tab = document.getElementById(pathId)  
+                    EDITORS[pathId].editor.setValue(json.content)
+                    editor_tab.dataset.modified = json.modified
+                    EDITORS[pathId].size = json.content.length
+                    EDITORS[pathId].crc = crc32(json.content)
+                    EDITORS[pathId]['editor'].setReadOnly(false)
+                    EDITORS[pathId].editor.gotoLine(currCur.row+1, currCur.column, true)
+                    if (EDITORS[pathId].editor2) {
+                        EDITORS[pathId].editor2.setReadOnly(false)
+                        EDITORS[pathId].editor2.setValue(json.content)
+                        EDITORS[pathId].editor2.gotoLine(currCur2.row+1, currCur2.column, true)
+                    }
+                }})
+          }
+      }
+      
       function populateDir(dirTo,dirEl,field_name) {
           //alert(dirTo)
           if (dirTo == '.')

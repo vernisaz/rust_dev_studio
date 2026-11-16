@@ -88,11 +88,8 @@ impl WebTerminal {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
-    let binding = if web.path_info().starts_with("/") {
-        web.path_info()[1..].to_string()
-    } else {
-        web.path_info()
-    };
+    let binding = web.path_info();
+    let binding = binding.strip_prefix("/").unwrap_or( &binding);
     let (project_name, session) = match binding.split_once('/') {
         Some((project, session)) => (
             Some(project.to_owned()),
@@ -116,8 +113,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let initial_dir = entry
                 .0
                 .strip_suffix(MAIN_SEPARATOR_STR) // reconsider value of the code since it is not reliable on Windows
-                .unwrap_or(&entry.0)
-                .to_string();
+                .unwrap_or(&entry.0);
             cwd = PathBuf::from(initial_dir);
         } else {
             send!("No {session} found\n");
@@ -190,7 +186,7 @@ fn load_persistent(config: &Config) -> HashMap<String, (String, u64)> {
 fn save_persistent(
     config: &Config,
     sessions: HashMap<String, (String, u64)>,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     // update current (before save)
     // TODO consider to write a lock wrapper for something like
     // lock(save_persistent())

@@ -89,7 +89,7 @@ impl WebTerminal {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let web = simweb::WebData::new();
     let binding = web.path_info();
-    let binding = binding.strip_prefix("/").unwrap_or( &binding);
+    let binding = binding.trim_prefix("/");
     let (project_name, session) = match binding.split_once('/') {
         Some((project, session)) => (
             Some(project.to_owned()),

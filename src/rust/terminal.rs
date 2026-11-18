@@ -93,7 +93,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (project_name, session) = match binding.split_once('/') {
         Some((project, session)) => (
             Some(project.to_owned()),
-            session.strip_prefix("webId-").unwrap_or(session),
+            session.trim_prefix("webId-"),
         ),
         _ => (None, ""),
     };

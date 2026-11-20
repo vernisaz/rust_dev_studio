@@ -160,7 +160,7 @@ function draggingAct(e) {
             topPane.style.height = (newHeight-topOffset) + "px";
             // adjust editor maxlines for both
             
-            const topLines = (newHeight-topOffset-32) / EDITORS[tabId]['editor'].renderer.lineHeight
+            const topLines = (newHeight-topOffset) / EDITORS[tabId]['editor'].renderer.lineHeight
             //console.log("top:"+topLines+ " of "+lines)
             if (lines > topLines) {
                 EDITORS[tabId]['editor'].setOption('maxLines', topLines)

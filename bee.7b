@@ -11,7 +11,7 @@ comp opts=[]
 version="1.26.05:218"
 set_env(VERSION,version)
 
-extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go.ruby.adb.ads
+extensions=.java.rs.txt.md.cpp.pas.js.html.css.7b.rb.xml.kt.py.ts.swift.properties.json.conf.php.zig.sh.cs.go.ruby.adb.ads.goose
 set_env(SEARCH_EXTS,extensions)
 
 mode=mode:prop
